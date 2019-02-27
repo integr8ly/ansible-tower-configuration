@@ -1,0 +1,66 @@
+{
+  "description": "",
+  "name": "",
+  "spec": [
+    {
+      "question_description": "",
+      "min": 0,
+      "default": "",
+      "max": 1024,
+      "required": true,
+      "choices": "",
+      "new_question": true,
+      "variable": "integreately_cluster_name",
+      "question_name": "Cluster Name",
+      "type": "text"
+    },
+    {
+      "required": true,
+      "min": 0,
+      "default": "master",
+      "max": 1024,
+      "question_description": "Enter a git reference eg branch name master or a tag etc",
+      "choices": "",
+      "new_question": true,
+      "variable": "git_ref",
+      "question_name": "Enter a git_ref",
+      "type": "text"
+    },
+    {
+      "required": true,
+      "min": 0,
+      "default": "https://github.com/integr8ly/installation",
+      "max": 1024,
+      "question_description": "Enter a git repo",
+      "choices": "",
+      "new_question": true,
+      "variable": "git_repo",
+      "question_name": "Enter a git repo",
+      "type": "text"
+    },
+    {
+      "question_description": "AWS or RHPDS?",
+      "min": null,
+      "default": "rhpds",
+      "max": null,
+      "required": true,
+      "choices": "aws\nrhpds",
+      "new_question": true,
+      "variable": "integreately_env_type",
+      "question_name": "ENV Type",
+      "type": "multiplechoice"
+    },
+    {
+      "question_description": "The number of users which will be created for this cluster",
+      "min": 0,
+      "default": 50,
+      "max": 200,
+      "required": true,
+      "choices": "",
+      "new_question": true,
+      "variable": "integreately_seeded_users",
+      "question_name": "Preseeded User Count",
+      "type": "integer"
+    }
+  ]
+}
