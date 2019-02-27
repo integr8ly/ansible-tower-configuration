@@ -1,5 +1,5 @@
 ---
-# ansible-vault encrypt_string "FHOPS" --name "username"
+# ansible-vault encrypt_string "admin" --name "username"
 # ansible-vault encrypt_string "abcdefghijklmnopqrstuvwxyz" --name "password"
 # ansible-playbook --ask-vault-pass ansible_vault_testing.yml
 - hosts: localhost
