@@ -1,0 +1,31 @@
+#!/usr/bin/bash
+
+curl -X "POST" "https://api.sendgrid.com/v3/mail/send" \
+     -H 'Authorization: Bearer {{ sendgrid_apikey }}' \
+     -H 'Content-Type: application/json' \
+     -d '{
+   "from":{
+      "email":"{{ sendgrid_email_address }}"
+   },
+   "personalizations":[
+      {
+         "to":[
+         {% for e in notification_email_list %}
+            {
+               "email":"{{ e }}"
+            }{% if not loop.last %} , {% endif %}
+         {% endfor %}
+         ],
+         "dynamic_template_data":{
+           "USERS_FULL_NAME": "{{ users_full_name }}",
+           "ADMIN_USER_NAME": "{{ admin_user_name }}",  
+           "ADMIN_USER_PASSWORD": "{{ admin_user_password }}",
+           "URI_TO_POC_ENVIRONMENT":"{{ uri_to_poc_environment }}",
+           "URI_TO_POC_ENVIRONMENT_OCP_CONSOLE": "{{ uri_to_poc_environment_ocp_console }}",
+           "NUMBER_OF_SEEDED_USERS": "{{ number_of_seeded_users }}",
+           "DEFAULT_SEEDED_USER_PASSWORD": "{{ default_seeded_user_password }}"
+          }
+      }
+   ],
+   "template_id":"{{ sendgrid_template_id }}"
+}'

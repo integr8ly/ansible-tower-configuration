@@ -1,0 +1,23 @@
+- name: "Sendgrid config"
+  debug:
+    msg: "sendgrid_email_address: {{ sendgrid_email_address }}"
+- name: "Sendgrid config"
+  debug:
+    msg: "sendgrid_template_id: {{ sendgrid_template_id }}"
+- name: "Sendgrid config"
+  debug:
+    msg: "sendgrid_apikey: {{ sendgrid_apikey }}"
+- name: "Populate the sendgrid template script"
+  template:
+    src: send.sh.j2
+    dest: /tmp/send.sh
+    mode: '755'
+- name: "Call the sendgrid template"
+  shell: /tmp/send.sh 
+  tags: [ 'never', 'send' ]
+- name: "Cat the shell script"
+  shell: cat /tmp/send.sh
+  register: cat_output
+- name: "Print the output"
+  debug:
+    msg: "{{ cat_output.stdout }}"

@@ -1,0 +1,47 @@
+- name: "Ansible Tower Host"
+  debug:
+    msg: "ansible_tower_host: {{ ansible_tower_host }}"
+- name: "Ansible Tower Admin Login"
+  debug:
+    msg: "ansible_tower_admin_login: {{ ansible_tower_admin_login }}"
+- name: "Ansible Tower Admin Password"
+  debug:
+    msg: "ansible_tower_admin_password: [REDACTED]"
+
+- name: "Configure the Ansible Tower host for tower-cli"
+  shell: "tower-cli config host {{ ansible_tower_host }}"
+  register: tower_host_config
+- name: "Print the output from tower login"
+  debug:
+    msg: "{{ tower_host_config.stdout }}"
+
+- name: "Login to the Ansible Tower instance using tower-cli"
+  shell: 'tower-cli login {{ ansible_tower_admin_login }} --password "{{ ansible_tower_admin_password }}"'
+  register: tower_login
+  failed_when: "'Configuration updated successfully' not in tower_login.stdout"
+- name: "Print the output from tower login"
+  debug:
+    msg: "{{ tower_login.stdout }}"
+
+
+- name: "Create inventory for new cluster"
+  shell: 'tower-cli inventory create --name "{{ rhpds_master_hostname }}" --organization "integreately-eng"'
+  register: create_inventory
+- name: "Print output from create inventory"
+  debug:
+    msg: "{{ create_inventory.stdout }}"
+
+- name: "Create inventory source"
+  shell: 'tower-cli inventory_source create --name "{{ rhpds_master_hostname }}_source" --inventory "{{ rhpds_master_hostname }}" --source "scm" --source-project "awx_playbook_testing" --source-path "inventory/{{ rhpds_master_hostname }}" --update-on-project-update true'
+  register: create_inventory_source
+- name: "Print the output from create inventory source"
+  debug:
+    msg: "{{ create_inventory_source.stdout }}"
+
+- name: "Synchronise the inventory file"
+  shell: 'tower-cli inventory_source update "{{ rhpds_master_hostname }}_source" --wait'
+  register: synchronise_inventory
+- name: "Print the output from synchronising the inventory source"
+  debug:
+    msg: "{{ synchronise_inventory.stdout }}"
+

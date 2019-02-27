@@ -1,0 +1,6 @@
+---
+- hosts: gr8-sre
+  tasks:
+    - name: "We failed apparently!"
+      debug:
+        msg: "Well don't look surprised!"

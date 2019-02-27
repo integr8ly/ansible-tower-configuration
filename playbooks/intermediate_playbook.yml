@@ -1,0 +1,34 @@
+---
+- hosts: gr8-sre
+  tasks:
+    - name: "Print the variables passed in"
+      debug:
+        msg: "integreately_cluster_name {{ integreately_cluster_name }}"
+    - name: "Print the variables passed in"
+      debug:
+        msg: "git_ref {{ git_ref }}"
+    - name: "Print the variables passed in"
+      debug:
+        msg: "git_repo {{ git_repo }}"
+    - name: "Print the variables passed in"
+      debug:
+        msg: "integreately_env_type {{ integreately_env_type }}"
+    - name: "Print the variables passed in"
+      debug:
+        msg: "integreately_seeded_users {{ integreately_seeded_users }}"
+    - name: "install the latest version of git"
+      yum:
+        name: git
+        state: latest
+    - name: "Clone the repo"
+      git:
+        repo: '{{ git_repo }}'
+        version: '{{ git_ref }}'
+        dest: /tmp/awx_playbook_testing
+  vars:
+    integreately_cluster_name: "{{ lookup('env', integreately_cluster_name) }}"
+    integreately_env_type: "{{ lookup('env', integreately_env_type) }}"
+    integreately_seeded_users: "{{ lookup('env', integreately_seeded_users) }}"
+    git_repo: "{{ lookup('env', git_repo) }}"
+    git_ref: "{{ lookup('env', git_ref) }}"
+
