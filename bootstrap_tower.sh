@@ -9,6 +9,16 @@ tower-cli login $TOWER_ADMIN_USER --password "$TOWER_ADMIN_PASSWORD"
 
 
 
+##################################################
+# Configure Authentication via Github
+tower-cli setting modify SOCIAL_AUTH_GITHUB_ORG_NAME "github_organisation"
+tower-cli setting modify SOCIAL_AUTH_GITHUB_ORG_KEY "key"
+tower-cli setting modify SOCIAL_AUTH_GITHUB_ORG_SECRET "secret"
+tower-cli setting modify SOCIAL_AUTH_GITHUB_ORG_ORGANIZATION_MAP "{'integreately-eng': {'admins': True, 'users': True}}"
+tower-cli setting modify SOCIAL_AUTH_GITHUB_ORG_TEAM_MAP "{'integreately-eng-team': {'organization': 'integreately-eng', 'users': True}}"
+
+
+
 ###################################################
 # Create credentials
 github_cred_inputs='username: ""
@@ -89,7 +99,3 @@ tower-cli node associate_failure_node $INT_NODE_ID $FAIL_NODE_ID -W "Sample Work
 
 # Add survey to the job
 tower-cli workflow modify --name="Sample Workflow Template" --survey-spec=@survey_spec.json --survey-enabled=true
-
-
-
-
