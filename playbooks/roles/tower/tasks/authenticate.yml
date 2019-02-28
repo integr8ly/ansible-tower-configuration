@@ -1,0 +1,9 @@
+---
+- name: Set configuration values
+  shell: "tower-cli config {{ item }}"
+  with_items:
+    - "host {{ tower_host }}"
+    - "username {{ tower_username }}"
+    - "password {{ tower_password }}"
+    - "verify_ssl {{ tower_verify_ssl }}"
+  when: tower_login

@@ -1,0 +1,69 @@
+---
+# Bug with Tower module where we need to create an empty scm credential bundle before creating a project
+# https://github.com/ansible/ansible/pull/34250
+- name: "Create SCM credential bundle: {{ tower_credential_bundle_github_name }}"
+  tower_credential:
+    name: "{{ tower_credential_bundle_github_name }}"
+    description: "{{ tower_credential_bundle_github_desc }}"
+    organization: "{{ tower_organization }}"
+    state: present
+    kind: "{{ tower_credential_bundle_github_type }}"
+
+- name: "Create default machine credential bundle: {{ tower_credential_bundle_default_name }}"
+  tower_credential:
+    name: "{{ tower_credential_bundle_default_name }}"
+    description: "{{ tower_credential_bundle_default_desc }}"
+    organization: "{{ tower_organization }}"
+    state: present
+    kind: "{{ tower_credential_bundle_default_type }}"
+
+- name: "Create inventory: {{ tower_inventory_name }}"
+  tower_inventory:
+    name: "{{ tower_inventory_name }}"
+    description: "{{ tower_inventory_desc }}"
+    organization: "{{ tower_organization }}"
+    state: present
+
+- name: "Create local host"
+  tower_host:
+    name: "{{ tower_host_local_name }}"
+    inventory: "{{ tower_inventory_name }}"
+    description: "{{ tower_host_local_desc }}"
+    variables:
+      ansible_connection: local
+    state: present
+
+- name: "Create project: {{ tower_project_name }}"
+  tower_project:
+    name: "{{ tower_project_name }}"
+    description: "{{ tower_project_desc }}"
+    organization: "{{ tower_organization }}"
+    state: present
+    scm_type: "{{ tower_project_scm_type }}"
+    scm_url: "{{ tower_project_scm_type_url }}"
+    scm_branch: "{{ tower_project_scm_branch }}"
+    scm_clean: "{{ tower_project_scm_clean }}"
+    scm_update_on_launch: "{{ tower_project_scm_update_on_launch }}"
+    scm_delete_on_update: "{{ tower_project_scm_delete_on_update }}"
+    scm_credential: "{{ tower_credential_bundle_github_name }}"
+
+- name: Create extra vars file for authentication
+  template:
+    src: authenticate.yml.j2
+    dest: /tmp/authenticate.yml
+
+- name: "Authenticate Tower Job Template: {{ tower_job_template_authenticate_name }}"
+  tower_job_template:
+    name: "{{ tower_job_template_authenticate_name }}"
+    description: "{{ tower_job_template_authenticate_desc }}"
+    job_type: "{{ tower_job_template_authenticate_job_type }}"
+    playbook: "{{ tower_job_template_authenticate_job_playbook }}"
+    project: "{{ tower_project_name }}"
+    credential: "{{ tower_job_template_authenticate_job_credentials }}"
+    state: present
+    inventory: "{{ tower_inventory_name }}"
+    extra_vars_path: '/tmp/authenticate.yml'
+  register: tower_job_template_authenticate_raw
+  until: tower_job_template_authenticate_raw is succeeded
+  retries: 10
+  delay: 5
