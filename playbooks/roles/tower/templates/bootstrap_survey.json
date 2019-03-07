@@ -1,0 +1,53 @@
+{
+    "description": "",
+    "name": "",
+    "spec": [
+      {
+        "question_description": "The hostname of the target Tower instance",
+        "min": 0,
+        "default": "",
+        "max": 1024,
+        "required": true,
+        "choices": "",
+        "variable": "tower_host",
+        "question_name": "Ansible Tower Hostname",
+        "type": "text"
+      },
+      {
+        "question_description": "The username to use for configuring the target Tower Instance",
+        "min": 0,
+        "default": "",
+        "max": 1024,
+        "required": true,
+        "choices": "",
+        "new_question": true,
+        "variable": "tower_username",
+        "question_name": "Ansible Tower Username",
+        "type": "text"
+      },
+      {
+        "question_description": "The password of the username used for configuring the target Tower Instance",
+        "min": 0,
+        "default": "",
+        "max": 32,
+        "required": true,
+        "choices": "",
+        "new_question": true,
+        "variable": "tower_password",
+        "question_name": "Ansible Tower Password",
+        "type": "password"
+      },
+      {
+        "question_description": "If enabled, will verify that the Tower instance is using valid SSL certificates",
+        "min": null,
+        "default": "false",
+        "max": null,
+        "required": false,
+        "choices": "true\nfalse",
+        "new_question": true,
+        "variable": "tower_verify_ssl",
+        "question_name": "Verify SSL",
+        "type": "multiplechoice"
+      }
+    ]
+  }

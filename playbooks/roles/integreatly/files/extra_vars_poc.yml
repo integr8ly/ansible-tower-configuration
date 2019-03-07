@@ -1,0 +1,7 @@
+---
+ansible_user: root
+openshift_login: true
+prerequisites_install: false
+threescale_pvc_rwx_storageclassname: nfs
+che_persistent_volume_storageclassname: nfs
+create_cluster_admin: false

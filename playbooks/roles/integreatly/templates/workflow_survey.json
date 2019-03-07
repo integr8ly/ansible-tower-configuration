@@ -1,0 +1,112 @@
+{
+    "description": "",
+    "name": "",
+    "spec": [
+      {
+        "question_description": "Name of target Cluster to Install Integreatly against",
+        "min": 0,
+        "default": "",
+        "max": 1024,
+        "required": true,
+        "choices": "",
+        "variable": "cluster_name",
+        "question_name": "Cluster Name",
+        "type": "text"
+      },
+      {
+        "question_description": "The public URL of the target Openshift Cluster",
+        "min": 0,
+        "default": "",
+        "max": 1024,
+        "required": true,
+        "choices": "",
+        "variable": "openshift_master_public_url",
+        "question_name": "Openshift Master URL",
+        "type": "text"
+      },
+      {
+        "question_description": "Username of cluster admin account",
+        "min": 0,
+        "default": "",
+        "max": 1024,
+        "required": true,
+        "choices": "",
+        "new_question": true,
+        "variable": "openshift_username",
+        "question_name": "Cluster Admin Username",
+        "type": "text"
+      },
+      {
+        "question_description": "Password of cluster admin user",
+        "min": 0,
+        "default": "",
+        "max": 32,
+        "required": true,
+        "choices": "",
+        "new_question": true,
+        "variable": "openshift_password",
+        "question_name": "Cluster Admin Password",
+        "type": "password"
+      },
+      {
+        "question_description": "Integreatly Installer Git URL",
+        "min": 0,
+        "default": "https://github.com/integr8ly/installation.git",
+        "max": 1024,
+        "required": true,
+        "choices": "",
+        "new_question": true,
+        "variable": "integreatly_project_bootstrap_cluster_scm_url",
+        "question_name": "Git URL",
+        "type": "text"
+      },
+      {
+        "question_description": "Integreatly Installer Git Ref",
+        "min": 0,
+        "default": "master",
+        "max": 1024,
+        "required": true,
+        "choices": "",
+        "new_question": true,
+        "variable": "integreatly_project_bootstrap_cluster_scm_branch",
+        "question_name": "Git Ref",
+        "type": "text"
+      },
+      {
+        "question_description": "The number of users to pre-seed in the environment",
+        "min": 1,
+        "default": 1,
+        "max": 100,
+        "required": true,
+        "choices": "",
+        "new_question": true,
+        "variable": "eval_seed_users_count",
+        "question_name": "User Count",
+        "type": "integer"
+      },
+      {
+        "question_description": "Does the target Openshift cluster use self signed certs?",
+        "min": null,
+        "default": "false",
+        "max": null,
+        "required": false,
+        "choices": "true\nfalse",
+        "new_question": true,
+        "variable": "eval_self_signed_certs",
+        "question_name": "Self Signed Certs",
+        "type": "multiplechoice"
+      },
+      {
+        "question_description": "AWS Account Credentials",
+        "min": 0,
+        "default": "coreos",
+        "max": 1024,
+        "required": true,
+        "choices": "",
+        "new_question": true,
+        "variable": "integreatly_inventory_source_aws_credentials",
+        "question_name": "AWS Credentials",
+        "type": "text"
+      }
+    ]
+  }

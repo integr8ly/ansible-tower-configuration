@@ -1,0 +1,7 @@
+---
+- hosts: local
+  gather_facts: no
+  tasks:
+    - include_role:
+        name: tower
+        tasks_from: authenticate.yml

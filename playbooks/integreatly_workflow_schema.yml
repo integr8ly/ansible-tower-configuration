@@ -1,0 +1,6 @@
+---
+- job_template: "Ansible Tower Authenticate"
+  success:
+  - job_template: "Integreatly Bootstrap Cluster Template"
+    success:
+    - job_template: "Integreatly Deploy Job Template"

@@ -1,0 +1,44 @@
+---
+# Ansible Tower Configurations
+tower_login: true
+tower_host: ''
+tower_username: ''
+tower_password: ''
+tower_verify_ssl: false
+
+# Ansible Tower Organizations
+tower_organization: 'Default'
+
+# Ansible Tower Credentials
+tower_credential_bundle_default_name: 'Tower_Provisioner'
+tower_credential_bundle_default_desc: 'Default Tower machine credential'
+tower_credential_bundle_default_type: 'ssh'
+
+tower_credential_bundle_github_name: "Tower Default Github Credentials"
+tower_credential_bundle_github_desc: "Default Tower Credential Bundle for Github"
+tower_credential_bundle_github_type: 'scm'
+
+# Ansible Tower Default Inventories
+tower_inventory_name: 'Default Tower Inventory'
+tower_inventory_desc: 'Default Tower Inventory used for local jobs'
+
+# Ansible Tower Configurations Projects
+tower_project_name: 'Ansible Tower Configuration Project'
+tower_project_desc: 'Configuration project for Ansible Tower'
+tower_project_scm_type: git
+tower_project_scm_branch: 'master'
+tower_project_scm_clean: true
+tower_project_scm_type_url: 'https://github.com/integr8ly/ansible-tower-configuration.git'
+tower_project_scm_update_on_launch: true
+tower_project_scm_delete_on_update: true
+
+# Ansible Tower Job Templates
+tower_job_template_authenticate_name: 'Ansible Tower Authenticate'
+tower_job_template_authenticate_desc: 'Job Template for Authenticating against Tower'
+tower_job_template_authenticate_job_type: 'run'
+tower_job_template_authenticate_job_playbook: 'playbooks/authenticate_tower.yml'
+tower_job_template_authenticate_job_credentials: "{{ tower_credential_bundle_default_name }}"
+
+# Ansible Tower Hosts
+tower_host_local_name: 'local'
+tower_host_local_desc: ""
