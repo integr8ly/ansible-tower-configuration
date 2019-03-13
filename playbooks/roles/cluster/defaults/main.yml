@@ -1,1 +1,5 @@
 ---
+cluster_credential_git_user: ''
+cluster_credential_git_user_group: ''
+cluster_credential_git_repo: ''
+cluster_credential_git_ref: ''

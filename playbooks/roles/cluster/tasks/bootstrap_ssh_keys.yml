@@ -1,0 +1,15 @@
+---
+- include_tasks: clone_credential_repo.yml
+
+- name: Add the authorised SSH public keys to all hosts.
+  authorized_key:
+    user: '{{ cluster_credential_git_user }}'
+    key: "{{ lookup('pipe','cat /tmp/credential_repo/files/sre_ssh_public_keys/*.pub') }}"
+    state: present
+    exclusive: yes
+- name: Remove offboarded SSH public keys from all hosts.
+  authorized_key:
+    user: '{{ cluster_credential_git_user }}'
+    key: "{{ lookup('pipe','cat /tmp/credential_repo/files/sre_offboarded_ssh_public_keys/*.pub') }}"
+    state: absent
+    exclusive: yes
