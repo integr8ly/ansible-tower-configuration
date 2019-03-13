@@ -1,6 +1,5 @@
 ---
-# ansible-vault encrypt_string "FHOPS" --name "username"
-# ansible-vault encrypt_string "abcdefghijklmnopqrstuvwxyz" --name "password"
+# executing a playbook and prompting for vault pass:
 # ansible-playbook --ask-vault-pass ansible_vault_testing.yml
 - hosts: localhost
   connection: local
@@ -9,4 +8,3 @@
     include_role:
       name: sendgrid
       tasks_from: main
-    tags: [always]

@@ -1,0 +1,18 @@
+---
+# Creating ansible-vault encrypted strings eg:
+# ansible-vault encrypt_string "admin" --name "username"
+# ansible-vault encrypt_string "abcdefghijklmnopqrstuvwxyz" --name "password"
+# Vault variables
+sendgrid_apikey: ""
+sendgrid_template_id: ""
+sendgrid_email_address: ""
+
+# Variables
+users_full_name: ""
+admin_user_name: ""
+admin_user_password: ""
+uri_to_poc_environment: ""
+uri_to_poc_environment_ocp_console: ""
+number_of_seeded_users: ""
+default_seeded_user_password: ""
+notification_email_list: ""
