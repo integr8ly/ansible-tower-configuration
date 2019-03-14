@@ -1,0 +1,4 @@
+---
+- name: "Targeting openshift cluster: {{ tower_openshift_master_url }}"
+  shell: "oc login -u {{ tower_openshift_username }} -p {{ tower_openshift_password }} {{ tower_openshift_master_url }}"
+  when: tower_openshift_login
