@@ -4,4 +4,4 @@
   tasks:
     - include_role:
         name: tower
-        tasks_from: authenticate_tower.yml
+        tasks_from: authenticate_openshift.yml

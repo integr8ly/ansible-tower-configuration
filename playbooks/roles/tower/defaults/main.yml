@@ -6,6 +6,12 @@ tower_username: ''
 tower_password: ''
 tower_verify_ssl: false
 
+# Ansible Tower Openshift Configurations
+tower_openshift_username: ''
+tower_openshift_password: ''
+tower_openshift_master_url: ''
+tower_openshift_login: true
+
 # Ansible Tower Organizations
 tower_organization: 'Default'
 
