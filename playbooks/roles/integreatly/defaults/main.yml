@@ -18,7 +18,7 @@ integreatly_credential_bundle_github_kind: 'scm'
 integreatly_job_template_bootstrap_name: 'Integreatly Bootstrap Cluster Template'
 integreatly_job_template_bootstrap_desc: 'Job for bootstrapping integreatly cluster resources'
 integreatly_job_template_bootstrap_type: 'run'
-integreatly_job_template_bootstrap_playbook: 'playbooks/bootstrap_integreatly_cluster.yml'
+integreatly_job_template_bootstrap_playbook: 'playbooks/bootstrap_integreatly_install.yml'
 integreatly_job_template_bootstrap_credentials: "{{ tower_credential_bundle_default_name }}"
 
 integreatly_job_template_deploy_name: 'Integreatly Deploy Job Template'
