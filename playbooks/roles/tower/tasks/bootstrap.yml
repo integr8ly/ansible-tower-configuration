@@ -1,6 +1,6 @@
 ---
 
-- include_tasks: authenticate.yml
+- include_tasks: authenticate_tower.yml
 
 # Bug with Tower module where we need to create an empty scm credential bundle before creating a project
 # https://github.com/ansible/ansible/pull/34250
