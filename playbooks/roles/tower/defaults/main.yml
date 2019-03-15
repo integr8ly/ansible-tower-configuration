@@ -13,7 +13,8 @@ tower_openshift_master_url: ''
 tower_openshift_login: true
 
 # Ansible Tower Organizations
-tower_organization: 'Default'
+tower_organization: 'Integreatly'
+tower_team: 'integreatly-eng'
 
 # Ansible Tower Credentials
 tower_credential_bundle_default_name: 'Tower_Provisioner'
@@ -29,14 +30,24 @@ tower_inventory_name: 'Default Tower Inventory'
 tower_inventory_desc: 'Default Tower Inventory used for local jobs'
 
 # Ansible Tower Configurations Projects
-tower_project_name: 'Ansible Tower Configuration Project'
-tower_project_desc: 'Configuration project for Ansible Tower'
-tower_project_scm_type: git
-tower_project_scm_branch: 'master'
-tower_project_scm_clean: true
-tower_project_scm_type_url: 'https://github.com/integr8ly/ansible-tower-configuration.git'
-tower_project_scm_update_on_launch: true
-tower_project_scm_delete_on_update: true
+tower_configuration_project_name: 'Ansible Tower Configuration Project'
+tower_configuration_project_desc: 'Configuration project for Ansible Tower'
+tower_configuration_project_scm_type: git
+tower_configuration_project_scm_branch: 'master'
+tower_configuration_project_scm_clean: true
+tower_configuration_project_scm_type_url: 'https://github.com/integr8ly/ansible-tower-configuration.git'
+tower_configuration_project_scm_update_on_launch: true
+tower_configuration_project_scm_delete_on_update: true
+
+# Ansible Tower Credential Projects
+tower_credentials_project_name: 'Ansible Tower Credentials Project'
+tower_credentials_project_desc: 'Credentials project for Ansible Tower'
+tower_credentials_project_scm_type: git
+tower_credentials_project_scm_branch: 'master'
+tower_credentials_project_scm_clean: true
+tower_credentials_project_scm_type_url: 'git@github.com:rhm-devops/integreatly_prod.git'
+tower_credentials_project_scm_update_on_launch: true
+tower_credentials_project_scm_delete_on_update: true
 
 # Ansible Tower Job Templates
 tower_job_template_authenticate_tower_name: 'Ansible Tower Authenticate'

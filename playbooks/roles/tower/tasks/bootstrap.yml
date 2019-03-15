@@ -2,72 +2,122 @@
 
 - include_tasks: authenticate_tower.yml
 
+- name: 'Create the {{ tower_organization }} organisation'
+  tower_organization:
+    name: '{{ tower_organization }}'
+    state: present
+
+- name: 'Create the {{ tower_team}} team'
+  tower_team:
+    name: '{{ tower_team }}'
+    organization: '{{ tower_organization }}'
+    state: present
+
+- name: 'Modify Tower settings to allow authentication via Github'
+  shell: '{{ item }}'
+  no_log: true
+  with_items:
+    - 'tower-cli setting modify SOCIAL_AUTH_GITHUB_ORG_NAME "{{ social_auth_github_org_name }}"'
+    - 'tower-cli setting modify SOCIAL_AUTH_GITHUB_ORG_KEY "{{ social_auth_github_org_key }}"'
+    - 'tower-cli setting modify SOCIAL_AUTH_GITHUB_ORG_SECRET "{{ social_auth_github_org_secret }}"'
+    - 'tower-cli setting modify SOCIAL_AUTH_GITHUB_ORG_ORGANIZATION_MAP "{{ social_auth_github_org_organization_map }}"'
+    - 'tower-cli setting modify SOCIAL_AUTH_GITHUB_ORG_TEAM_MAP "{{ social_auth_github_org_team_map }}"'
+
 # Bug with Tower module where we need to create an empty scm credential bundle before creating a project
 # https://github.com/ansible/ansible/pull/34250
-- name: "Create SCM credential bundle: {{ tower_credential_bundle_github_name }}"
-  tower_credential:
-    name: "{{ tower_credential_bundle_github_name }}"
-    description: "{{ tower_credential_bundle_github_desc }}"
-    organization: "{{ tower_organization }}"
-    state: present
-    kind: "{{ tower_credential_bundle_github_type }}"
+- name: 'Copy the tower_github_scm key to server'
+  copy:
+    content: '{{ tower_github_scm }}'
+    dest: '/tmp/tower_github_scm'
 
-- name: "Create default machine credential bundle: {{ tower_credential_bundle_default_name }}"
+- name: 'Create SCM credential bundle: {{ tower_credential_bundle_github_name }}'
   tower_credential:
-    name: "{{ tower_credential_bundle_default_name }}"
-    description: "{{ tower_credential_bundle_default_desc }}"
-    organization: "{{ tower_organization }}"
+    name: '{{ tower_credential_bundle_github_name }}'
+    description: '{{ tower_credential_bundle_github_desc }}'
+    organization: '{{ tower_organization }}'
     state: present
-    kind: "{{ tower_credential_bundle_default_type }}"
+    kind: '{{ tower_credential_bundle_github_type }}'
+    ssh_key_data: '/tmp/tower_github_scm'
+    ssh_key_unlock: '{{ tower_github_scm_password }}'
 
-- name: "Create inventory: {{ tower_inventory_name }}"
+- name: 'Copy the tower_github_scm key to server'
+  copy:
+    content: '{{ tower_ssh }}'
+    dest: '/tmp/tower_ssh'
+
+- name: 'Create default machine credential bundle: {{ tower_credential_bundle_default_name }}'
+  tower_credential:
+    name: '{{ tower_credential_bundle_default_name }}'
+    description: '{{ tower_credential_bundle_default_desc }}'
+    organization: '{{ tower_organization }}'
+    state: present
+    kind: '{{ tower_credential_bundle_default_type }}'
+    ssh_key_data: '/tmp/tower_ssh'
+    ssh_key_unlock: '{{ tower_ssh_password }}'
+    username: '{{ tower_ssh_user }}'
+
+- name: 'Create inventory: {{ tower_inventory_name }}'
   tower_inventory:
-    name: "{{ tower_inventory_name }}"
-    description: "{{ tower_inventory_desc }}"
-    organization: "{{ tower_organization }}"
+    name: '{{ tower_inventory_name }}'
+    description: '{{ tower_inventory_desc }}'
+    organization: '{{ tower_organization }}'
     state: present
 
-- name: "Create local host"
+- name: 'Create local host'
   tower_host:
-    name: "{{ tower_host_local_name }}"
-    inventory: "{{ tower_inventory_name }}"
-    description: "{{ tower_host_local_desc }}"
+    name: '{{ tower_host_local_name }}'
+    inventory: '{{ tower_inventory_name }}'
+    description: '{{ tower_host_local_desc }}'
     variables:
       ansible_connection: local
     state: present
 
-- name: "Create project: {{ tower_project_name }}"
+- name: 'Create project: {{ tower_configuration_project_name }}'
   tower_project:
-    name: "{{ tower_project_name }}"
-    description: "{{ tower_project_desc }}"
-    organization: "{{ tower_organization }}"
+    name: '{{ tower_configuration_project_name }}'
+    description: '{{ tower_configuration_project_desc }}'
+    organization: '{{ tower_organization }}'
     state: present
-    scm_type: "{{ tower_project_scm_type }}"
-    scm_url: "{{ tower_project_scm_type_url }}"
-    scm_branch: "{{ tower_project_scm_branch }}"
-    scm_clean: "{{ tower_project_scm_clean }}"
-    scm_update_on_launch: "{{ tower_project_scm_update_on_launch }}"
-    scm_delete_on_update: "{{ tower_project_scm_delete_on_update }}"
-    scm_credential: "{{ tower_credential_bundle_github_name }}"
+    scm_type: '{{ tower_configuration_project_scm_type }}'
+    scm_url: '{{ tower_configuration_project_scm_type_url }}'
+    scm_branch: '{{ tower_configuration_project_scm_branch }}'
+    scm_clean: '{{ tower_configuration_project_scm_clean }}'
+    scm_update_on_launch: '{{ tower_configuration_project_scm_update_on_launch }}'
+    scm_delete_on_update: '{{ tower_configuration_project_scm_delete_on_update }}'
+    scm_credential: '{{ tower_credential_bundle_github_name }}'
 
-- name: Create extra vars file for tower authentication
+- name: 'Create project: {{ tower_credentials_project_name }}'
+  tower_project:
+    name: '{{ tower_credentials_project_name }}'
+    description: '{{ tower_credentials_project_desc }}'
+    organization: '{{ tower_organization }}'
+    state: present
+    scm_type: '{{ tower_credentials_project_scm_type }}'
+    scm_url: '{{ tower_credentials_project_scm_type_url }}'
+    scm_branch: '{{ tower_credentials_project_scm_branch }}'
+    scm_clean: '{{ tower_credentials_project_scm_clean }}'
+    scm_update_on_launch: '{{ tower_credentials_project_scm_update_on_launch }}'
+    scm_delete_on_update: '{{ tower_credentials_project_scm_delete_on_update }}'
+    scm_credential: '{{ tower_credential_bundle_github_name }}'
+
+- name: Create extra vars file for authentication
   template:
     src: authenticate_tower.yml.j2
     dest: /tmp/authenticate_tower.yml
 
-- name: "Authenticate Tower Job Template: {{ tower_job_template_authenticate_tower_name }}"
+- name: 'Authenticate Tower Job Template: {{ tower_job_template_authenticate_tower_name }}'
   tower_job_template:
-    name: "{{ tower_job_template_authenticate_tower_name }}"
-    description: "{{ tower_job_template_authenticate_tower_desc }}"
-    job_type: "{{ tower_job_template_authenticate_tower_job_type }}"
-    playbook: "{{ tower_job_template_authenticate_tower_job_playbook }}"
-    project: "{{ tower_project_name }}"
-    credential: "{{ tower_job_template_authenticate_tower_job_credentials }}"
+    name: '{{ tower_job_template_authenticate_tower_name }}'
+    description: '{{ tower_job_template_authenticate_tower_desc }}'
+    job_type: '{{ tower_job_template_authenticate_tower_job_type }}'
+    playbook: '{{ tower_job_template_authenticate_tower_job_playbook }}'
+    project: '{{ tower_configuration_project_name }}'
+    credential: '{{ tower_job_template_authenticate_tower_job_credentials }}'
     state: present
-    inventory: "{{ tower_inventory_name }}"
-    extra_vars_path: '/tmp/authenticate_tower.yml'
-  register: tower_job_template_authenticate_raw
-  until: tower_job_template_authenticate_raw is succeeded
+    inventory: '{{ tower_inventory_name }}'
+    extra_vars_path: '/tmp/authenticate.yml'
+  register: tower_job_template_authenticate_tower_raw
+  until: tower_job_template_authenticate_tower_raw is succeeded
   retries: 10
   delay: 5
 
@@ -82,7 +132,7 @@
     description: "{{ tower_job_template_authenticate_openshift_desc }}"
     job_type: "{{ tower_job_template_authenticate_openshift_job_type }}"
     playbook: "{{ tower_job_template_authenticate_openshift_job_playbook }}"
-    project: "{{ tower_project_name }}"
+    project: "{{ tower_configuration_project_name }}"
     credential: "{{ tower_job_template_authenticate_openshift_job_credentials }}"
     state: present
     inventory: "{{ tower_inventory_name }}"
@@ -91,5 +141,3 @@
   until: openshift_job_template_authenticate_raw is succeeded
   retries: 10
   delay: 5
-
-
