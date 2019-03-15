@@ -50,23 +50,46 @@
     scm_delete_on_update: "{{ tower_project_scm_delete_on_update }}"
     scm_credential: "{{ tower_credential_bundle_github_name }}"
 
-- name: Create extra vars file for authentication
+- name: Create extra vars file for tower authentication
   template:
-    src: authenticate.yml.j2
-    dest: /tmp/authenticate.yml
+    src: authenticate_tower.yml.j2
+    dest: /tmp/authenticate_tower.yml
 
-- name: "Authenticate Tower Job Template: {{ tower_job_template_authenticate_name }}"
+- name: "Authenticate Tower Job Template: {{ tower_job_template_authenticate_tower_name }}"
   tower_job_template:
-    name: "{{ tower_job_template_authenticate_name }}"
-    description: "{{ tower_job_template_authenticate_desc }}"
-    job_type: "{{ tower_job_template_authenticate_job_type }}"
-    playbook: "{{ tower_job_template_authenticate_job_playbook }}"
+    name: "{{ tower_job_template_authenticate_tower_name }}"
+    description: "{{ tower_job_template_authenticate_tower_desc }}"
+    job_type: "{{ tower_job_template_authenticate_tower_job_type }}"
+    playbook: "{{ tower_job_template_authenticate_tower_job_playbook }}"
     project: "{{ tower_project_name }}"
-    credential: "{{ tower_job_template_authenticate_job_credentials }}"
+    credential: "{{ tower_job_template_authenticate_tower_job_credentials }}"
     state: present
     inventory: "{{ tower_inventory_name }}"
-    extra_vars_path: '/tmp/authenticate.yml'
+    extra_vars_path: '/tmp/authenticate_tower.yml'
   register: tower_job_template_authenticate_raw
   until: tower_job_template_authenticate_raw is succeeded
   retries: 10
   delay: 5
+
+- name: Create extra vars file for openshift authentication
+  template:
+    src: authenticate_openshift.yml.j2
+    dest: /tmp/authenticate_openshift.yml
+
+- name: "Authenticate Openshift Job Template: {{ tower_job_template_authenticate_openshift_name }}"
+  tower_job_template:
+    name: "{{ tower_job_template_authenticate_openshift_name }}"
+    description: "{{ tower_job_template_authenticate_openshift_desc }}"
+    job_type: "{{ tower_job_template_authenticate_openshift_job_type }}"
+    playbook: "{{ tower_job_template_authenticate_openshift_job_playbook }}"
+    project: "{{ tower_project_name }}"
+    credential: "{{ tower_job_template_authenticate_openshift_job_credentials }}"
+    state: present
+    inventory: "{{ tower_inventory_name }}"
+    extra_vars_path: '/tmp/authenticate_openshift.yml'
+  register: openshift_job_template_authenticate_raw
+  until: openshift_job_template_authenticate_raw is succeeded
+  retries: 10
+  delay: 5
+
+

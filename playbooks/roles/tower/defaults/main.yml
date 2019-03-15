@@ -39,12 +39,19 @@ tower_project_scm_update_on_launch: true
 tower_project_scm_delete_on_update: true
 
 # Ansible Tower Job Templates
-tower_job_template_authenticate_name: 'Ansible Tower Authenticate'
-tower_job_template_authenticate_desc: 'Job Template for Authenticating against Tower'
-tower_job_template_authenticate_job_type: 'run'
-tower_job_template_authenticate_job_playbook: 'playbooks/authenticate_tower.yml'
-tower_job_template_authenticate_job_credentials: "{{ tower_credential_bundle_default_name }}"
+tower_job_template_authenticate_tower_name: 'Ansible Tower Authenticate'
+tower_job_template_authenticate_tower_desc: 'Job Template for Authenticating against Tower'
+tower_job_template_authenticate_tower_job_type: 'run'
+tower_job_template_authenticate_tower_job_playbook: 'playbooks/authenticate_tower.yml'
+tower_job_template_authenticate_tower_job_credentials: "{{ tower_credential_bundle_default_name }}"
 
-# Ansible Tower Hosts
+tower_job_template_authenticate_openshift_name: 'Openshift Authenticate'
+tower_job_template_authenticate_openshift_desc: 'Job Template for Authenticating against Openshift'
+tower_job_template_authenticate_openshift_job_type: 'run'
+tower_job_template_authenticate_openshift_job_playbook: 'playbooks/authenticate_openshift.yml'
+tower_job_template_authenticate_openshift_job_credentials: "{{ tower_credential_bundle_default_name }}"
+
+# Ansible Tower Hostsl'
 tower_host_local_name: 'local'
 tower_host_local_desc: ""
+
