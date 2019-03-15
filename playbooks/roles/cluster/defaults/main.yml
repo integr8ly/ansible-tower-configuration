@@ -1,5 +1,90 @@
 ---
+# common
 cluster_credential_git_user: ''
 cluster_credential_git_user_group: ''
 cluster_credential_git_repo: ''
 cluster_credential_git_ref: ''
+cluster_project_bootstrap_scm_type: git
+cluster_project_bootstrap_cluster_scm_clean: true
+cluster_project_bootstrap_cluster_scm_update_on_launch: true
+cluster_project_bootstrap_cluster_scm_delete_on_update: true
+
+#                         #
+# Cluster create projects #
+#                         #
+
+# openshift-ansible-ops
+cluster_project_oao_bootstrap_scm_branch: ""
+cluster_project_oao_bootstrap_scm_url: ""
+
+# openshift-ansible
+cluster_project_oa_bootstrap_scm_branch: ""
+cluster_project_oa_bootstrap_scm_url: ""
+
+# ansible-plays
+cluster_project_ap_bootstrap_scm_branch: ""
+cluster_project_ap_bootstrap_scm_url: ""
+
+#                            #
+# Cluster create credentials #
+#                            #
+
+cluster_credential_bundle_github_name: ""
+cluster_credential_bundle_aws_name: ""
+cluster_credential_bundle_le_key_name: 'le_privatekey'
+
+#                          #
+# Cluster create templates #
+#                          #
+
+cluster_job_template_openshift_auth_name: "Openshift_Authenticate_tower_pod"
+cluster_job_template_openshift_auth_desc: "Login to tower openshift user"
+cluster_job_template_openshift_auth_type: 'run'
+cluster_job_template_openshift_auth_playbook: 'playbooks/authenticate_openshift.yml'
+cluster_job_template_openshift_auth_credentials: '{{ cluster_credential_bundle_le_key_name }}'
+cluster_job_template_openshift_auth_project: '{{ tower_configuration_project_name }}'
+
+cluster_job_template_generate_inventory_name: "Generate_Inventory"
+cluster_job_template_generate_inventory_desc: "Generate provisioning vars file for cluster create"
+cluster_job_template_generate_inventory_type: 'run'
+cluster_job_template_generate_inventory_playbook: 'playbooks/cluster_create_generate_inventory.yml'
+cluster_job_template_generate_inventory_credentials: '{{ cluster_credential_bundle_le_key_name }}'
+cluster_job_template_generate_inventory_project: '{{ tower_configuration_project_name }}'
+
+cluster_job_template_preflight_name: "Pre_flight"
+cluster_job_template_preflight_desc: "Pre-flight"
+cluster_job_template_preflight_type: 'run'
+cluster_job_template_preflight_playbook: 'playbooks/cluster_create_pre_flight.yml'
+cluster_job_template_preflight_credentials: '{{ cluster_credential_bundle_le_key_name }}'
+cluster_job_template_preflight_project: '{{ tower_configuration_project_name }}'
+
+cluster_job_template_prerequisites_name: "OA_Prerequisites"
+cluster_job_template_prerequisites_desc: "Openshift Ansible prerequisites"
+cluster_job_template_prerequisites_type: 'run'
+cluster_job_template_prerequisites_playbook: 'playbooks/aws/openshift-cluster/prerequisites.yml'
+cluster_job_template_prerequisites_credentials: '{{ cluster_credential_bundle_aws_name }}'
+cluster_job_template_prerequisites_project: 'Openshift Ansible'
+
+cluster_job_template_install_name: "OA_Provision_Install"
+cluster_job_template_install_desc: "Openshift Ansible provision_install"
+cluster_job_template_install_type: 'run'
+cluster_job_template_install_playbook: 'playbooks/aws/openshift-cluster/provision_install.yml'
+cluster_job_template_install_project: 'Openshift Ansible'
+cluster_job_template_install_credentials: '{{ cluster_credential_bundle_aws_name }}'
+
+cluster_job_template_post_install_name: "Post_install"
+cluster_job_template_post_install_desc: "Post-install"
+cluster_job_template_post_install_type: 'run'
+cluster_job_template_post_install_playbook: 'playbooks/cluster_create_post_install.yml'
+cluster_job_template_post_install_project: '{{ tower_configuration_project_name }}'
+
+cluster_workflow_job_template_name: "Provision Cluster"
+cluster_workflow_job_template_desc: "Provision Openshift 3.11 cluster"
+cluster_workflow_job_template_organization: Default
+
+cluster_workflow_job_template_openshift_auth: "Openshift_Authenticate_tower_pod"
+
+# Auth
+
+tower_pod_openshift_user: ""
+tower_pod_openshift_pass: ""

@@ -1,0 +1,12 @@
+{
+ "fields": [
+  {
+   "format": "ssh_private_key",
+   "label": "LetsEncrypt Key",
+   "secret": true,
+   "multiline": true,
+   "type": "string",
+   "id": "le_key"
+  }
+ ]
+}

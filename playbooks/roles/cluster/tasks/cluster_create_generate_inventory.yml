@@ -1,0 +1,60 @@
+---
+- hosts: localhost
+  gather_facts: yes
+  vars:
+    cluster_master: "{{ groups['oo_master_primary'] | intersect(groups['oo_clusterid_' ~ oo_clusterid]) | first }}"
+    g_inventory_cloud_provider: "{{ oo_sublocation }}"
+    cli_containerized: False
+    scf_retval_openshift_cert: "/tmp/{{ oo_clusterid }}/certs/wildcard.{{ oo_clusterid }}.{{ domain }}.crt"
+    scf_retval_chain_cert: "/tmp/{{ oo_clusterid }}/certs/rootCA.pem"
+    scf_retval_openshift_key: "/tmp/{{ oo_clusterid }}/certs/wildcard.{{ oo_clusterid }}.{{ domain }}.key"
+    certfile: "{{ scf_retval_openshift_cert }}"
+    scf_retval_router_cert: "/tmp/{{ oo_clusterid }}/certs/wildcard.apps.{{ oo_clusterid }}.{{ domain }}.crt"
+    scr_retval_router_key: "/tmp/{{ oo_clusterid }}/certs/wildcard.apps.{{ oo_clusterid }}.{{ domain }}.key"
+    g_play_dns_role_path: "/tmp/oa_dns_hook"
+  tasks:
+  - name: set AWS credentials
+    set_fact:
+      g_aws_cloud_provider_access_key_id: "{{ aws_access_key }}"
+      g_aws_cloud_provider_secret_access_key: "{{ aws_secret_key }}"
+ 
+  - name: Make dns directory
+    file:
+      path: "/tmp/oa_dns_hook/tasks"
+      recurse: yes
+      state: directory    
+
+  - name: Get DNS task
+    get_url:
+      url: https://raw.githubusercontent.com/StevenTobin/openshift-tools/integreatly_cluster_create/ansible/roles/oa_aws_provisioning_dns_hook/tasks/main.yml
+      dest: "/tmp/oa_dns_hook/tasks/main.yml"   
+      force: yes
+
+  - name: create directory for user under /tmp
+    file:
+      path: "/tmp/{{ lookup('env', 'USER') }}/{{ oo_clusterid }}"
+      recurse: yes
+      state: directory
+ 
+  - name: set logging flag
+    set_fact:
+        flag_provision_logging: "{% if survey_provision_logging=='true' %}true{% elif survey_provision_logging=='false'%}false{% else %}false{% endif %}"
+
+  - name: create the provisioning_vars.yml
+    template:
+      src: integreatly-inventory.yml.j2
+      dest: "/tmp/{{ oo_clusterid }}/{{ oo_clusterid }}_inventory.yml"
+
+  - name: Create provisioning inventory in tower
+    shell: tower-cli inventory create -n {{ oo_clusterid }}_provisioning_vars --organization secret
+
+  - name: Create cluster inventory in tower
+    shell: tower-cli inventory create -n {{ oo_clusterid }} --organization secret
+
+  - name: Generate <cluster> inventory in tower
+    shell: "awx-manage inventory_import --source=/tmp/{{ oo_clusterid }}/{{ oo_clusterid }}_inventory.yml --inventory-name={{ oo_clusterid }} --overwrite"
+
+  - name: Generate Provisioning_inventory in tower
+    shell: "awx-manage inventory_import --source=/tmp/{{ oo_clusterid }}/{{ oo_clusterid }}_inventory.yml --inventory-name=Provisioning_Inventory --overwrite"
+
+  

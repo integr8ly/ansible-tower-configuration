@@ -1,0 +1,7 @@
+---
+- hosts: local
+  gather_facts: no
+  tasks:
+    - include_role:
+        name: cluster
+        tasks_from: cluster_create_pre_flight.yml

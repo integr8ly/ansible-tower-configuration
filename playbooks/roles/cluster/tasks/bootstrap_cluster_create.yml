@@ -1,0 +1,44 @@
+---
+- name: "Create inventory: provisioning_inventory"
+  tower_inventory:
+    name: "Provisioning_inventory"
+    description: "Floating inventory for cluster create workflow"
+    organization: "{{ tower_organization }}"
+    state: present
+
+- name: "Create project: Openshift Ansible"
+  tower_project:
+    name: "Openshift Ansible"
+    description: "Openshift Ansible"
+    organization: "{{ tower_organization }}"
+    state: present
+    scm_type: "{{ cluster_project_bootstrap_scm_type }}"
+    scm_url: "{{ cluster_project_oa_bootstrap_scm_url }}"
+    scm_branch: "{{ cluster_project_oa_bootstrap_scm_branch }}"
+    scm_clean: "{{ cluster_project_bootstrap_cluster_scm_clean }}"
+    scm_update_on_launch: "{{ cluster_project_bootstrap_cluster_scm_update_on_launch }}"
+    scm_delete_on_update: "{{ cluster_project_bootstrap_cluster_scm_delete_on_update }}"
+    scm_credential: "{{ cluster_credential_bundle_github_name }}"
+
+- name: "Create le_privatekey custom credential"
+  tower_credential_type:
+    name: "{{ cluster_credential_bundle_le_key_name}}"
+    inputs: "{{ lookup('file', 'LE_privatekey_inputs.json') }}"
+    injectors: {'extra_vars': {'le_private_key': "{{ lookup('file', 'LE_privatekey_template') }}" }}
+    state: present
+    kind: cloud
+
+- name: check for presence of credential repo
+  stat:
+    path: /tmp/credential_repo/files/letsencrypt_privkey.pem
+  register: credential_repo_result
+
+- name: Create the credentials repo 
+  include_tasks: clone_credential_repo.yml
+  when: credential_repo_result.stat.exists == false
+
+- name: Add Custom Credential
+  command: tower-cli credential create --name "le_privatekey" --credential-type "LE_privatekey" --inputs "{'le_key':'{{ lookup('file', '/tmp/credential_repo/files/letsencrypt_privkey.pem') }}'}" --organization "{{ tower_organization }}"
+  no_log: true
+  ignore_errors: true
+
