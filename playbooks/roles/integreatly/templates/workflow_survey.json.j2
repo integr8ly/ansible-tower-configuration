@@ -98,15 +98,15 @@
       },
       {
         "question_description": "AWS Account Credentials",
-        "min": 0,
-        "default": "coreos",
-        "max": 1024,
+        "min": null,
+        "default": "",
+        "max": null,
         "required": true,
-        "choices": "",
+        "choices": "{{ integreatly_install_survey_aws_accounts }}",
         "new_question": true,
         "variable": "integreatly_inventory_source_aws_credentials",
         "question_name": "AWS Credentials",
-        "type": "text"
+        "type": "multiplechoice"
       }
     ]
   }
