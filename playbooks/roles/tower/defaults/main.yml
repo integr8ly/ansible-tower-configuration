@@ -29,6 +29,11 @@ tower_credential_bundle_github_name: "Tower Default Github Credentials"
 tower_credential_bundle_github_desc: "Default Tower Credential Bundle for Github"
 tower_credential_bundle_github_type: 'scm'
 
+aws_credential_list:
+  - "blank"
+blank_access_key_id: ''
+blank_secret_access_key: ''
+
 # Ansible Tower Default Inventories
 tower_inventory_name: 'Default Tower Inventory'
 tower_inventory_desc: 'Default Tower Inventory used for local jobs'
