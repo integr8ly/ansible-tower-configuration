@@ -74,3 +74,6 @@ integreatly_group_local_update_on_launch: false
 # Integreatly Hosts
 integreatly_host_local_name: 'localhost'
 integreatly_host_local_desc: "Localhost: {{ cluster_name }}"
+
+# Integreatly Survey
+integreatly_install_survey_aws_accounts: []
