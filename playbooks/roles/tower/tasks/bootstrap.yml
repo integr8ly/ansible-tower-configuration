@@ -23,8 +23,15 @@
     - 'tower-cli setting modify SOCIAL_AUTH_GITHUB_ORG_ORGANIZATION_MAP "{{ social_auth_github_org_organization_map }}"'
     - 'tower-cli setting modify SOCIAL_AUTH_GITHUB_ORG_TEAM_MAP "{{ social_auth_github_org_team_map }}"'
 
-# Bug with Tower module where we need to create an empty scm credential bundle before creating a project
-# https://github.com/ansible/ansible/pull/34250
+- name: 'Create Vault credential bundle: {{ tower_credential_bundle_vault_name }}'
+  tower_credential:
+    name: '{{ tower_credential_bundle_vault_name }}'
+    description: '{{ tower_credential_bundle_vault_desc }}'
+    organization: '{{ tower_organization }}'
+    state: present
+    kind: '{{ tower_credential_bundle_vault_type }}'
+    vault_password: '{{ integreatly_vault }}'
+
 - name: 'Copy the tower_github_scm key to server'
   copy:
     content: '{{ tower_github_scm }}'
@@ -100,11 +107,6 @@
     scm_delete_on_update: '{{ tower_credentials_project_scm_delete_on_update }}'
     scm_credential: '{{ tower_credential_bundle_github_name }}'
 
-- name: Create extra vars file for authentication
-  template:
-    src: authenticate_tower.yml.j2
-    dest: /tmp/authenticate_tower.yml
-
 - name: 'Authenticate Tower Job Template: {{ tower_job_template_authenticate_tower_name }}'
   tower_job_template:
     name: '{{ tower_job_template_authenticate_tower_name }}'
@@ -113,18 +115,13 @@
     playbook: '{{ tower_job_template_authenticate_tower_job_playbook }}'
     project: '{{ tower_configuration_project_name }}'
     credential: '{{ tower_job_template_authenticate_tower_job_credentials }}'
+    vault_credential: '{{ tower_credential_bundle_vault_name }}'
     state: present
     inventory: '{{ tower_inventory_name }}'
-    extra_vars_path: '/tmp/authenticate.yml'
   register: tower_job_template_authenticate_tower_raw
   until: tower_job_template_authenticate_tower_raw is succeeded
   retries: 10
   delay: 5
-
-- name: Create extra vars file for openshift authentication
-  template:
-    src: authenticate_openshift.yml.j2
-    dest: /tmp/authenticate_openshift.yml
 
 - name: "Authenticate Openshift Job Template: {{ tower_job_template_authenticate_openshift_name }}"
   tower_job_template:
@@ -134,9 +131,9 @@
     playbook: "{{ tower_job_template_authenticate_openshift_job_playbook }}"
     project: "{{ tower_configuration_project_name }}"
     credential: "{{ tower_job_template_authenticate_openshift_job_credentials }}"
+    vault_credential: '{{ tower_credential_bundle_vault_name }}'
     state: present
     inventory: "{{ tower_inventory_name }}"
-    extra_vars_path: '/tmp/authenticate_openshift.yml'
   register: openshift_job_template_authenticate_raw
   until: openshift_job_template_authenticate_raw is succeeded
   retries: 10

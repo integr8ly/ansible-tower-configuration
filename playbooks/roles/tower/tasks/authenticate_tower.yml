@@ -1,5 +1,5 @@
 ---
-- name: Set configuration values
+- name: 'Set configuration values'
   shell: "tower-cli config {{ item }}"
   with_items:
     - "host {{ tower_host }}"

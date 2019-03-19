@@ -17,6 +17,10 @@ tower_organization: 'Integreatly'
 tower_team: 'integreatly-eng'
 
 # Ansible Tower Credentials
+tower_credential_bundle_vault_name: 'integreatly_vault'
+tower_credential_bundle_vault_desc: 'Default Tower vault credential'
+tower_credential_bundle_vault_type: 'vault'
+
 tower_credential_bundle_default_name: 'Tower_Provisioner'
 tower_credential_bundle_default_desc: 'Default Tower machine credential'
 tower_credential_bundle_default_type: 'ssh'
