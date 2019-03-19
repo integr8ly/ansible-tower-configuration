@@ -1,0 +1,28 @@
+---
+- name: 'Create project: {{ tower_configuration_project_name }}'
+  tower_project:
+    name: '{{ tower_configuration_project_name }}'
+    description: '{{ tower_configuration_project_desc }}'
+    organization: '{{ tower_organization }}'
+    state: present
+    scm_type: '{{ tower_configuration_project_scm_type }}'
+    scm_url: '{{ tower_configuration_project_scm_type_url }}'
+    scm_branch: '{{ tower_configuration_project_scm_branch }}'
+    scm_clean: '{{ tower_configuration_project_scm_clean }}'
+    scm_update_on_launch: '{{ tower_configuration_project_scm_update_on_launch }}'
+    scm_delete_on_update: '{{ tower_configuration_project_scm_delete_on_update }}'
+    scm_credential: '{{ tower_credential_bundle_github_name }}'
+
+- name: 'Create project: {{ tower_credentials_project_name }}'
+  tower_project:
+    name: '{{ tower_credentials_project_name }}'
+    description: '{{ tower_credentials_project_desc }}'
+    organization: '{{ tower_organization }}'
+    state: present
+    scm_type: '{{ tower_credentials_project_scm_type }}'
+    scm_url: '{{ tower_credentials_project_scm_type_url }}'
+    scm_branch: '{{ tower_credentials_project_scm_branch }}'
+    scm_clean: '{{ tower_credentials_project_scm_clean }}'
+    scm_update_on_launch: '{{ tower_credentials_project_scm_update_on_launch }}'
+    scm_delete_on_update: '{{ tower_credentials_project_scm_delete_on_update }}'
+    scm_credential: '{{ tower_credential_bundle_github_name }}'
