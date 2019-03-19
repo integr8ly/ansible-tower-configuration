@@ -7,3 +7,4 @@
     - "password {{ tower_password }}"
     - "verify_ssl {{ tower_verify_ssl }}"
   when: tower_login
+  no_log: true
