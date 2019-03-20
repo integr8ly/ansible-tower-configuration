@@ -16,7 +16,7 @@
     description: "{{ integreatly_job_template_bootstrap_desc }}"
     job_type: "{{ integreatly_job_template_bootstrap_type }}"
     playbook: "{{ integreatly_job_template_bootstrap_playbook }}"
-    project: "{{ tower_project_name }}"
+    project: "{{ tower_configuration_project_name }}"
     credential: "{{ tower_credential_bundle_default_name }}"
     state: present
     inventory: "{{ tower_inventory_name }}"
@@ -27,7 +27,7 @@
     description: "{{ integreatly_job_template_deploy_desc }}"
     job_type: "{{ integreatly_job_template_deploy_type }}"
     playbook: "{{ integreatly_job_template_bootstrap_playbook }}"
-    project: "{{ tower_project_name }}"
+    project: "{{ tower_configuration_project_name }}"
     credential: "{{ tower_credential_bundle_default_name }}"
     state: present
     inventory: "{{ tower_inventory_name }}"

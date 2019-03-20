@@ -23,7 +23,7 @@ The following bootstrap playbook requires a number of configs to be passed in, n
 * `tower_password`: The password of the tower_user specified
 * `tower_verify_ssl`: (Optional) Determines whether to verify the SSL certs installed on the Tower instance. By default this is set to `false`
 ```
-ansible-playbook -i inventory/hosts playbooks/bootstrap_tower.yml -e tower_host=<tower-host> -e tower_username=<tower-username> -e tower_password=<tower-password>
+ansible-playbook -i inventories/hosts playbooks/bootstrap_tower.yml -e tower_host=<tower-host> -e tower_username=<tower-username> -e tower_password=<tower-password>
 ```
 
 ## Integreatly Bootstrapping
@@ -31,7 +31,7 @@ The `bootstrap_integreatly.yml` playbook will bootstrap a target Ansible Tower i
 
 There are no additional parameters required by default:
 ```
-ansible-playbook -i inventory/hosts playbooks/bootstrap_integreatly.yml
+ansible-playbook -i inventories/hosts playbooks/bootstrap_integreatly.yml
 ```
 
 ## Integreatly Workflow
