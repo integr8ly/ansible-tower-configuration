@@ -1,0 +1,12 @@
+---
+ansible_user: root
+openshift_login: true
+prerequisites_install: false
+create_cluster_admin: false
+
+# 3scale
+threescale_file_upload_storage: s3
+threescale_storage_s3_aws_access_key: "{{ cluster_aws_access_key }}"
+threescale_storage_s3_aws_secret_key: "{{ cluster_aws_secret_access_key }}"
+threescale_storage_s3_aws_region: "{{ cluster_aws_region }}"
+threescale_storage_s3_aws_bucket: "{{ cluster_name }}-3scale"

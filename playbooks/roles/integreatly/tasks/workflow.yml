@@ -70,10 +70,10 @@
     src: workflow_survey.json.j2
     dest: "/tmp/workflow_survey.json"
 
-- name: "Update Workflow job template with survey"
+- name: Update workflow job template with survey
   shell: "tower-cli workflow modify --name=\"{{ integreatly_workflow_job_template_name }}\" --survey-enabled=true --survey-spec='@/tmp/workflow_survey.json'"
 
-- name: "Update Workflow job template with schema"
+- name: Update workflow job template with schema
   shell: "tower-cli workflow schema \"{{ integreatly_workflow_job_template_name }}\" @/tmp/integreatly_workflow_schema.yml"
 
 - name: Cleanup temp workflow files
