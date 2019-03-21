@@ -108,5 +108,29 @@
   retries: 10
   delay: 5
 
+- name: Retrieve cluster provisioning vars inventory
+  shell: "tower-cli inventory get -n \"{{ cluster_provisioning_vars_inventory }}\" -f json"
+  register: cluster_provisioning_vars_raw
+
+- set_fact:
+    cluster_provisioning_vars_json: "{{ cluster_provisioning_vars_raw.stdout | from_json }}"
+
+- set_fact:
+    cluster_provisioning_vars: "{{ cluster_provisioning_vars_json.variables }}"
+
+- set_fact:
+    cluster_aws_region: "{{ cluster_provisioning_vars['openshift_aws_region'] }}"
+    cluster_aws_access_key: "{{ cluster_provisioning_vars['AWS_ACCESS_KEY_ID'] }}"
+    cluster_aws_secret_access_key: "{{ cluster_provisioning_vars['AWS_SECRET_ACCESS_KEY'] }}"
+
+- name: Generate extra vars file
+  template:
+    dest: "/tmp/extra_vars_{{ cluster_type }}.yml"
+    src: "extra_vars_{{ cluster_type }}.yml.j2"
+
 - name: "Update workflow stage {{ integreatly_job_template_deploy_name }}"
-  shell: "tower-cli job_template modify -n \"{{ integreatly_job_template_deploy_name }}\" -i {{ integreatly_inventory_name }} --project {{ integreatly_project_bootstrap_cluster_name }} --playbook {{ integreatly_job_template_deploy_playbook }} --credential {{ tower_credential_bundle_default_name }} --extra-vars '@{{ role_path }}/files/extra_vars_{{ cluster_type }}.yml'"
+  shell: "tower-cli job_template modify -n \"{{ integreatly_job_template_deploy_name }}\" -i {{ integreatly_inventory_name }} --project {{ integreatly_project_bootstrap_cluster_name }} --playbook {{ integreatly_job_template_deploy_playbook }} --credential {{ tower_credential_bundle_default_name }} --extra-vars '@/tmp/extra_vars_{{ cluster_type }}.yml'"
+
+- name: Cleanup temp var file
+  file:
+    path: "/tmp/extra_vars_{{ cluster_type }}.yml"
