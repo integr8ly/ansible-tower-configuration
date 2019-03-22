@@ -14,8 +14,8 @@ integreatly_workflow_job_template_desc: 'Workflow for Installing Integreatly aga
 integreatly_workflow_job_template_organization: "{{ tower_organization }}"
 
 # Integreatly Credentials
-integreatly_credential_bundle_github_name: "dummy-scm-credentials"
-integreatly_credential_bundle_github_desc: "Dummy SCM credentials for Integreatly project"
+integreatly_credential_bundle_github_name: "tower_github_scm"
+integreatly_credential_bundle_github_desc: "SCM credentials for Integreatly project"
 integreatly_credential_bundle_github_kind: 'scm'
 
 # Integreatly Job Templates
