@@ -10,6 +10,10 @@
     extra_vars_path: "roles/cluster/files/openshift_tower_auth.yml"
     state: present
     inventory: "Provisioning_inventory"
+  register: cluster_create_openshift_auth_out
+  until: cluster_create_openshift_auth_out is succeeded
+  retries: 10
+  delay: 5
 
 - name: Configure generate inventory job template
   tower_job_template:
@@ -21,6 +25,10 @@
     credential: "{{ tower_credential_bundle_default_name }}"
     state: present
     inventory: "Provisioning_inventory"
+  register: cluster_create_generate_inventory_out
+  until: cluster_create_generate_inventory_out is succeeded
+  retries: 10
+  delay: 5
 
 - name: Add Custom Credential
   command: tower-cli credential create --name "le_privatekey" --credential-type "le_privatekey" --inputs "{'le_key':'{{ letsencrypt_private_key }}'}" --organization "{{ tower_organization }}"
@@ -39,6 +47,10 @@
     credential: "{{ tower_credential_bundle_default_name }}"
     state: present
     inventory: "Provisioning_inventory"
+  register: cluster_create_pre_flight_out
+  until: cluster_create_pre_flight_out is succeeded
+  retries: 10
+  delay: 5
 
 - name: Associate additional credentials
   shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_preflight_name }}" --credential "{{ cluster_job_template_preflight_credentials }}"
@@ -53,6 +65,10 @@
     credential: "{{ tower_credential_bundle_default_name }}"
     state: present
     inventory: "Provisioning_inventory"
+  register: cluster_create_prerequisites_out
+  until: cluster_create_prerequisites_out is succeeded
+  retries: 10
+  delay: 5
 
 - name: Associate additional credentials
   shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_prerequisites_name }}" --credential "{{ cluster_job_template_prerequisites_credentials }}"
@@ -67,6 +83,11 @@
     credential: "{{ tower_credential_bundle_default_name }}"
     state: present
     inventory: "Provisioning_inventory"
+  register: cluster_create_provision_install_out
+  until: cluster_create_provision_install_out is succeeded
+  retries: 10
+  delay: 5
+
 
 - name: Associate additional credentials
   shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_install_name }}" --credential "{{ cluster_credential_bundle_aws_name }}"
@@ -84,6 +105,10 @@
     credential: "{{ tower_credential_bundle_default_name }}"
     state: present
     inventory: "Provisioning_inventory"
+  register: cluster_create_post_install_out
+  until: cluster_create_post_install_out is succeeded
+  retries: 10
+  delay: 5
 
 - name: "Create workflow: {{ cluster_workflow_job_template_name }}"
   tower_workflow_template:

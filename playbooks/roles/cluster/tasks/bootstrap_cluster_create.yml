@@ -27,5 +27,3 @@
     injectors: {'extra_vars': {'le_private_key': "{{ lookup('file', 'LE_privatekey_template') }}" }}
     state: present
     kind: cloud
-
-

@@ -9,9 +9,6 @@ cluster_project_bootstrap_cluster_scm_clean: true
 cluster_project_bootstrap_cluster_scm_update_on_launch: true
 cluster_project_bootstrap_cluster_scm_delete_on_update: true
 
-tower_pod_openshift_user: ""
-tower_pod_openshift_pass: ""
-
 #                         #
 # Cluster create projects #
 #                         #
