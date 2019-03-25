@@ -9,6 +9,9 @@ cluster_project_bootstrap_cluster_scm_clean: true
 cluster_project_bootstrap_cluster_scm_update_on_launch: true
 cluster_project_bootstrap_cluster_scm_delete_on_update: true
 
+tower_pod_openshift_user: ""
+tower_pod_openshift_pass: ""
+
 #                         #
 # Cluster create projects #
 #                         #
@@ -21,7 +24,7 @@ cluster_project_oa_bootstrap_scm_url: "git@github.com:openshift/openshift-ansibl
 # Cluster create credentials #
 #                            #
 
-cluster_credential_bundle_github_name: ""
+cluster_credential_bundle_github_name: "tower_github_scm"
 cluster_credential_bundle_aws_name: ""
 cluster_credential_bundle_le_key_name: 'le_privatekey'
 
@@ -71,7 +74,6 @@ cluster_job_template_post_install_project: '{{ tower_configuration_project_name 
 
 cluster_workflow_job_template_name: "Provision Cluster"
 cluster_workflow_job_template_desc: "Provision Openshift 3.11 cluster"
-cluster_workflow_job_template_organization: Default
 
 cluster_workflow_job_template_openshift_auth: "Openshift_Authenticate_tower_pod"
 

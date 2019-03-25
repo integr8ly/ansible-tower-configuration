@@ -9,7 +9,7 @@
         success:
         - job_template: "{{ cluster_job_template_install_name }}"
           success:
-          - job_template: "{{ cluster_workflow_job_template_post_install }}"
+          - job_template: "{{ cluster_job_template_post_install_name }}"
           failure:
           - job_template: "{{ cluster_job_template_install_name }}"
             success:

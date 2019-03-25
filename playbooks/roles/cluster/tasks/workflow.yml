@@ -7,7 +7,7 @@
     playbook: "{{ cluster_job_template_openshift_auth_playbook }}"
     project: "{{ cluster_job_template_openshift_auth_project }}"
     credential: "{{ tower_credential_bundle_default_name }}"
-    extra_vars_path: "files/openshift_tower_auth.yml"
+    extra_vars_path: "roles/cluster/files/openshift_tower_auth.yml"
     state: present
     inventory: "Provisioning_inventory"
 
@@ -23,9 +23,11 @@
     inventory: "Provisioning_inventory"
 
 - name: Add Custom Credential
-  command: tower-cli credential create --name "le_privatekey" --credential-type "LE_privatekey" --inputs "{'le_key':'{{ letsencrypt_private_key }}'}" --organization "{{ tower_organization }}"
-  no_log: true
+  command: tower-cli credential create --name "le_privatekey" --credential-type "le_privatekey" --inputs "{'le_key':'{{ letsencrypt_private_key }}'}" --organization "{{ tower_organization }}"
   ignore_errors: true
+
+- name: Associate additional credentials
+  shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_generate_inventory_name }}" --credential "le_privatekey"
 
 - name: Configure pre-flight job template
   tower_job_template:
@@ -88,7 +90,7 @@
     name:  "{{ cluster_workflow_job_template_name }}"
     description: "{{ cluster_workflow_job_template_desc }}"
     state: present
-    organization: "{{ cluster_workflow_job_template_organization }}"
+    organization: "{{ tower_organization }}"
 
 - name: Create workflow schema
   template:
