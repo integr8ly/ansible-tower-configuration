@@ -1,0 +1,192 @@
+---
+  - name: Set AWS credentials
+    set_fact:
+      aws_access_key: "{{ integreatly_inventory_source_aws_credentials | default (cluster_credential_bundle_aws_name) }}_access_key_id"
+      aws_secret_key: "{{ integreatly_inventory_source_aws_credentials | default (cluster_credential_bundle_aws_name) }}_secret_access_key"     
+
+  - name: Search for tagged AMI
+    ec2_ami_facts:
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+      region: "{{ oo_sublocation }}"
+      filters:
+        "tag:image": latest
+    register: found_ami_info
+  
+  - name: Use the found AMI
+    set_fact:
+      g_play_image_id: "{{ found_ami_info['images'][0]['image_id'] }}"
+    ignore_errors: true
+
+  - fail:
+      msg: "AMI with tag 'image: latest' does not exist in: {{ oo_sublocation }}" 
+    when: g_play_image_id is undefined
+
+  - name: Print ami id
+    debug:
+      msg: "{{ g_play_image_id }}"
+
+  - name: Check if certificates exist
+    stat:
+      path: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ base_cluster_url }}.crt
+    register: crt_result
+    
+  - stat: path=/tmp/{{ oo_clusterid }}/certs/wildcard.{{ apps_cluster_url }}.crt
+    register: app_crt_result
+
+  - stat: path=/tmp/{{ oo_clusterid }}/certs/rootCA.pem
+    register: rootca_result
+
+  - include_tasks: generate_ssl_certs.yml
+    when: crt_result.stat.exists == false or app_crt_result.stat.exists == false or rootca_result.stat.exists == false
+
+  - include_tasks: check_amis.yml
+
+  - name: Make sure account exists and has given contacts. We agree to TOS.
+    acme_account:
+        account_key_content: "{{ le_private_key }}"
+        state: present
+        terms_agreed: yes
+        acme_version: 2
+        acme_directory: "https://acme-v02.api.letsencrypt.org/directory"
+        contact:
+        - mailto:integreatly-sre@redhat.com
+
+  - name: Create directory for certs
+    file:
+        path: "/tmp/{{ oo_clusterid }}/certs"
+        state: directory
+
+  - name: Generate a private key and csr for the cluster cert
+    block:
+      - openssl_privatekey:
+          path: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ oo_clusterid }}.{{ domain }}.key
+      - openssl_csr:
+          privatekey_path: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ base_cluster_url }}.key
+          path: "/tmp/{{ oo_clusterid }}/certs/wildcard.{{ base_cluster_url }}.csr"
+          common_name: "{{ base_cluster_url }}"
+          subject_alt_name: 'DNS:{{ base_cluster_url }},DNS:*.{{ base_cluster_url }}'
+    when: crt_result.stat.exists == false
+
+  - name: Generate a private key and csr for the apps cert
+    block:
+      - openssl_privatekey:
+          path: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ apps_cluster_url }}.key
+      - openssl_csr:
+          privatekey_path: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ apps_cluster_url }}.key
+          path: "/tmp/{{ oo_clusterid }}/certs/wildcard.{{ apps_cluster_url }}.csr"
+          common_name: "{{ apps_cluster_url }}"
+          subject_alt_name: 'DNS:{{ apps_cluster_url }},DNS:*.{{ apps_cluster_url }}'
+    when: app_crt_result.stat.exists == false
+
+  #
+  # Generate <clustername>.<domain> certs
+  #
+
+  - name: Generate "{{ oo_clusterid }}"."{{ domain }}" cert
+    block:
+      - acme_certificate:
+          account_key_content: "{{ le_private_key }}"
+          account_email: "integreatly-sre@redhat.com"
+          acme_version: 2
+          src: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ base_cluster_url}}.csr
+          dest: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ base_cluster_url }}.crt
+          challenge: dns-01
+          acme_directory: https://acme-v02.api.letsencrypt.org/directory
+        register: base_cluster_challenge
+      - set_fact:
+          challenges:
+          - "{{ base_cluster_challenge.challenge_data[base_cluster_url]['dns-01'].resource_value | regex_replace('^(.*)$', '\"\\1\"') }}"
+          - "{{ base_cluster_challenge.challenge_data['*.' + base_cluster_url]['dns-01'].resource_value | regex_replace('^(.*)$', '\"\\1\"') }}"
+      - set_fact:
+          base_cluster_dns_challenge: "{{ challenges | join(',') }}"
+      - route53:
+          zone: "{{ domain }}"
+          record: "{{ base_cluster_challenge.challenge_data[base_cluster_url]['dns-01'].record }}"
+          type: TXT
+          ttl: 60
+          state: present
+          value: "{{ base_cluster_dns_challenge }}"
+          aws_access_key: "{{ dns_access_key | default(aws_access_key) }}"
+          aws_secret_key: "{{ dns_secret_key | default(aws_secret_key) }}"
+          wait: yes
+        when: base_cluster_challenge is changed  
+      - acme_certificate:
+          account_key_content: "{{ le_private_key }}"
+          account_email: "integreatly-sre@redhat.com"
+          acme_version: 2
+          src: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ base_cluster_url }}.csr
+          cert: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ base_cluster_url }}.crt
+          chain: /tmp/{{ oo_clusterid }}/certs/rootCA.pem
+          challenge: dns-01
+          acme_directory: https://acme-v02.api.letsencrypt.org/directory
+          remaining_days: 60
+          data: "{{ base_cluster_challenge }}"
+      - route53:
+          zone: "{{ domain }}"
+          record: "{{ base_cluster_challenge.challenge_data[base_cluster_url]['dns-01'].record }}"
+          value: "{{ base_cluster_dns_challenge }}"
+          type: TXT
+          ttl: 60
+          state: absent
+          aws_access_key: "{{ dns_access_key | default(aws_access_key) }}"
+          aws_secret_key: "{{ dns_secret_key | default(aws_secret_key) }}"
+          overwrite: true
+      - shell: oc create secret tls "{{ oo_clusterid }}.certs" --cert=/tmp/{{ oo_clusterid }}/certs/wildcard.{{ base_cluster_url }}.crt --key=/tmp/{{ oo_clusterid }}/certs/wildcard.{{ base_cluster_url }}.key
+    when: crt_result.stat.exists == false
+
+  #
+  # Generate apps.<clustername>.<domain> certs
+  #
+
+  - name: Generate apps."{{ oo_clusterid }}"."{{ domain }}" cert
+    block:
+      - acme_certificate:
+          account_key_content: "{{ le_private_key }}"
+          account_email: "integreatly-sre@redhat.com"
+          acme_version: 2
+          src: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ apps_cluster_url }}.csr
+          dest: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ apps_cluster_url }}.crt
+          challenge: dns-01
+          acme_directory: https://acme-v02.api.letsencrypt.org/directory
+        register: apps_cluster_challenge
+      - set_fact:
+          challenges:
+          - "{{ apps_cluster_challenge.challenge_data[apps_cluster_url]['dns-01'].resource_value | regex_replace('^(.*)$', '\"\\1\"') }}"
+          - "{{ apps_cluster_challenge.challenge_data['*.' + apps_cluster_url]['dns-01'].resource_value | regex_replace('^(.*)$', '\"\\1\"') }}"
+      - set_fact:
+          apps_cluster_dns_challenge: "{{ challenges | join(',') }}"
+      - route53:
+          zone: "{{ domain }}"
+          record: "{{ apps_cluster_challenge.challenge_data[apps_cluster_url]['dns-01'].record }}"
+          type: TXT
+          ttl: 60
+          state: present
+          value: "{{ apps_cluster_dns_challenge }}"
+          aws_access_key: "{{ dns_access_key | default(aws_access_key) }}"
+          aws_secret_key: "{{ dns_secret_key | default(aws_secret_key) }}"
+          wait: yes
+        when: apps_cluster_challenge is changed  
+      - acme_certificate:
+          account_key_content: "{{ le_private_key }}"
+          account_email: "integreatly-sre@redhat.com"
+          acme_version: 2
+          src: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ apps_cluster_url }}.csr
+          cert: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ apps_cluster_url }}.crt
+          chain: /tmp/{{ oo_clusterid }}/certs/rootCA.pem
+          challenge: dns-01
+          acme_directory: https://acme-v02.api.letsencrypt.org/directory
+          remaining_days: 60
+          data: "{{ apps_cluster_challenge }}"
+      - route53:
+          zone: "{{ domain }}"
+          record: "{{ apps_cluster_challenge.challenge_data[apps_cluster_url]['dns-01'].record }}"
+          value: "{{ apps_cluster_dns_challenge }}"
+          type: TXT
+          ttl: 60
+          state: absent
+          aws_access_key: "{{ dns_access_key | default(aws_access_key) }}"
+          aws_secret_key: "{{ dns_secret_key | default(aws_secret_key) }}"
+          overwrite: true
+      - shell: oc create secret tls "{{ oo_clusterid }}.apps.certs" --cert=/tmp/{{ oo_clusterid }}/certs/wildcard.{{ apps_cluster_url }}.crt --key=/tmp/{{ oo_clusterid }}/certs/wildcard.{{ apps_cluster_url }}.key
+    when: app_crt_result.stat.exists == false

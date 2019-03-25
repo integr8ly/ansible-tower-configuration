@@ -1,0 +1,16 @@
+---
+- job_template: "{{ tower_job_template_authenticate_tower_name }}"
+  success:
+  - job_template: "{{ cluster_workflow_job_template_openshift_auth }}"
+    success:
+    - job_template: "{{ cluster_job_template_preflight_name }}"
+      success:
+      - job_template: "{{ cluster_job_template_prerequisites_name }}"
+        success:
+        - job_template: "{{ cluster_job_template_install_name }}"
+          success:
+          - job_template: "{{ cluster_job_template_post_install_name }}"
+          failure:
+          - job_template: "{{ cluster_job_template_install_name }}"
+            success:
+             - job_template: "{{ cluster_job_template_post_install_name }}"

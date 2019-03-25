@@ -1,0 +1,24 @@
+---
+- name: post-install tasks
+  hosts: localhost
+  tasks:
+  - name: Get instance facts
+    ec2_instance_facts:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        region: "{{ oo_sublocation }}"
+        filters: "tag:clusterid={{ oo_clusterid }},tag:host-type=master"
+    register: facts
+
+  - name: add first master to firstMaster group
+    add_host:
+      name: "{{ facts.instances[0]['public_dns_name'] }}"
+      groups: "firstMaster"
+
+- name: create cluster-admin
+  hosts: firstMaster
+  vars:
+    default_user: "integreatly"
+  tasks:
+  - name: Give cluster-admin to htpasswd user
+    shell: oc adm policy add-cluster-role-to-user cluster-admin "{{ default_user }}"
