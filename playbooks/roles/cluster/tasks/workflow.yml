@@ -34,7 +34,7 @@
   command: tower-cli credential create --name "le_privatekey" --credential-type "le_privatekey" --inputs "{'le_key':'{{ letsencrypt_private_key }}'}" --organization "{{ tower_organization }}"
   ignore_errors: true
 
-- name: Associate additional credentials
+- name: "Associate le_privatekey credential to {{ cluster_job_template_generate_inventory_name }}" 
   shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_generate_inventory_name }}" --credential "le_privatekey"
 
 - name: Configure pre-flight job template
@@ -52,7 +52,7 @@
   retries: 10
   delay: 5
 
-- name: Associate additional credentials
+- name: "Associate {{ cluster_job_template_preflight_credentials }} credential to {{ cluster_job_template_preflight_name }}"
   shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_preflight_name }}" --credential "{{ cluster_job_template_preflight_credentials }}"
 
 - name: Configure prerequisites job template
@@ -70,7 +70,7 @@
   retries: 10
   delay: 5
 
-- name: Associate additional credentials
+- name: "Associate {{ cluster_job_template_prerequisites_credentials }} credential to {{ cluster_job_template_prerequisites_name }}"
   shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_prerequisites_name }}" --credential "{{ cluster_job_template_prerequisites_credentials }}"
 
 - name: Configure provision install job template
@@ -89,10 +89,10 @@
   delay: 5
 
 
-- name: Associate additional credentials
+- name: "Associate {{ cluster_credential_bundle_aws_name }} credentials {{ cluster_job_template_install_name }}"
   shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_install_name }}" --credential "{{ cluster_credential_bundle_aws_name }}"
 
-- name: Associate additional credentials
+- name: "Associate {{ cluster_job_template_install_credentials }} credential to {{ cluster_job_template_install_name }}"
   shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_install_name }}" --credential "{{ cluster_job_template_install_credentials }}"
 
 - name: Configure post-install job template
