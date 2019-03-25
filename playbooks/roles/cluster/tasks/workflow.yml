@@ -132,16 +132,16 @@
 
 - set_fact:
     aws_credentials_json: "{{ aws_credentials_raw.stdout | from_json }}"
-    integreatly_aws_accounts: []
+    cluster_aws_accounts: []
 
-- name: "Set list of Integreatly AWS Accounts"
+- name: "Set list of AWS Accounts"
   set_fact:
-    integreatly_aws_accounts: "{{ integreatly_aws_accounts + [ item.name ] }}"
+    cluster_aws_accounts: "{{ cluster_aws_accounts + [ item.name ] }}"
   with_items: "{{ aws_credentials_json.results }}"
   no_log: true
 
 - set_fact:
-    integreatly_install_survey_aws_accounts: "{{ integreatly_aws_accounts | join('\\n')}}"
+    cluster_install_survey_aws_accounts: "{{ cluster_aws_accounts | join('\\n')}}"
 
 - name: "Update Workflow job template with survey"
   shell: "tower-cli workflow modify --name=\"{{ cluster_workflow_job_template_name }}\" --survey-enabled=true --survey-spec='@{{ role_path }}/templates/workflow_survey.json'"
