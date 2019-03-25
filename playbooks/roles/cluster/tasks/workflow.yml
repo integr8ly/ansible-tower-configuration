@@ -22,6 +22,11 @@
     state: present
     inventory: "Provisioning_inventory"
 
+- name: Add Custom Credential
+  command: tower-cli credential create --name "le_privatekey" --credential-type "LE_privatekey" --inputs "{'le_key':'{{ letsencrypt_private_key }}'}" --organization "{{ tower_organization }}"
+  no_log: true
+  ignore_errors: true
+
 - name: Configure pre-flight job template
   tower_job_template:
     name: "{{ cluster_job_template_preflight_name }}"

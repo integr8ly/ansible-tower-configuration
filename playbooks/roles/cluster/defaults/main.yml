@@ -13,17 +13,9 @@ cluster_project_bootstrap_cluster_scm_delete_on_update: true
 # Cluster create projects #
 #                         #
 
-# openshift-ansible-ops
-cluster_project_oao_bootstrap_scm_branch: ""
-cluster_project_oao_bootstrap_scm_url: ""
-
 # openshift-ansible
-cluster_project_oa_bootstrap_scm_branch: ""
-cluster_project_oa_bootstrap_scm_url: ""
-
-# ansible-plays
-cluster_project_ap_bootstrap_scm_branch: ""
-cluster_project_ap_bootstrap_scm_url: ""
+cluster_project_oa_bootstrap_scm_branch: "release-3.11"
+cluster_project_oa_bootstrap_scm_url: "git@github.com:openshift/openshift-ansible.git"
 
 #                            #
 # Cluster create credentials #
@@ -41,7 +33,6 @@ cluster_job_template_openshift_auth_name: "Openshift_Authenticate_tower_pod"
 cluster_job_template_openshift_auth_desc: "Login to tower openshift user"
 cluster_job_template_openshift_auth_type: 'run'
 cluster_job_template_openshift_auth_playbook: 'playbooks/authenticate_openshift.yml'
-cluster_job_template_openshift_auth_credentials: '{{ cluster_credential_bundle_le_key_name }}'
 cluster_job_template_openshift_auth_project: '{{ tower_configuration_project_name }}'
 
 cluster_job_template_generate_inventory_name: "Generate_Inventory"

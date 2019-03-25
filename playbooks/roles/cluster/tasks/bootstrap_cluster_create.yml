@@ -28,17 +28,4 @@
     state: present
     kind: cloud
 
-- name: check for presence of credential repo
-  stat:
-    path: /tmp/credential_repo/files/letsencrypt_privkey.pem
-  register: credential_repo_result
-
-- name: Create the credentials repo 
-  include_tasks: clone_credential_repo.yml
-  when: credential_repo_result.stat.exists == false
-
-- name: Add Custom Credential
-  command: tower-cli credential create --name "le_privatekey" --credential-type "LE_privatekey" --inputs "{'le_key':'{{ lookup('file', '/tmp/credential_repo/files/letsencrypt_privkey.pem') }}'}" --organization "{{ tower_organization }}"
-  no_log: true
-  ignore_errors: true
 
