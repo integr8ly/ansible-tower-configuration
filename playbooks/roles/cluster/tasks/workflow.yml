@@ -122,6 +122,10 @@
     src: workflow_schema.yml.j2
     dest: "cluster_workflow_schema.yml"
 
+- name: Retrieve AWS Credential Type ID
+  shell: "tower-cli credential_type list --kind cloud -n \"Amazon Web Services\" -f id"
+  register: aws_cred_type_id
+
 - name: Retrieve list of AWS Credential Bundles
   shell: "tower-cli credential list --credential-type {{ aws_cred_type_id.stdout }} -f json"
   register: aws_credentials_raw
