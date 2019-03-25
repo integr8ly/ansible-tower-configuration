@@ -19,7 +19,7 @@
         "default": "aws.eng",
         "max": 100,
         "required": false,
-        "choices": "",
+        "choices": "{{ integreatly_install_survey_aws_accounts }}",
         "variable": "cluster_credential_bundle_aws_name",
         "question_name": "AWS account name",
         "type": "text"

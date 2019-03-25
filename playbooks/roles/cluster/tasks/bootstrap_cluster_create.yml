@@ -6,6 +6,11 @@
     organization: "{{ tower_organization }}"
     state: present
 
+- name: 'Create the secret organisation'
+  tower_organization:
+    name: 'secret'
+    state: present
+
 - name: "Create project: Openshift Ansible"
   tower_project:
     name: "Openshift Ansible"
