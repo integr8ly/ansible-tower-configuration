@@ -1,6 +1,6 @@
 ---
 - job_template: "{{ tower_job_template_authenticate_tower_name }}"
   success:
-  - job_template: "{{ integreatly_job_template_bootstrap_name }}"
+  - job_template: "{{ integreatly_job_template_bootstrap_install_name }}"
     success:
     - job_template: "{{ integreatly_job_template_deploy_name }}"

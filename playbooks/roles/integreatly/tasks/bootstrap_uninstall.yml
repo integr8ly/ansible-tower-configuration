@@ -1,0 +1,28 @@
+---
+
+- name: "Create project: {{ integreatly_project_uninstall_name }}"
+  tower_project:
+    name: "{{ integreatly_project_uninstall_name }}"
+    description: "{{ integreatly_project_uninstall_desc }}"
+    organization: "{{ tower_organization }}"
+    state: present
+    scm_type: "{{ integreatly_project_uninstall_scm_type }}"
+    scm_url: "{{ integreatly_project_uninstall_scm_url }}"
+    scm_branch: "{{ integreatly_project_uninstall_scm_branch }}"
+    scm_clean: "{{ integreatly_project_uninstall_scm_clean }}"
+    scm_update_on_launch: "{{ integreatly_project_uninstall_scm_update_on_launch }}"
+    scm_delete_on_update: "{{ integreatly_project_uninstall_scm_delete_on_update }}"
+    scm_credential: "{{ integreatly_credential_bundle_github_name }}"
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
+
+- name: Generate extra vars file
+  template:
+    dest: "/tmp/extra_vars_{{ cluster_type }}_uninstall.yml"
+    src: "extra_vars_{{ cluster_type }}_uninstall.yml.j2"
+
+- name: "Update workflow stage {{ integreatly_job_template_uninstall_name }}"
+  shell: "tower-cli job_template modify -n \"{{ integreatly_job_template_uninstall_name }}\" -i {{ integreatly_inventory_name }} --project {{ integreatly_project_uninstall_name }} --playbook {{ integreatly_job_template_uninstall_playbook }} --credential {{ tower_credential_bundle_default_name }} --extra-vars '@/tmp/extra_vars_{{ cluster_type }}_uninstall.yml'"
+  register: uninstall_workflow_update
+  retries: 10
+  delay: 3
+  until: uninstall_workflow_update.rc == 0
