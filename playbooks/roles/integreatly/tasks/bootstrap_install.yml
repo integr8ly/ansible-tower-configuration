@@ -1,0 +1,136 @@
+---
+
+- name: "Create inventory: {{ integreatly_inventory_name }}"
+  tower_inventory:
+    name: "{{ integreatly_inventory_name }}"
+    description: "{{ integreatly_inventory_desc }}"
+    organization: "{{ tower_organization }}"
+    state: present
+
+- name: "Create project: {{ integreatly_project_bootstrap_cluster_name }}"
+  tower_project:
+    name: "{{ integreatly_project_bootstrap_cluster_name }}"
+    description: "{{ integreatly_project_bootstrap_cluster_desc }}"
+    organization: "{{ tower_organization }}"
+    state: present
+    scm_type: "{{ integreatly_project_bootstrap_cluster_scm_type }}"
+    scm_url: "{{ integreatly_project_bootstrap_cluster_scm_url }}"
+    scm_branch: "{{ integreatly_project_bootstrap_cluster_scm_branch }}"
+    scm_clean: "{{ integreatly_project_bootstrap_cluster_scm_clean }}"
+    scm_update_on_launch: "{{ integreatly_project_bootstrap_cluster_scm_update_on_launch }}"
+    scm_delete_on_update: "{{ integreatly_project_bootstrap_cluster_scm_delete_on_update }}"
+    scm_credential: "{{ integreatly_credential_bundle_github_name }}"
+
+- name: "Create inventory source AWS: {{ integreatly_inventory_source_aws_name }}"
+  tower_inventory_source:
+    name: "{{ integreatly_inventory_source_aws_name }}"
+    source: "{{ integreatly_inventory_source_aws_type }}"
+    inventory: "{{ integreatly_inventory_name }}"
+    credential: "{{ integreatly_inventory_source_aws_credentials }}"
+    description: "AWS: {{ integreatly_inventory_source_aws_name }}"
+    source_regions: "{{ integreatly_inventory_source_aws_regions }}"
+    overwrite: "{{ integreatly_inventory_source_aws_overwrite }}"
+    update_on_launch: "{{ integreatly_inventory_source_aws_update_on_launch }}"
+    instance_filters: "{{ integreatly_inventory_source_aws_instance_filters }}"
+    state: present
+
+- name: "Create inventory source from Project: {{ integreatly_project_bootstrap_cluster_name }}"
+  tower_inventory_source:
+    name: "{{ integreatly_inventory_source_project_name }}"
+    source: "{{ integreatly_inventory_source_project_type }}"
+    inventory: "{{ integreatly_inventory_name }}"
+    description: "From Project: {{ integreatly_project_bootstrap_cluster_name }}"
+    overwrite: "{{ integreatly_inventory_source_project_overwrite }}"
+    overwrite_vars: "{{ integreatly_inventory_source_project_overwrite_vars }}"
+    update_on_launch: "{{ integreatly_inventory_source_project_update_on_launch }}"
+    source_project: "{{ integreatly_project_bootstrap_cluster_name }}"
+    source_path: "{{ integreatly_inventory_source_project_path }}"
+    state: present
+
+- name: "Sync inventory sources"
+  shell: "tower-cli inventory_source update {{ item }}"
+  with_items:
+    - "{{ integreatly_inventory_source_aws_name }}"
+    - "{{ integreatly_inventory_source_project_name }}"
+
+- name: "Create master group: {{ integreatly_group_master_name }}"
+  tower_group:
+    inventory: "{{ integreatly_inventory_name }}"
+    name: "{{ integreatly_group_master_name }}"
+    description: "{{ integreatly_group_master_desc }}"
+    state: present
+    overwrite: "{{ integreatly_group_master_overwrite }}"
+    overwrite_vars: "{{ integreatly_group_master_overwrite_vars }}"
+    update_on_launch: "{{ integreatly_group_master_update_on_launch }}"
+  register: master_group_data
+
+- name: "Retrieve tag_host_type_master group data"
+  shell: "tower-cli group get -i {{ integreatly_inventory_name }} --name {{ integreatly_group_master_aws_name }} -f json"
+  register: master_group_aws_data_raw
+  retries: 10
+  delay: 3
+  until: master_group_aws_data_raw.rc == 0
+
+- name: "Retrieve local group data"
+  shell: "tower-cli group get -i {{ integreatly_inventory_name }} --name local -f json"
+  register: local_group_data_raw
+  retries: 10
+  delay: 3
+  until: local_group_data_raw.rc == 0
+
+- set_fact:
+    master_group_aws_data: "{{ master_group_aws_data_raw.stdout|from_json }}"
+    local_group_data: "{{ local_group_data_raw.stdout|from_json }}"
+
+- name: "Gather hosts from tag_host_type_master group"
+  shell: "tower-cli host list -i {{ integreatly_inventory_name }} --group {{ master_group_aws_data.id }} -f id"
+  register: master_group_aws_hosts
+
+- name: "Associate tag_host_type_master hosts with {{ integreatly_group_master_name }} group"
+  shell: "tower-cli host associate --host {{ item }} --group {{ master_group_data.id }}"
+  with_items: "{{ master_group_aws_hosts.stdout.split() }}"
+
+- name: "Create local host"
+  tower_host:
+    name: "{{ integreatly_host_local_name }}"
+    inventory: "{{ integreatly_inventory_name }}"
+    description: "{{ integreatly_host_local_desc }}"
+    state: present
+  register: local_host_data
+
+- name: "Associate {{ integreatly_host_local_name }} with group {{ integreatly_group_local_name }}"
+  shell: "tower-cli host associate --host {{ local_host_data.id }} --group {{ local_group_data.id }}"
+  
+- name: "Remove 127.0.0.1 host reference from inventory"
+  shell: "tower-cli host delete -n 127.0.0.1 -i {{ integreatly_inventory_name }}"
+  register: remove_host_ref_raw
+  until: remove_host_ref_raw is succeeded
+  retries: 10
+  delay: 5
+
+- name: Retrieve cluster provisioning vars inventory
+  shell: "tower-cli inventory get -n \"{{ cluster_provisioning_vars_inventory }}\" -f json"
+  register: cluster_provisioning_vars_raw
+
+- set_fact:
+    cluster_provisioning_vars_json: "{{ cluster_provisioning_vars_raw.stdout | from_json }}"
+
+- set_fact:
+    cluster_provisioning_vars: "{{ cluster_provisioning_vars_json.variables }}"
+
+- set_fact:
+    cluster_aws_region: "{{ cluster_provisioning_vars['openshift_aws_region'] }}"
+    cluster_aws_access_key: "{{ cluster_provisioning_vars['AWS_ACCESS_KEY_ID'] }}"
+    cluster_aws_secret_access_key: "{{ cluster_provisioning_vars['AWS_SECRET_ACCESS_KEY'] }}"
+
+- name: Generate extra vars file
+  template:
+    dest: "/tmp/extra_vars_{{ cluster_type }}.yml"
+    src: "extra_vars_{{ cluster_type }}.yml.j2"
+
+- name: "Update workflow stage {{ integreatly_job_template_deploy_name }}"
+  shell: "tower-cli job_template modify -n \"{{ integreatly_job_template_deploy_name }}\" -i {{ integreatly_inventory_name }} --project {{ integreatly_project_bootstrap_cluster_name }} --playbook {{ integreatly_job_template_deploy_playbook }} --credential {{ tower_credential_bundle_default_name }} --extra-vars '@/tmp/extra_vars_{{ cluster_type }}.yml'"
+
+- name: Cleanup temp var file
+  file:
+    path: "/tmp/extra_vars_{{ cluster_type }}.yml"

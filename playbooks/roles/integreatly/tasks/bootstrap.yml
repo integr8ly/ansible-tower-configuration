@@ -1,136 +1,84 @@
 ---
 
-- name: "Create inventory: {{ integreatly_inventory_name }}"
-  tower_inventory:
-    name: "{{ integreatly_inventory_name }}"
-    description: "{{ integreatly_inventory_desc }}"
+# Bug with Tower module where we need to create an empty scm credential bundle before creating a project
+# https://github.com/ansible/ansible/pull/34250
+- name: "Create SCM credential bundle: {{ integreatly_credential_bundle_github_name }}"
+  tower_credential:
+    name: "{{ integreatly_credential_bundle_github_name }}"
+    description: "{{ integreatly_credential_bundle_github_desc }}"
     organization: "{{ tower_organization }}"
     state: present
+    kind: "{{ integreatly_credential_bundle_github_kind }}"
 
-- name: "Create project: {{ integreatly_project_bootstrap_cluster_name }}"
-  tower_project:
-    name: "{{ integreatly_project_bootstrap_cluster_name }}"
-    description: "{{ integreatly_project_bootstrap_cluster_desc }}"
-    organization: "{{ tower_organization }}"
+- name: "Configure Bootstrap Cluster job template: {{ integreatly_job_template_bootstrap_name }}"
+  tower_job_template:
+    name: "{{ integreatly_job_template_bootstrap_name }}"
+    description: "{{ integreatly_job_template_bootstrap_desc }}"
+    job_type: "{{ integreatly_job_template_bootstrap_type }}"
+    playbook: "{{ integreatly_job_template_bootstrap_playbook }}"
+    project: "{{ tower_configuration_project_name }}"
+    credential: "{{ tower_credential_bundle_default_name }}"
     state: present
-    scm_type: "{{ integreatly_project_bootstrap_cluster_scm_type }}"
-    scm_url: "{{ integreatly_project_bootstrap_cluster_scm_url }}"
-    scm_branch: "{{ integreatly_project_bootstrap_cluster_scm_branch }}"
-    scm_clean: "{{ integreatly_project_bootstrap_cluster_scm_clean }}"
-    scm_update_on_launch: "{{ integreatly_project_bootstrap_cluster_scm_update_on_launch }}"
-    scm_delete_on_update: "{{ integreatly_project_bootstrap_cluster_scm_delete_on_update }}"
-    scm_credential: "{{ integreatly_credential_bundle_github_name }}"
+    inventory: "{{ tower_inventory_name }}"
 
-- name: "Create inventory source AWS: {{ integreatly_inventory_source_aws_name }}"
-  tower_inventory_source:
-    name: "{{ integreatly_inventory_source_aws_name }}"
-    source: "{{ integreatly_inventory_source_aws_type }}"
-    inventory: "{{ integreatly_inventory_name }}"
-    credential: "{{ integreatly_inventory_source_aws_credentials }}"
-    description: "AWS: {{ integreatly_inventory_source_aws_name }}"
-    source_regions: "{{ integreatly_inventory_source_aws_regions }}"
-    overwrite: "{{ integreatly_inventory_source_aws_overwrite }}"
-    update_on_launch: "{{ integreatly_inventory_source_aws_update_on_launch }}"
-    instance_filters: "{{ integreatly_inventory_source_aws_instance_filters }}"
+- name: "Configure Deploy Integreatly job template: {{ integreatly_job_template_deploy_name }}"
+  tower_job_template:
+    name: "{{ integreatly_job_template_deploy_name }}"
+    description: "{{ integreatly_job_template_deploy_desc }}"
+    job_type: "{{ integreatly_job_template_deploy_type }}"
+    playbook: "{{ integreatly_job_template_bootstrap_playbook }}"
+    project: "{{ tower_configuration_project_name }}"
+    credential: "{{ tower_credential_bundle_default_name }}"
     state: present
+    inventory: "{{ tower_inventory_name }}"
 
-- name: "Create inventory source from Project: {{ integreatly_project_bootstrap_cluster_name }}"
-  tower_inventory_source:
-    name: "{{ integreatly_inventory_source_project_name }}"
-    source: "{{ integreatly_inventory_source_project_type }}"
-    inventory: "{{ integreatly_inventory_name }}"
-    description: "From Project: {{ integreatly_project_bootstrap_cluster_name }}"
-    overwrite: "{{ integreatly_inventory_source_project_overwrite }}"
-    overwrite_vars: "{{ integreatly_inventory_source_project_overwrite_vars }}"
-    update_on_launch: "{{ integreatly_inventory_source_project_update_on_launch }}"
-    source_project: "{{ integreatly_project_bootstrap_cluster_name }}"
-    source_path: "{{ integreatly_inventory_source_project_path }}"
-    state: present
+- name: Retrieve AWS Credential Type ID
+  shell: "tower-cli credential_type list --kind cloud -n \"Amazon Web Services\" -f id"
+  register: aws_cred_type_id
 
-- name: "Sync inventory sources"
-  shell: "tower-cli inventory_source update {{ item }}"
-  with_items:
-    - "{{ integreatly_inventory_source_aws_name }}"
-    - "{{ integreatly_inventory_source_project_name }}"
-
-- name: "Create master group: {{ integreatly_group_master_name }}"
-  tower_group:
-    inventory: "{{ integreatly_inventory_name }}"
-    name: "{{ integreatly_group_master_name }}"
-    description: "{{ integreatly_group_master_desc }}"
-    state: present
-    overwrite: "{{ integreatly_group_master_overwrite }}"
-    overwrite_vars: "{{ integreatly_group_master_overwrite_vars }}"
-    update_on_launch: "{{ integreatly_group_master_update_on_launch }}"
-  register: master_group_data
-
-- name: "Retrieve tag_host_type_master group data"
-  shell: "tower-cli group get -i {{ integreatly_inventory_name }} --name {{ integreatly_group_master_aws_name }} -f json"
-  register: master_group_aws_data_raw
-  retries: 10
-  delay: 3
-  until: master_group_aws_data_raw.rc == 0
-
-- name: "Retrieve local group data"
-  shell: "tower-cli group get -i {{ integreatly_inventory_name }} --name local -f json"
-  register: local_group_data_raw
-  retries: 10
-  delay: 3
-  until: local_group_data_raw.rc == 0
+- name: Retrieve list of AWS Credential Bundles
+  shell: "tower-cli credential list --credential-type {{ aws_cred_type_id.stdout }} -f json"
+  register: aws_credentials_raw
 
 - set_fact:
-    master_group_aws_data: "{{ master_group_aws_data_raw.stdout|from_json }}"
-    local_group_data: "{{ local_group_data_raw.stdout|from_json }}"
+    aws_credentials_json: "{{ aws_credentials_raw.stdout | from_json }}"
+    integreatly_aws_accounts: []
 
-- name: "Gather hosts from tag_host_type_master group"
-  shell: "tower-cli host list -i {{ integreatly_inventory_name }} --group {{ master_group_aws_data.id }} -f id"
-  register: master_group_aws_hosts
+- name: "Set list of Integreatly AWS Accounts"
+  set_fact:
+    integreatly_aws_accounts: "{{ integreatly_aws_accounts + [ item.name ] }}"
+  with_items: "{{ aws_credentials_json.results }}"
+  no_log: true
 
-- name: "Associate tag_host_type_master hosts with {{ integreatly_group_master_name }} group"
-  shell: "tower-cli host associate --host {{ item }} --group {{ master_group_data.id }}"
-  with_items: "{{ master_group_aws_hosts.stdout.split() }}"
+- set_fact:
+    integreatly_install_survey_aws_accounts: "{{ integreatly_aws_accounts | join('\\n')}}"
 
-- name: "Create local host"
-  tower_host:
-    name: "{{ integreatly_host_local_name }}"
-    inventory: "{{ integreatly_inventory_name }}"
-    description: "{{ integreatly_host_local_desc }}"
+- name: "Create workflow: {{ integreatly_workflow_job_template_name }}"
+  tower_workflow_template:
+    name:  "{{ integreatly_workflow_job_template_name }}"
+    description: "{{ integreatly_workflow_job_template_desc }}"
     state: present
-  register: local_host_data
+    organization: "{{ integreatly_workflow_job_template_organization }}"
 
-- name: "Associate {{ integreatly_host_local_name }} with group {{ integreatly_group_local_name }}"
-  shell: "tower-cli host associate --host {{ local_host_data.id }} --group {{ local_group_data.id }}"
-  
-- name: "Remove 127.0.0.1 host reference from inventory"
-  shell: "tower-cli host delete -n 127.0.0.1 -i {{ integreatly_inventory_name }}"
-  register: remove_host_ref_raw
-  until: remove_host_ref_raw is succeeded
-  retries: 10
-  delay: 5
-
-- name: Retrieve cluster provisioning vars inventory
-  shell: "tower-cli inventory get -n \"{{ cluster_provisioning_vars_inventory }}\" -f json"
-  register: cluster_provisioning_vars_raw
-
-- set_fact:
-    cluster_provisioning_vars_json: "{{ cluster_provisioning_vars_raw.stdout | from_json }}"
-
-- set_fact:
-    cluster_provisioning_vars: "{{ cluster_provisioning_vars_json.variables }}"
-
-- set_fact:
-    cluster_aws_region: "{{ cluster_provisioning_vars['openshift_aws_region'] }}"
-    cluster_aws_access_key: "{{ cluster_provisioning_vars['AWS_ACCESS_KEY_ID'] }}"
-    cluster_aws_secret_access_key: "{{ cluster_provisioning_vars['AWS_SECRET_ACCESS_KEY'] }}"
-
-- name: Generate extra vars file
+- name: Create workflow schema
   template:
-    dest: "/tmp/extra_vars_{{ cluster_type }}.yml"
-    src: "extra_vars_{{ cluster_type }}.yml.j2"
+    src: workflow_schema.yml.j2
+    dest: "/tmp/integreatly_workflow_schema.yml"
 
-- name: "Update workflow stage {{ integreatly_job_template_deploy_name }}"
-  shell: "tower-cli job_template modify -n \"{{ integreatly_job_template_deploy_name }}\" -i {{ integreatly_inventory_name }} --project {{ integreatly_project_bootstrap_cluster_name }} --playbook {{ integreatly_job_template_deploy_playbook }} --credential {{ tower_credential_bundle_default_name }} --extra-vars '@/tmp/extra_vars_{{ cluster_type }}.yml'"
+- name: Create workflow survey
+  template:
+    src: workflow_survey.json.j2
+    dest: "/tmp/workflow_survey.json"
 
-- name: Cleanup temp var file
+- name: Update workflow job template with survey
+  shell: "tower-cli workflow modify --name=\"{{ integreatly_workflow_job_template_name }}\" --survey-enabled=true --survey-spec='@/tmp/workflow_survey.json'"
+
+- name: Update workflow job template with schema
+  shell: "tower-cli workflow schema \"{{ integreatly_workflow_job_template_name }}\" @/tmp/integreatly_workflow_schema.yml"
+
+- name: Cleanup temp workflow files
   file:
-    path: "/tmp/extra_vars_{{ cluster_type }}.yml"
+    path: "{{ item }}"
+  with_items:
+    - /tmp/integreatly_workflow_schema.yml
+    - /tmp/workflow_survey.json
