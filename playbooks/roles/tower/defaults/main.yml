@@ -52,7 +52,7 @@ tower_credentials_project_desc: 'Credentials project for Ansible Tower'
 tower_credentials_project_scm_type: git
 tower_credentials_project_scm_branch: 'master'
 tower_credentials_project_scm_clean: true
-tower_credentials_project_scm_type_url: 'git@github.com:rhm-devops/integreatly_prod.git'
+tower_credentials_project_scm_type_url: ''
 tower_credentials_project_scm_update_on_launch: true
 tower_credentials_project_scm_delete_on_update: true
 
