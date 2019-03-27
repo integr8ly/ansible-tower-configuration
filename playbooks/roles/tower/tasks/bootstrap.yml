@@ -1,6 +1,10 @@
 ---
-
+# Authenticate with tower
 - include_tasks: authenticate_tower.yml
+
+# Clean down tower before going any further
+- include_tasks: cleandown_tower.yml
+
 
 - name: 'Create the {{ tower_organization }} organisation'
   tower_organization:

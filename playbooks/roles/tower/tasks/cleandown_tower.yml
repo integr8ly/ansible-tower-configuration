@@ -1,0 +1,12 @@
+---
+- name: 'Clean down the tower instance: {{ tower_host }}'
+  shell: '{{ item }}'
+  no_log: true
+  with_items:
+    - 'for i in $(tower-cli job_template list | awk "{print $1}" | grep -v id | grep -v ===); do tower-cli job_template delete $i; done'
+    - 'for i in $(tower-cli workflow list | awk "{print $1}" | grep -v id | grep -v ===); do tower-cli workflow delete $i; done'
+    - 'for i in $(tower-cli project list | awk "{print $1}" | grep -v id | grep -v ===); do tower-cli project delete $i; done'
+    - 'for i in $(tower-cli credential list | awk "{print $1}" | grep -v id | grep -v ===); do tower-cli credential delete $i; done'
+    - 'for i in $(tower-cli inventory list | awk "{print $1}" | grep -v id | grep -v ===); do tower-cli inventory delete $i; done'
+    - 'for i in $(tower-cli organization list | awk "{print $1}" | grep -v id | grep -v ===); do tower-cli organization delete $i; done'
+    - 'tower-cli credential_type delete -n le_privatekey'

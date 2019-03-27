@@ -1,6 +1,0 @@
----
-- hosts: gr8-sre
-  tasks:
-    - name: "We succeded apparently!"
-      debug:
-        msg: "Always a first for everything!"
