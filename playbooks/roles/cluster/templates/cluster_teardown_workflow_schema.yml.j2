@@ -1,0 +1,6 @@
+---
+- job_template: "{{ cluster_job_template_teardown_preflight_name }}"
+  success:
+  - job_template: "{{ cluster_job_template_teardown_name }}"
+    success:
+    - job_template: "{{ cluster_job_template_post_teardown_name }}"

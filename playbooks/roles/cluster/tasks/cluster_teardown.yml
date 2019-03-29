@@ -1,0 +1,192 @@
+---
+- name: Set AWS credentials
+  set_fact:
+    aws_access_key: "{{ lookup('env' ,'AWS_ACCESS_KEY_ID') }}"
+    aws_secret_key: "{{ lookup('env' ,'AWS_SECRET_ACCESS_KEY') }}"
+
+- name: Delete Autoscaling Groups for {{ aws_cluster_name }}
+  ec2_asg: 
+    name: "{{ item }}"
+    region: "{{ aws_region }}"
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    state: absent
+  with_items:
+    - "{{ aws_cluster_name }} Infra 1"
+    - "{{ aws_cluster_name }} Compute 1"
+
+- name: Get Launch Configurations for {{ aws_cluster_name }}
+  ec2_lc_find:
+    name_regex: "{{ aws_cluster_name }} "
+    region: "{{ aws_region }}"
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+  register: aws_launch_configs
+
+- name: Delete Launch Configurations for {{ aws_cluster_name }}
+  ec2_lc:
+    name: "{{ item.name }}"
+    region: "{{ aws_region }}"
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    state: absent
+  with_items: "{{ aws_launch_configs.results }}"
+  loop_control:
+    label: "{{ item.name }}"
+  when: aws_launch_configs.results is defined
+
+- name: Terminate master nodes for {{ aws_cluster_name }}
+  ec2_instance:
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    region: "{{ aws_region }}"
+    filters:
+      "tag:clusterid": "{{ aws_cluster_name }}"
+      "tag:host-type": "master"
+    state: absent
+
+- name: Delete Load Balancers for {{ aws_cluster_name }}
+  ec2_elb_lb:
+    name: "{{ item }}"
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    region: "{{ aws_region }}"
+    state: absent
+  with_items:
+    - "{{ aws_cluster_name }}-infra"
+    - "{{ aws_cluster_name }}-master-external"
+    - "{{ aws_cluster_name }}-master-internal"
+
+- name: Get Network Interfaces for {{ aws_cluster_name }}
+  ec2_eni_facts:
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    region: "{{ aws_region }}"
+    filters:
+      group-name: "{{ aws_cluster_name }}"
+  register: aws_network_interfaces
+
+- name: Delete Network Interfaces for {{ aws_cluster_name }}
+  ec2_eni: 
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    eni_id: "{{ item.network_interface_id }}"
+    force_detach: yes
+    region: "{{ aws_region }}"
+    state: absent
+  register: aws_delete_network_interfaces
+  failed_when: false
+  with_items: "{{ aws_network_interfaces.network_interfaces }}"
+  loop_control:
+    label: "{{ item.network_interface_id }}"
+  when: aws_network_interfaces.network_interfaces is defined
+
+- name: Ensure all Network Interfaces for {{ aws_cluster_name }} are Deleted
+  ec2_eni_facts:
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    region: "{{ aws_region }}"
+    filters:
+      group-name: "{{ aws_cluster_name }}"
+  register: aws_network_interfaces
+  retries: 30
+  delay: 5
+  until: aws_network_interfaces.network_interfaces == []
+  when: aws_network_interfaces.network_interfaces is defined
+  
+- name: Failed to remove network interfaces for {{ aws_cluster_name }}
+  fail:
+    msg: "Network interfaces for {{ aws_cluster_name }} were not removed successfully"
+  when: aws_network_interfaces.network_interfaces is defined and aws_network_interfaces.network_interfaces != []
+
+- name: Get Security Groups for {{ aws_cluster_name }}
+  ec2_group_facts:
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    region: "{{ aws_region }}"
+    filters:
+      group-name: 
+        - "{{ aws_cluster_name }}"
+        - "{{ aws_cluster_name }}_compute"
+        - "{{ aws_cluster_name }}_etcd"
+        - "{{ aws_cluster_name }}_infra"
+        - "{{ aws_cluster_name }}_master"
+        - "{{ aws_cluster_name }}_k8s"
+        - "{{ aws_cluster_name }}_compute_k8s"
+        - "{{ aws_cluster_name }}_etcd_k8s"
+        - "{{ aws_cluster_name }}_infra_k8s"
+        - "{{ aws_cluster_name }}_master_k8s"
+  register: aws_security_groups
+
+- name: Delete Security Groups for {{ aws_cluster_name }}
+  ec2_group:
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    region: "{{ aws_region }}"
+    group_id: "{{ item.group_id }}"
+    state: absent
+  with_items: "{{ aws_security_groups.security_groups }}"
+  loop_control:
+    label: "{{ item.group_id }}"
+  when: aws_security_groups.security_groups is defined
+
+- set_fact:
+    aws_volume_filter:
+      "{'tag:kubernetes.io/cluster/{{ aws_cluster_name }}': 'owned'}"
+
+- name: Get Volumes for {{ aws_cluster_name }}
+  ec2_vol_facts:
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    region: "{{ aws_region }}"
+    filters: "{{ aws_volume_filter }}"
+  register: aws_volumes
+
+- name: Delete Volumes for {{ aws_cluster_name }}
+  ec2_vol:
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    id: "{{ item.id }}"
+    region: "{{ aws_region }}"
+    state: absent
+  with_items: "{{ aws_volumes.volumes }}"
+  loop_control:
+    label: "{{ item.id }}"
+  when: aws_volumes.volumes is defined
+  
+- name: Get VPCs for {{ aws_cluster_name }}
+  ec2_vpc_net_facts:
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    region: "{{ aws_region }}"
+    filters:
+      "tag:Name": "{{ aws_cluster_name }}"
+  register: aws_vpc
+
+- name: Delete VPC for {{ aws_cluster_name }}
+  include_tasks: _remove_vpc.yml
+  vars:
+    aws_vpc_cidr_block: "{{ item.cidr_block }}"
+    aws_vpc_id: "{{ item.vpc_id}}"
+  with_items: "{{ aws_vpc.vpcs }}"
+  loop_control:
+    label: "{{ item.vpc_id }}"
+  when: aws_vpc.vpcs is defined
+
+- name: Delete DNS Records
+  include_tasks: _remove_dns_records.yml
+  vars:
+    record: "{{ item }}"
+  with_items:
+    - "{{ aws_cluster_name }}.{{ aws_dns_zone }}"
+    - "api.{{ aws_cluster_name }}.{{ aws_dns_zone }}"
+    - "*.apps.{{ aws_cluster_name }}.{{ aws_dns_zone }}"
+
+- name: Delete IAM server certificate for {{ aws_cluster_name }}
+  iam_cert:
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    name: "{{ aws_cluster_name }}"
+    region: "{{ aws_region }}"
+    state: absent
+

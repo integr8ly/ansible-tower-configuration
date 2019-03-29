@@ -74,6 +74,28 @@ cluster_workflow_job_template_desc: "Provision Openshift 3.11 cluster"
 
 cluster_workflow_job_template_openshift_auth: "Openshift_Authenticate_tower_pod"
 
+#                               #
+# Cluster deprovision templates #
+#                               #
+
+cluster_job_template_teardown_project: "{{ tower_configuration_project_name }}"
+cluster_job_template_teardown_type: "run"
+
+cluster_job_template_teardown_preflight_name: "DC_Preflight"
+cluster_job_template_teardown_preflight_desc: "Deprovision Cluster: Preflight"
+cluster_job_template_teardown_preflight_playbook: "playbooks/cluster_teardown_preflight.yml"
+
+cluster_job_template_teardown_name: "DC_Deprovision"
+cluster_job_template_teardown_desc: "Deprovision Cluster: Remove Cluster Resources"
+cluster_job_template_teardown_playbook: "playbooks/cluster_teardown.yml"
+
+cluster_job_template_post_teardown_name: "DC_Post_Teardown"
+cluster_job_template_post_teardown_desc: "Deprovision Cluster: Post Teardown"
+cluster_job_template_post_teardown_playbook: "playbooks/cluster_teardown_post_teardown.yml"
+
+cluster_workflow_teardown_name: "Deprovision Cluster"
+cluster_workflow_teardown_desc: "Workflow for Cluster Deprovision"
+
 # Auth
 
 tower_pod_openshift_user: ""

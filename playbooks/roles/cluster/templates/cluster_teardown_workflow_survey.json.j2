@@ -1,0 +1,50 @@
+{
+  "description": "",
+  "name": "",
+  "spec": [
+    {
+      "question_description": "The name of the Openshift cluster to deprovision",
+      "min": 0,
+      "default": "",
+      "max": 50,
+      "required": true,
+      "choices": "",
+      "variable": "aws_cluster_name",
+      "question_name": "Cluster Name",
+      "type": "text"
+    },
+    {
+      "question_description": "Region which the cluster was provisioned in",
+      "min": null,
+      "default": "",
+      "max": null,
+      "required": true,
+      "choices": "us-east-1\neu-west-1\neu-west-2",
+      "variable": "aws_region",
+      "question_name": "AWS Region",
+      "type": "multiplechoice"
+    },
+    {
+      "question_description": "Cluster domain name",
+      "min": 0,
+      "default": "skunkhenry.com",
+      "max": 50,
+      "required": true,
+      "choices": "",
+      "variable": "aws_dns_zone",
+      "question_name": "Domain Name",
+      "type": "text"
+    },
+    {
+      "question_description": "AWS account name",
+      "min": 0,
+      "default": "",
+      "max": 100,
+      "required": true,
+      "choices": "{{ cluster_teardown_aws_accounts }}",
+      "variable": "cluster_credential_bundle_aws_name",
+      "question_name": "AWS account name",
+      "type": "multiplechoice"
+    }
+  ]
+}
