@@ -8,8 +8,9 @@
     project: "{{ cluster_job_template_openshift_auth_project }}"
     credential: "{{ tower_credential_bundle_default_name }}"
     extra_vars_path: "roles/cluster/files/openshift_tower_auth.yml"
+    vault_credential: "{{ tower_credential_bundle_vault_name }}"
     state: present
-    inventory: "Provisioning_inventory"
+    inventory: "{{ tower_inventory_name }}"
   register: cluster_create_openshift_auth_out
   until: cluster_create_openshift_auth_out is succeeded
   retries: 10
@@ -23,16 +24,20 @@
     playbook: "{{ cluster_job_template_generate_inventory_playbook }}"
     project: "{{ cluster_job_template_generate_inventory_project }}"
     credential: "{{ tower_credential_bundle_default_name }}"
+    vault_credential: "{{ tower_credential_bundle_vault_name }}"
     state: present
-    inventory: "Provisioning_inventory"
+    inventory: "{{ tower_inventory_name }}"
   register: cluster_create_generate_inventory_out
   until: cluster_create_generate_inventory_out is succeeded
   retries: 10
   delay: 5
 
 - name: Add Custom Credential
-  command: tower-cli credential create --name "le_privatekey" --credential-type "le_privatekey" --inputs "{'le_key':'{{ letsencrypt_private_key }}'}" --organization "{{ tower_organization }}"
+  command: tower-cli credential create --name "le_privatekey" --credential-type "le_privatekey" --inputs '{"le_key":"{{ letsencrypt_private_key }}"}' --organization "{{ tower_organization }}"
   ignore_errors: true
+
+- name: "Associate AWS credential to {{ cluster_job_template_generate_inventory_name }}"
+  shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_generate_inventory_name }}" --credential "{{ cluster_credential_bundle_aws_name }}"
 
 - name: "Associate le_privatekey credential to {{ cluster_job_template_generate_inventory_name }}" 
   shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_generate_inventory_name }}" --credential "le_privatekey"
@@ -45,12 +50,16 @@
     playbook: "{{ cluster_job_template_preflight_playbook }}"
     project: "{{ cluster_job_template_preflight_project }}"
     credential: "{{ tower_credential_bundle_default_name }}"
+    vault_credential: "{{ tower_credential_bundle_vault_name }}"
     state: present
-    inventory: "Provisioning_inventory"
+    inventory: "{{ tower_inventory_name }}"
   register: cluster_create_pre_flight_out
   until: cluster_create_pre_flight_out is succeeded
   retries: 10
   delay: 5
+
+- name: "Associate AWS credential to {{ cluster_job_template_preflight_name }}"
+  shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_preflight_name }}" --credential "{{ cluster_credential_bundle_aws_name }}"
 
 - name: "Associate {{ cluster_job_template_preflight_credentials }} credential to {{ cluster_job_template_preflight_name }}"
   shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_preflight_name }}" --credential "{{ cluster_job_template_preflight_credentials }}"
@@ -87,7 +96,6 @@
   until: cluster_create_provision_install_out is succeeded
   retries: 10
   delay: 5
-
 
 - name: "Associate {{ cluster_credential_bundle_aws_name }} credentials {{ cluster_job_template_install_name }}"
   shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_install_name }}" --credential "{{ cluster_credential_bundle_aws_name }}"
@@ -148,3 +156,8 @@
 
 - name: "Update Workflow job template with schema"
   shell: "tower-cli workflow schema \"{{ cluster_workflow_job_template_name }}\" @cluster_workflow_schema.yml"
+
+- name: Clean up files
+  file:
+    path: cluster_workflow_schema.yml
+    state: absent

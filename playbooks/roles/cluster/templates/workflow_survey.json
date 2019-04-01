@@ -16,7 +16,7 @@
       {
         "question_description": "AWS account name",
         "min": 0,
-        "default": "aws.eng",
+        "default": "fheng.AWS",
         "max": 100,
         "required": false,
         "choices": "{{ cluster_install_survey_aws_accounts }}",
