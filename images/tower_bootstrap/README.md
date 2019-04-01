@@ -7,11 +7,11 @@ This folder contains instructions on how to build the tower bootstrapping contai
 Build the image:
 
 ```
-docker build -t quay.io/integreatly/tower-bootstrap .
+docker build -t quay.io/integreatly/ansible-tower-bootstrap .
 ``` 
 
 Push it:
 
 ```
-docker push quay.io/integreatly/tower-bootstrap
+docker push quay.io/integreatly/ansible-tower-bootstrap
 ```
