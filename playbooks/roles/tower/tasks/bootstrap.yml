@@ -6,12 +6,14 @@
   tower_organization:
     name: '{{ tower_organization }}'
     state: present
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
 
 - name: 'Create the {{ tower_team}} team'
   tower_team:
     name: '{{ tower_team }}'
     organization: '{{ tower_organization }}'
     state: present
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
 
 - name: 'Modify Tower settings to allow authentication via Github'
   shell: '{{ item }}'
@@ -34,6 +36,7 @@
     description: '{{ tower_inventory_desc }}'
     organization: '{{ tower_organization }}'
     state: present
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
 
 - name: 'Create local host'
   tower_host:
@@ -43,6 +46,7 @@
     variables:
       ansible_connection: local
     state: present
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
 
 
 # Import the credentials bootstrap task

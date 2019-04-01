@@ -12,6 +12,7 @@
     scm_update_on_launch: '{{ tower_configuration_project_scm_update_on_launch }}'
     scm_delete_on_update: '{{ tower_configuration_project_scm_delete_on_update }}'
     scm_credential: '{{ tower_credential_bundle_github_name }}'
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
 
 - name: 'Create project: {{ tower_credentials_project_name }}'
   tower_project:
@@ -26,3 +27,4 @@
     scm_update_on_launch: '{{ tower_credentials_project_scm_update_on_launch }}'
     scm_delete_on_update: '{{ tower_credentials_project_scm_delete_on_update }}'
     scm_credential: '{{ tower_credential_bundle_github_name }}'
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
