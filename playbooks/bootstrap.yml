@@ -1,0 +1,15 @@
+---
+- hosts: local
+  gather_facts: no
+  tasks:
+    - include_vars:
+        ./roles/tower/defaults/main.yml
+    - include_role:
+        name: tower
+        tasks_from: bootstrap.yml
+    - include_role:
+        name: integreatly
+        tasks_from: bootstrap.yml
+    - include_role:
+        name: cluster
+        tasks_from: bootstrap.yml
