@@ -1,0 +1,88 @@
+# Job Templates Setup
+- name: Configure deprovision cluster preflight job template
+  tower_job_template:
+    name: "{{ cluster_job_template_teardown_preflight_name }}"
+    description: "{{ cluster_job_template_teardown_preflight_desc }}"
+    job_type: "{{ cluster_job_template_teardown_type }}"
+    playbook: "{{ cluster_job_template_teardown_preflight_playbook }}"
+    project: "{{ cluster_job_template_teardown_project }}"
+    state: present
+    inventory: "{{ tower_inventory_name }}"
+  register: cluster_create_teardown_out
+  until: cluster_create_teardown_out is succeeded
+  retries: 10
+  delay: 5
+
+- name: Configure deprovision cluster job template
+  tower_job_template:
+    name: "{{ cluster_job_template_teardown_name }}"
+    description: "{{ cluster_job_template_teardown_desc }}"
+    job_type: "{{ cluster_job_template_teardown_type }}"
+    playbook: "{{ cluster_job_template_teardown_playbook }}"
+    project: "{{ cluster_job_template_teardown_project }}"
+    state: present
+    inventory: "{{ tower_inventory_name }}"
+    vault_credential: "{{ tower_credential_bundle_vault_name }}"
+  register: cluster_create_teardown_out
+  until: cluster_create_teardown_out is succeeded
+  retries: 10
+  delay: 5
+
+- name: Configure deprovision cluster post teardown job template
+  tower_job_template:
+    name: "{{ cluster_job_template_post_teardown_name }}"
+    description: "{{ cluster_job_template_post_teardown_desc }}"
+    job_type: "{{ cluster_job_template_teardown_type }}"
+    playbook: "{{ cluster_job_template_post_teardown_playbook }}"
+    project: "{{ cluster_job_template_teardown_project }}"
+    state: present
+    inventory: "{{ tower_inventory_name }}"
+  register: cluster_create_teardown_out
+  until: cluster_create_teardown_out is succeeded
+  retries: 10
+  delay: 5
+  
+# Workflow Setup
+- name: "Create workflow: {{ cluster_workflow_teardown_name }}"
+  tower_workflow_template:
+    name:  "{{ cluster_workflow_teardown_name }}"
+    description: "{{ cluster_workflow_teardown_desc }}"
+    state: present
+    organization: "{{ tower_organization }}"
+  
+- name: Retrieve AWS Credential Type ID
+  shell: "tower-cli credential_type list --kind cloud -n \"Amazon Web Services\" -f id"
+  register: aws_cred_type_id
+
+- name: Retrieve list of AWS Credential Bundles
+  shell: "tower-cli credential list --credential-type {{ aws_cred_type_id.stdout }} -f json"
+  register: aws_credentials_raw
+
+- set_fact:
+    aws_credentials_json: "{{ aws_credentials_raw.stdout | from_json }}"
+    cluster_aws_accounts: []
+
+- name: "Set list of AWS Accounts"
+  set_fact:
+    cluster_aws_accounts: "{{ cluster_aws_accounts + [ item.name ] }}"
+  with_items: "{{ aws_credentials_json.results }}"
+  no_log: true
+
+- set_fact:
+    cluster_teardown_aws_accounts: "{{ cluster_aws_accounts | join('\\n')}}"
+
+- name: Create {{ cluster_workflow_teardown_name }} workflow survey
+  template:
+    src: cluster_teardown_workflow_survey.json.j2
+    dest: "/tmp/cluster_teardown_workflow_survey.json"
+
+- name: "Update {{ cluster_workflow_teardown_name }} workflow with survey"
+  shell: "tower-cli workflow modify --name=\"{{ cluster_workflow_teardown_name }}\" --survey-enabled=true --survey-spec='@/tmp/cluster_teardown_workflow_survey.json'"
+
+- name: Create {{ cluster_workflow_teardown_name }} workflow schema
+  template:
+    src: cluster_teardown_workflow_schema.yml.j2
+    dest: "/tmp/cluster_teardown_workflow_schema.yml"
+
+- name: "Update {{ cluster_workflow_teardown_name }} workflow job template with schema"
+  shell: "tower-cli workflow schema \"{{ cluster_workflow_teardown_name }}\" @/tmp/cluster_teardown_workflow_schema.yml"

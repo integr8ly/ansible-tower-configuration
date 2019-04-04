@@ -1,0 +1,25 @@
+- route53: 
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    record: "{{ record }}"
+    region: "{{ aws_cluster_name }}"
+    state: get
+    type: CNAME
+    zone: "{{ aws_dns_zone }}"
+  register: get_aws_dns_record
+
+- set_fact:
+    aws_dns_record: "{{ get_aws_dns_record.set }}"
+
+- route53:
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    record: "{{ aws_dns_record.record }}"
+    state: absent
+    ttl: "{{ aws_dns_record.ttl }}"
+    type: "{{ aws_dns_record.type }}"
+    value: "{{ aws_dns_record.value }}"
+    zone: "{{ aws_dns_record.zone }}"
+  when: aws_dns_record != {}
+
+   

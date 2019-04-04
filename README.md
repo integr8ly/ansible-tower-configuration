@@ -96,3 +96,11 @@ Once the tower bootstrapping has been run you can bootstrap the cluster create r
 ```bash
 ansible-playbook -i inventories/hosts playbooks/bootstrap_cluster_create.yml
 ```
+
+## Cluster Deprovision
+
+Once the tower bootstrapping has been run you can bootstrap the cluster deprovision resources. To create all the resources necessary to run a cluster deprovision you must run the `bootstrap_cluster_teardown.yml` playbook. The playbook doesn't take any extra variables so the command to run is:
+
+```bash
+ansible-playbook -i inventories/hosts playbooks/bootstrap_cluster_teardown.yml
+```

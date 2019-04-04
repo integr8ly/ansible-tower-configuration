@@ -1,0 +1,49 @@
+- name: Get VPC Subnet ID
+  ec2_vpc_subnet_facts:
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    filters:
+      vpc-id: "{{aws_vpc_id}}"
+    region: "{{ aws_region }}"
+  register: aws_vpc_subnets
+
+- name: Delete VPC Subnets for {{ aws_vpc_id }}
+  ec2_vpc_subnet:
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    cidr: "{{ subnet.cidr_block }}"
+    region: "{{ aws_region }}"
+    state: absent
+    vpc_id: "{{ subnet.vpc_id }}"
+  with_items: "{{ aws_vpc_subnets.subnets }}"
+  loop_control:
+    loop_var: "subnet"
+    label: "{{ subnet.id }}"
+
+- name: Delete Internet Gateway for {{ aws_vpc_id }}
+  ec2_vpc_igw:
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    region: "{{ aws_region }}"
+    state: absent
+    vpc_id: "{{ aws_vpc_id }}"
+
+- name: Delete VPCs for {{ aws_cluster_name }}
+  ec2_vpc_net:
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    cidr_block: "{{ aws_vpc_cidr_block }}"
+    name: "{{ aws_cluster_name}}" 
+    region: "{{ aws_region }}"
+    state: absent
+
+- name: Delete Route Table for {{ aws_vpc_id }}
+  ec2_vpc_route_table:
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    lookup: tag
+    region: "{{ aws_region }}"
+    state: absent
+    tags:
+      Name: "{{ aws_cluster_name }}"
+    vpc_id: "{{ aws_vpc_id }}"

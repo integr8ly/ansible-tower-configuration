@@ -1,0 +1,14 @@
+- set_fact:
+    attached_volumes: "{{ aws_instance.block_device_mappings }}"
+
+- name: Delete volumes attached to {{ aws_instance.instance_id }} instance
+  ec2_vol:
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    id: "{{ volume.ebs.volume_id }}"
+    region: "{{ aws_region }}"
+    state: absent
+  with_items: "{{ attached_volumes }}"
+  loop_control:
+    loop_var: "volume"
+    label: "{{ volume.ebs.volume_id }}"
