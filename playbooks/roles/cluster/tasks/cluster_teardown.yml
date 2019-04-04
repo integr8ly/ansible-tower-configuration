@@ -35,6 +35,16 @@
     label: "{{ item.name }}"
   when: aws_launch_configs.results is defined
 
+- name: Get master nodes for {{ aws_cluster_name }}
+  ec2_instance_facts:
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    region: "{{ aws_region }}"
+    filters:
+      "tag:clusterid": "{{ aws_cluster_name }}"
+      "tag:host-type": "master"
+  register: aws_master_nodes
+
 - name: Terminate master nodes for {{ aws_cluster_name }}
   ec2_instance:
     aws_access_key: "{{ aws_access_key }}"
@@ -45,6 +55,15 @@
       "tag:host-type": "master"
     state: absent
 
+- name: Ensure volumes attached to {{ aws_cluster_name }} master nodes are removed
+  include_tasks: _remove_instance_volumes.yml
+  vars:
+    aws_instance: "{{ item }}"
+  with_items: "{{ aws_master_nodes.instances }}"
+  loop_control:
+    label: "{{ item.instance_id }}"
+  when: aws_master_nodes.instances is defined
+  
 - name: Delete Load Balancers for {{ aws_cluster_name }}
   ec2_elb_lb:
     name: "{{ item }}"
