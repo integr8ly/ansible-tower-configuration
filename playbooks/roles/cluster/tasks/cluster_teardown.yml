@@ -56,7 +56,7 @@
     state: absent
 
 - name: Ensure volumes attached to {{ aws_cluster_name }} master nodes are removed
-  include_tasks: _remove_instance_volumes.yml
+  include_tasks: remove_instance_volumes.yml
   vars:
     aws_instance: "{{ item }}"
   with_items: "{{ aws_master_nodes.instances }}"
@@ -183,7 +183,7 @@
   register: aws_vpc
 
 - name: Delete VPC for {{ aws_cluster_name }}
-  include_tasks: _remove_vpc.yml
+  include_tasks: remove_vpc.yml
   vars:
     aws_vpc_cidr_block: "{{ item.cidr_block }}"
     aws_vpc_id: "{{ item.vpc_id}}"
@@ -193,7 +193,7 @@
   when: aws_vpc.vpcs is defined
 
 - name: Delete DNS Records
-  include_tasks: _remove_dns_records.yml
+  include_tasks: remove_dns_records.yml
   vars:
     record: "{{ item }}"
   with_items:
