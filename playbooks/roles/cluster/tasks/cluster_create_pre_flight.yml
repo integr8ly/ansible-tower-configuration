@@ -1,50 +1,32 @@
 ---
   - name: Set AWS credentials
     set_fact:
-      aws_access_key: "{{ integreatly_inventory_source_aws_credentials | default (cluster_credential_bundle_aws_name) }}_access_key_id"
-      aws_secret_key: "{{ integreatly_inventory_source_aws_credentials | default (cluster_credential_bundle_aws_name) }}_secret_access_key"     
+      aws_access_key: "{{ lookup('env', 'AWS_ACCESS_KEY_ID' ) }}"
+      aws_secret_key: "{{ lookup('env', 'AWS_SECRET_ACCESS_KEY' ) }}"
 
-  - name: Search for tagged AMI
-    ec2_ami_facts:
-      aws_access_key: "{{ aws_access_key }}"
-      aws_secret_key: "{{ aws_secret_key }}"
-      region: "{{ oo_sublocation }}"
-      filters:
-        "tag:image": latest
-    register: found_ami_info
-  
-  - name: Use the found AMI
+  - name: set domain variable
     set_fact:
-      g_play_image_id: "{{ found_ami_info['images'][0]['image_id'] }}"
-    ignore_errors: true
+      domain: "{% if cluster_type is undefined %}{{ dev_domain }}{% elif cluster_type=='POC' %}{{ poc_domain }}{% endif %}"
 
-  - fail:
-      msg: "AMI with tag 'image: latest' does not exist in: {{ oo_sublocation }}" 
-    when: g_play_image_id is undefined
-
-  - name: Print ami id
-    debug:
-      msg: "{{ g_play_image_id }}"
+  - name: Set urls
+    set_fact:
+      base_cluster_url: "{{ oo_clusterid }}.{{ domain }}"
+      apps_cluster_url: "apps.{{ oo_clusterid }}.{{ domain }}"
 
   - name: Check if certificates exist
     stat:
       path: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ base_cluster_url }}.crt
     register: crt_result
-    
+
   - stat: path=/tmp/{{ oo_clusterid }}/certs/wildcard.{{ apps_cluster_url }}.crt
     register: app_crt_result
 
   - stat: path=/tmp/{{ oo_clusterid }}/certs/rootCA.pem
     register: rootca_result
 
-  - include_tasks: generate_ssl_certs.yml
-    when: crt_result.stat.exists == false or app_crt_result.stat.exists == false or rootca_result.stat.exists == false
-
-  - include_tasks: check_amis.yml
-
   - name: Make sure account exists and has given contacts. We agree to TOS.
     acme_account:
-        account_key_content: "{{ le_private_key }}"
+        account_key_content: "{{ letsencrypt_private_key }}"
         state: present
         terms_agreed: yes
         acme_version: 2
@@ -86,7 +68,7 @@
   - name: Generate "{{ oo_clusterid }}"."{{ domain }}" cert
     block:
       - acme_certificate:
-          account_key_content: "{{ le_private_key }}"
+          account_key_content: "{{ letsencrypt_private_key }}"
           account_email: "integreatly-sre@redhat.com"
           acme_version: 2
           src: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ base_cluster_url}}.csr
@@ -110,9 +92,9 @@
           aws_access_key: "{{ dns_access_key | default(aws_access_key) }}"
           aws_secret_key: "{{ dns_secret_key | default(aws_secret_key) }}"
           wait: yes
-        when: base_cluster_challenge is changed  
+        when: base_cluster_challenge is changed
       - acme_certificate:
-          account_key_content: "{{ le_private_key }}"
+          account_key_content: "{{ letsencrypt_private_key }}"
           account_email: "integreatly-sre@redhat.com"
           acme_version: 2
           src: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ base_cluster_url }}.csr
@@ -142,7 +124,7 @@
   - name: Generate apps."{{ oo_clusterid }}"."{{ domain }}" cert
     block:
       - acme_certificate:
-          account_key_content: "{{ le_private_key }}"
+          account_key_content: "{{ letsencrypt_private_key }}"
           account_email: "integreatly-sre@redhat.com"
           acme_version: 2
           src: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ apps_cluster_url }}.csr
@@ -166,9 +148,9 @@
           aws_access_key: "{{ dns_access_key | default(aws_access_key) }}"
           aws_secret_key: "{{ dns_secret_key | default(aws_secret_key) }}"
           wait: yes
-        when: apps_cluster_challenge is changed  
+        when: apps_cluster_challenge is changed
       - acme_certificate:
-          account_key_content: "{{ le_private_key }}"
+          account_key_content: "{{ letsencrypt_private_key }}"
           account_email: "integreatly-sre@redhat.com"
           acme_version: 2
           src: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ apps_cluster_url }}.csr
