@@ -1,0 +1,69 @@
+---
+kubernetes_base_path: "{{ tower_kubernetes_base_path }}"
+
+kubernetes_task_version: "{{ tower_kubernetes_task_version }}"
+kubernetes_task_image: "{{ tower_kubernetes_task_image }}"
+kubernetes_web_version: "{{ tower_kubernetes_web_version }}"
+kubernetes_web_image: "{{ tower_kubernetes_web_image }}"
+
+kubernetes_rabbitmq_version: "{{ tower_kubernetes_rabbitmq_version }}"
+kubernetes_rabbitmq_image: "{{ tower_kubernetes_rabbitmq_image }}"
+
+kubernetes_deployment_name: "{{ tower_kubernetes_deployment_name }}"
+kubernetes_deployment_replica_size: "{{ tower_kubernetes_deployment_replica_size }}"
+
+web_mem_request: "{{ tower_web_mem_request }}"
+web_cpu_request: "{{ tower_web_cpu_request }}"
+task_mem_request: "{{ tower_task_mem_request }}"
+task_cpu_request: "{{ tower_task_cpu_request }}"
+rabbitmq_mem_request: "{{ tower_rabbitmq_mem_request }}"
+rabbitmq_cpu_request: "{{ tower_rabbitmq_cpu_request }}"
+memcached_mem_request: "{{ tower_memcached_mem_request }}"
+memcached_cpu_request: "{{ tower_rabbitmq_cpu_request }}"
+
+dockerhub_base: "{{ tower_dockerhub_base }}"
+ 
+# Openshift Install
+openshift_host: "{{ tower_openshift_master_url }}"
+openshift_project: "{{ tower_openshift_project }}"
+openshift_user: "{{ tower_openshift_username }}"
+openshift_password: "{{ tower_openshift_password }}"
+openshift_skip_tls_verify: "{{ tower_openshift_skip_tls_verify }}"
+openshift_pg_emptydir: "{{ tower_openshift_pg_emptydir }}"
+openshift_pg_pvc_name: "{{ tower_openshift_pg_pvc_name }}"
+ 
+# Common Docker parameters
+awx_task_hostname: "{{ tower_awx_task_hostname }}"
+awx_web_hostname: "{{ tower_awx_web_hostname }}"
+postgres_data_dir: "{{ tower_postgres_data_dir }}"
+host_port: "{{ tower_host_port }}"
+ 
+# Docker Compose Install
+docker_compose_dir: "{{ tower_docker_compose_dir }}"
+   
+# Set pg_hostname if you have an external postgres server, otherwise
+# a new postgres service will be created
+pg_username: "{{ tower_pg_username }}"
+pg_password: "{{ tower_pg_password }}"
+pg_database: "{{ tower_pg_database }}"
+pg_port: "{{ tower_pg_port }}"
+ 
+# RabbitMQ Configuration
+rabbitmq_user: "{{ tower_rabbitmq_user }}"
+rabbitmq_password: "{{ tower_rabbitmq_password }}"
+rabbitmq_erlang_cookie: "{{ tower_rabbitmq_erlang_cookie }}"
+
+# This will create or update a default admin (superuser) account in AWX
+admin_user: "{{ tower_admin_user }}"
+admin_password: "{{ tower_admin_password }}"
+admin_email: "{{ tower_admin_email }}"
+ 
+# Whether or not to create preload data for demonstration purposes
+create_preload_data: "{{ tower_create_preload_data }}"
+ 
+# AWX Secret key
+secret_key: "{{ tower_secret_key }}"
+ 
+
+
+ 
