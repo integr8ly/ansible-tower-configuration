@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: {{ tower_limit_range_name }}
+spec:
+  limits:
+  - default:
+      cpu: {{ tower_default_cpu }}
+      memory: {{ tower_default_memory }}
+    defaultRequest:
+      cpu: 50m
+      memory: 256Mi
+    max:
+      memory: 6Gi
+    min:
+      memory: 10Mi
+    type: Container
+  - max:
+      memory: 12Gi
+    min:
+      memory: 6Mi
+    type: Pod

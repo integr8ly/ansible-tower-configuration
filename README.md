@@ -32,6 +32,30 @@ To push the built image to quay.io run:
 make image/push
 ``` 
 
+## Ansible Tower Installation
+
+The `install_tower.yml` playbook will install Ansible Tower on a target Openshift cluster.
+
+The playbook requires a number of configs to be passed in, namely:
+
+* `tower_openshift_master_url`: The hostname of the target Openshift cluster
+* `tower_openshift_username`: The username to be used to login to the Openshift cluster (requires admin permissions)
+* `tower_openshift_password`: The password of the Openshift user specified
+
+```bash
+ansible-playbook -i inventories/hosts playbooks/install_bootstrap.yml -e tower_openshift_master_url=<tower_openshift_master_url> -e tower_openshift_username=<tower_openshift_username> -e tower_openshift_password=<tower_openshift_password>
+```
+
+A number of default values are used when installing Ansible Tower on the target Openshift cluster, any of which can be overridden with the use of environmental variables. These default values include several password values which are assigned a default value of `CHANGEME`, as can be seen below.
+
+* `tower_openshift_project`: The name of the newly created Openshift project (default project name is `tower`)
+* `tower_version`: The version of the Ansible Tower Openshift setup project to install (default version is `3.4.3`)
+* `tower_archive_url`: The URL of the Ansible Tower Openshift installation project archive file to be used (default URL is `https://releases.ansible.com/ansible-tower/setup_openshift/<tower_version>`)
+* `tower_admin_user`: The username required to login to the newly installed Tower instance (default username is `admin`)
+* `tower_admin_password`: The password required to login to the newly installed Tower instance (default password is `CHANGEME`)
+* `tower_rabbitmq_password`: The password required to login to RabbitMQ (default password is `CHANGEME`)
+* `tower_pg_password`: The password required to login to PostgreSQL (default password is `CHANGEME`)
+
 ## Bootstrapping
 
 ### Tower Bootstrapping

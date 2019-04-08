@@ -1,0 +1,46 @@
+---
+- include_tasks: authenticate_openshift.yml 
+
+- name: Create new {{ tower_openshift_project }} project
+  shell: oc new-project {{ tower_openshift_project }}
+  register: tower_project_exists
+  failed_when: tower_project_exists.stderr != '' and 'AlreadyExists' not in tower_project_exists.stderr
+
+- name: 'Copy the limit_range template'
+  template:
+    src: 'limit_range.yml.j2'
+    dest: '/tmp/limit_range.yml'
+
+- name: Create a new limit range resource
+  shell: "oc replace -f /tmp/limit_range.yml -n {{ tower_openshift_project }}"
+  register: limit_range_exists
+  failed_when: limit_range_exists.stderr != '' and 'AlreadyExists' not in limit_range_exists.stderr
+
+- name: 'Download the Ansible Tower archive file'
+  get_url:
+    url: "{{ tower_archive_url }}"
+    dest: /tmp
+    mode: 0755
+
+- name: 'Extract the Ansible Tower Openshift setup project'
+  shell: "tar -xvf {{ tower_archive_filename }}"
+  args:
+    chdir: /tmp
+
+- name: 'Copy the installation_vars template'
+  template:
+    src: 'installation_vars.yml.j2'
+    dest: '/tmp/installation_vars.yml'
+
+- name: Run the Tower installation playbook
+  shell: ansible-playbook -i inventory install.yml --extra-vars "@/tmp/installation_vars.yml"
+  args:
+   chdir: "{{ tower_install_dir }}"
+
+- name: Cleanup archive files
+  file:
+    state: absent
+    path: "{{ item }}"
+  with_items:
+    - "/tmp/{{ tower_archive_filename }}"
+    - "{{ tower_install_dir }}"
