@@ -1,0 +1,68 @@
+---
+
+- name: "Configure Integreatly Uninstall job template: {{ integreatly_job_template_uninstall_name }}"
+  tower_job_template:
+    name: "{{ integreatly_job_template_uninstall_name }}"
+    description: "{{ integreatly_job_template_uninstall_desc }}"
+    job_type: "{{ integreatly_job_template_uninstall_type }}"
+    playbook: "{{ integreatly_job_template_bootstrap_uninstall_playbook }}"
+    project: "{{ tower_configuration_project_name }}"
+    credential: "{{ integreatly_job_template_uninstall_credentials }}"
+    state: present
+    inventory: "{{ tower_inventory_name }}"
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
+
+- name: "Configure Integreatly Bootstrap Uninstall job template: {{ integreatly_job_template_bootstrap_uninstall_name }}"
+  tower_job_template:
+    name: "{{ integreatly_job_template_bootstrap_uninstall_name }}"
+    description: "{{ integreatly_job_template_bootstrap_uninstall_desc }}"
+    job_type: "{{ integreatly_job_template_bootstrap_uninstall_type }}"
+    playbook: "{{ integreatly_job_template_bootstrap_uninstall_playbook }}"
+    project: "{{ tower_configuration_project_name }}"
+    credential: "{{ integreatly_job_template_bootstrap_uninstall_credentials }}"
+    state: present
+    inventory: "{{ tower_inventory_name }}"
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
+
+- name: "Configure Cluster Clean Down template: {{ integreatly_job_template_cleandown_name }}"
+  tower_job_template:
+    name: "{{ integreatly_job_template_cleandown_name }}"
+    description: "{{ integreatly_job_template_cleandown_desc }}"
+    job_type: "{{ integreatly_job_template_cleandown_type }}"
+    playbook: "{{ integreatly_job_template_cleandown_playbook }}"
+    project: "{{ tower_configuration_project_name }}"
+    credential: "{{ integreatly_job_template_cleandown_credentials }}"
+    state: present
+    inventory: "{{ tower_inventory_name }}"
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
+
+- name: "Create workflow: {{ integreatly_workflow_uninstall_job_template_name }}"
+  tower_workflow_template:
+    name:  "{{ integreatly_workflow_uninstall_job_template_name }}"
+    description: "{{ integreatly_workflow_uninstall_job_template_desc }}"
+    state: present
+    organization: "{{ integreatly_workflow_uninstall_job_template_organization }}"
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
+
+- name: Create uninstall workflow schema
+  template:
+    src: workflow_uninstall_schema.yml.j2
+    dest: "/tmp/workflow_uninstall_schema.yml"
+
+- name: Create uninstall workflow survey
+  template:
+    src: workflow_uninstall_survey.json.j2
+    dest: "/tmp/workflow_uninstall_survey.json"
+
+- name: Update uninstall workflow job template with survey
+  shell: "tower-cli workflow modify --name=\"{{ integreatly_workflow_uninstall_job_template_name }}\" --survey-enabled=true --survey-spec='@/tmp/workflow_uninstall_survey.json'"
+
+- name: Update uninstall workflow job template with schema
+  shell: "tower-cli workflow schema \"{{ integreatly_workflow_uninstall_job_template_name }}\" @/tmp/workflow_uninstall_schema.yml"
+
+- name: Cleanup temp uninstall workflow files
+  file:
+    path: "{{ item }}"
+  with_items:
+    - /tmp/workflow_uninstall_schema.yml
+    - /tmp/workflow_uninstall_survey.json

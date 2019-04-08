@@ -1,0 +1,11 @@
+---
+
+- name: "Delete project: {{ item }}"
+  tower_project:
+    name: "{{ item }}"
+    organization: "{{ tower_organization }}"
+    state: absent
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
+  with_items:
+    - "{{ integreatly_project_install_name  }}"
+    - "{{ integreatly_project_uninstall_name  }}"

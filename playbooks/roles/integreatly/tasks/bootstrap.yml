@@ -9,76 +9,8 @@
     organization: "{{ tower_organization }}"
     state: present
     kind: "{{ integreatly_credential_bundle_github_kind }}"
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
 
-- name: "Configure Bootstrap Cluster job template: {{ integreatly_job_template_bootstrap_name }}"
-  tower_job_template:
-    name: "{{ integreatly_job_template_bootstrap_name }}"
-    description: "{{ integreatly_job_template_bootstrap_desc }}"
-    job_type: "{{ integreatly_job_template_bootstrap_type }}"
-    playbook: "{{ integreatly_job_template_bootstrap_playbook }}"
-    project: "{{ tower_configuration_project_name }}"
-    credential: "{{ tower_credential_bundle_default_name }}"
-    state: present
-    inventory: "{{ tower_inventory_name }}"
+- include_tasks: workflow_install.yml
 
-- name: "Configure Deploy Integreatly job template: {{ integreatly_job_template_deploy_name }}"
-  tower_job_template:
-    name: "{{ integreatly_job_template_deploy_name }}"
-    description: "{{ integreatly_job_template_deploy_desc }}"
-    job_type: "{{ integreatly_job_template_deploy_type }}"
-    playbook: "{{ integreatly_job_template_bootstrap_playbook }}"
-    project: "{{ tower_configuration_project_name }}"
-    credential: "{{ tower_credential_bundle_default_name }}"
-    state: present
-    inventory: "{{ tower_inventory_name }}"
-
-- name: Retrieve AWS Credential Type ID
-  shell: "tower-cli credential_type list --kind cloud -n \"Amazon Web Services\" -f id"
-  register: aws_cred_type_id
-
-- name: Retrieve list of AWS Credential Bundles
-  shell: "tower-cli credential list --credential-type {{ aws_cred_type_id.stdout }} -f json"
-  register: aws_credentials_raw
-
-- set_fact:
-    aws_credentials_json: "{{ aws_credentials_raw.stdout | from_json }}"
-    integreatly_aws_accounts: []
-
-- name: "Set list of Integreatly AWS Accounts"
-  set_fact:
-    integreatly_aws_accounts: "{{ integreatly_aws_accounts + [ item.name ] }}"
-  with_items: "{{ aws_credentials_json.results }}"
-  no_log: true
-
-- set_fact:
-    integreatly_install_survey_aws_accounts: "{{ integreatly_aws_accounts | join('\\n')}}"
-
-- name: "Create workflow: {{ integreatly_workflow_job_template_name }}"
-  tower_workflow_template:
-    name:  "{{ integreatly_workflow_job_template_name }}"
-    description: "{{ integreatly_workflow_job_template_desc }}"
-    state: present
-    organization: "{{ integreatly_workflow_job_template_organization }}"
-
-- name: Create workflow schema
-  template:
-    src: workflow_schema.yml.j2
-    dest: "/tmp/integreatly_workflow_schema.yml"
-
-- name: Create workflow survey
-  template:
-    src: workflow_survey.json.j2
-    dest: "/tmp/workflow_survey.json"
-
-- name: Update workflow job template with survey
-  shell: "tower-cli workflow modify --name=\"{{ integreatly_workflow_job_template_name }}\" --survey-enabled=true --survey-spec='@/tmp/workflow_survey.json'"
-
-- name: Update workflow job template with schema
-  shell: "tower-cli workflow schema \"{{ integreatly_workflow_job_template_name }}\" @/tmp/integreatly_workflow_schema.yml"
-
-- name: Cleanup temp workflow files
-  file:
-    path: "{{ item }}"
-  with_items:
-    - /tmp/integreatly_workflow_schema.yml
-    - /tmp/workflow_survey.json
+- include_tasks: workflow_uninstall.yml

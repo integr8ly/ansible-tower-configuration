@@ -10,7 +10,8 @@
     extra_vars_path: "roles/cluster/files/openshift_tower_auth.yml"
     vault_credential: "{{ tower_credential_bundle_vault_name }}"
     state: present
-    inventory: "{{ tower_inventory_name }}"
+    inventory: "Provisioning_inventory"
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
   register: cluster_create_openshift_auth_out
   until: cluster_create_openshift_auth_out is succeeded
   retries: 10
@@ -26,7 +27,8 @@
     credential: "{{ tower_credential_bundle_default_name }}"
     vault_credential: "{{ tower_credential_bundle_vault_name }}"
     state: present
-    inventory: "{{ tower_inventory_name }}"
+    inventory: "Provisioning_inventory"
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
   register: cluster_create_generate_inventory_out
   until: cluster_create_generate_inventory_out is succeeded
   retries: 10
@@ -52,7 +54,8 @@
     credential: "{{ tower_credential_bundle_default_name }}"
     vault_credential: "{{ tower_credential_bundle_vault_name }}"
     state: present
-    inventory: "{{ tower_inventory_name }}"
+    inventory: "Provisioning_inventory"
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
   register: cluster_create_pre_flight_out
   until: cluster_create_pre_flight_out is succeeded
   retries: 10
@@ -74,6 +77,7 @@
     credential: "{{ tower_credential_bundle_default_name }}"
     state: present
     inventory: "Provisioning_inventory"
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
   register: cluster_create_prerequisites_out
   until: cluster_create_prerequisites_out is succeeded
   retries: 10
@@ -92,6 +96,7 @@
     credential: "{{ tower_credential_bundle_default_name }}"
     state: present
     inventory: "Provisioning_inventory"
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
   register: cluster_create_provision_install_out
   until: cluster_create_provision_install_out is succeeded
   retries: 10
@@ -113,6 +118,7 @@
     credential: "{{ tower_credential_bundle_default_name }}"
     state: present
     inventory: "Provisioning_inventory"
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
   register: cluster_create_post_install_out
   until: cluster_create_post_install_out is succeeded
   retries: 10
@@ -124,6 +130,7 @@
     description: "{{ cluster_workflow_job_template_desc }}"
     state: present
     organization: "{{ tower_organization }}"
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
 
 - name: Create workflow schema
   template:

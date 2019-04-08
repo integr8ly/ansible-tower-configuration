@@ -3,43 +3,75 @@
 # Cluster Configurations
 cluster_name: ''
 cluster_type: 'poc' # (poc|rhpds|dev)
-cluster_provisioning_vars_inventory: "{{ cluster_name }}_provisioning_vars"
+cluster_provisioning_vars_inventory: "{{ cluster_name }}"
 cluster_aws_region: ''
 cluster_aws_access_key: ''
 cluster_aws_secret_access_key: ''
 
 # Workflow Job Template
-integreatly_workflow_job_template_name: 'Integreatly Install Workflow'
-integreatly_workflow_job_template_desc: 'Workflow for Installing Integreatly against a target Openshift Cluster'
-integreatly_workflow_job_template_organization: "{{ tower_organization }}"
+integreatly_workflow_install_job_template_name: 'Integreatly Install Workflow'
+integreatly_workflow_install_job_template_desc: 'Workflow for Installing Integreatly on Openshift'
+integreatly_workflow_install_job_template_organization: "{{ tower_organization }}"
+
+integreatly_workflow_uninstall_job_template_name: 'Integreatly Uninstall Workflow'
+integreatly_workflow_uninstall_job_template_desc: 'Workflow for Uninstalling Integreatly on Openshift'
+integreatly_workflow_uninstall_job_template_organization: "{{ tower_organization }}"
 
 # Integreatly Credentials
 integreatly_credential_bundle_github_name: "tower_github_scm"
 integreatly_credential_bundle_github_desc: "SCM credentials for Integreatly project"
 integreatly_credential_bundle_github_kind: 'scm'
 
-# Integreatly Job Templates
-integreatly_job_template_bootstrap_name: 'Integreatly Bootstrap Cluster Template'
-integreatly_job_template_bootstrap_desc: 'Job for bootstrapping integreatly cluster resources'
-integreatly_job_template_bootstrap_type: 'run'
-integreatly_job_template_bootstrap_playbook: 'playbooks/bootstrap_integreatly_install.yml'
-integreatly_job_template_bootstrap_credentials: "{{ tower_credential_bundle_default_name }}"
+# Integreatly Job Templates: Install
+integreatly_job_template_bootstrap_install_name: 'Integreatly Bootstrap Install Template'
+integreatly_job_template_bootstrap_install_desc: 'Job for bootstrapping integreatly cluster resources'
+integreatly_job_template_bootstrap_install_type: 'run'
+integreatly_job_template_bootstrap_install_playbook: 'playbooks/bootstrap_integreatly_install.yml'
+integreatly_job_template_bootstrap_install_credentials: "{{ tower_credential_bundle_default_name }}"
 
-integreatly_job_template_deploy_name: 'Integreatly Deploy Job Template'
-integreatly_job_template_deploy_desc: 'Job for deploying Integreatly on target Openshift cluster'
+integreatly_job_template_deploy_name: 'Integreatly Deploy Template'
+integreatly_job_template_deploy_desc: 'Job for deploying Integreatly on Openshift'
 integreatly_job_template_deploy_type: 'run'
 integreatly_job_template_deploy_playbook: 'playbooks/install.yml'
 integreatly_job_template_deploy_credentials: "{{ tower_credential_bundle_default_name }}"
 
+# Integreatly Job Templates: Uninstall
+integreatly_job_template_uninstall_name: 'Integreatly Uninstall Template'
+integreatly_job_template_uninstall_desc: 'Job for uninstalling Integreatly on Openshift'
+integreatly_job_template_uninstall_type: 'run'
+integreatly_job_template_uninstall_playbook: 'playbooks/uninstall.yml'
+integreatly_job_template_uninstall_credentials: "{{ tower_credential_bundle_default_name }}"
+
+integreatly_job_template_bootstrap_uninstall_name: 'Integreatly Bootstrap Uninstall Template'
+integreatly_job_template_bootstrap_uninstall_desc: 'Job for bootstrapping resources for Integreatly uninstall'
+integreatly_job_template_bootstrap_uninstall_type: 'run'
+integreatly_job_template_bootstrap_uninstall_playbook: 'playbooks/bootstrap_integreatly_uninstall.yml'
+integreatly_job_template_bootstrap_uninstall_credentials: "{{ tower_credential_bundle_default_name }}"
+
+integreatly_job_template_cleandown_name: 'Integreatly Clean Down Template'
+integreatly_job_template_cleandown_desc: 'Job for cleaning down Integreatly resources'
+integreatly_job_template_cleandown_type: 'run'
+integreatly_job_template_cleandown_playbook: 'playbooks/bootstrap_integreatly_cleandown.yml'
+integreatly_job_template_cleandown_credentials: "{{ tower_credential_bundle_default_name }}"
+
 # Integreatly Projects
-integreatly_project_bootstrap_cluster_scm_branch: ''
-integreatly_project_bootstrap_cluster_name: "integreatly-install-{{ integreatly_project_bootstrap_cluster_scm_branch }}"
-integreatly_project_bootstrap_cluster_desc: "Integreatly Project for Branch: {{ integreatly_project_bootstrap_cluster_scm_branch }}"
-integreatly_project_bootstrap_cluster_scm_type: git
-integreatly_project_bootstrap_cluster_scm_clean: true
-integreatly_project_bootstrap_cluster_scm_url: ''
-integreatly_project_bootstrap_cluster_scm_update_on_launch: true
-integreatly_project_bootstrap_cluster_scm_delete_on_update: true
+integreatly_project_install_scm_branch: ''
+integreatly_project_install_name: "integreatly-install-{{ integreatly_project_install_scm_branch }}"
+integreatly_project_install_desc: "Integreatly Project for Branch: {{ integreatly_project_install_scm_branch }}"
+integreatly_project_install_scm_type: git
+integreatly_project_install_scm_clean: true
+integreatly_project_install_scm_url: ''
+integreatly_project_install_scm_update_on_launch: true
+integreatly_project_install_scm_delete_on_update: true
+
+integreatly_project_uninstall_scm_branch: ''
+integreatly_project_uninstall_name: "integreatly-uninstall-{{ integreatly_project_uninstall_scm_branch }}"
+integreatly_project_uninstall_desc: "Integreatly Project for Branch: {{ integreatly_project_uninstall_scm_branch }}"
+integreatly_project_uninstall_scm_type: git
+integreatly_project_uninstall_scm_clean: true
+integreatly_project_uninstall_scm_url: ''
+integreatly_project_uninstall_scm_update_on_launch: true
+integreatly_project_uninstall_scm_delete_on_update: true
 
 # Integreatly Inventories
 integreatly_inventory_name: "{{ cluster_name }}"
@@ -54,7 +86,7 @@ integreatly_inventory_source_aws_credentials: ''
 integreatly_inventory_source_aws_regions: 'All'
 integreatly_inventory_source_aws_instance_filters: "tag:clusterid={{ cluster_name }}"
 
-integreatly_inventory_source_project_name: "{{ cluster_name }}-inventory-source-project-{{ integreatly_project_bootstrap_cluster_name }}"
+integreatly_inventory_source_project_name: "{{ cluster_name }}-inventory-source-project-{{ integreatly_project_install_name }}"
 integreatly_inventory_source_project_type: 'scm'
 integreatly_inventory_source_project_path: "inventories/"
 integreatly_inventory_source_project_update_on_launch: false

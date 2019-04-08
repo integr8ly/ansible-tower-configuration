@@ -5,27 +5,16 @@
     description: "Floating inventory for cluster create workflow"
     organization: "{{ tower_organization }}"
     state: present
-
-- name: "Create inventory source from Project: {{ tower_credentials_project_name}}"
-  tower_inventory_source:
-    name: "{{ cluster_inventory_source_project_name }}"
-    source: "{{ cluster_inventory_source_project_type }}"
-    inventory: "{{ tower_inventory_name }}"
-    description: "From Project: {{ tower_credentials_project_name }}"
-    overwrite: "{{ cluster_inventory_source_project_overwrite }}"
-    overwrite_vars: "{{ cluster_inventory_source_project_overwrite_vars }}"
-    update_on_launch: "{{ cluster_inventory_source_project_update_on_launch }}"
-    source_project: "{{ tower_credentials_project_name }}"
-    source_path: "{{ cluster_inventory_source_project_path }}"
-    state: present
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
 
 - name: "Sync inventory sources"
   shell: "tower-cli inventory_source update {{ cluster_inventory_source_project_name }}"
 
-- name: 'Create the secret organisation'
+- name: "Create the tower {{ tower_secret_organization }} organisation"
   tower_organization:
-    name: 'secret'
+    name: "{{ tower_secret_organization }}"
     state: present
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
 
 - name: "Create project: Openshift Ansible"
   tower_project:
@@ -40,6 +29,7 @@
     scm_update_on_launch: "{{ cluster_project_bootstrap_cluster_scm_update_on_launch }}"
     scm_delete_on_update: "{{ cluster_project_bootstrap_cluster_scm_delete_on_update }}"
     scm_credential: "{{ cluster_credential_bundle_github_name }}"
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
 
 - name: "Create le_privatekey custom credential"
   tower_credential_type:
@@ -48,3 +38,4 @@
     injectors: {'extra_vars': {'le_private_key': "{{ lookup('file', 'LE_privatekey_template') }}" }}
     state: present
     kind: cloud
+    tower_verify_ssl: '{{ tower_verify_ssl }}'

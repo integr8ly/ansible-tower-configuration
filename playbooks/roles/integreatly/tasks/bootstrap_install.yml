@@ -4,22 +4,24 @@
   tower_inventory:
     name: "{{ integreatly_inventory_name }}"
     description: "{{ integreatly_inventory_desc }}"
-    organization: "{{ tower_organization }}"
+    organization: "{{ tower_secret_organization }}"
     state: present
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
 
-- name: "Create project: {{ integreatly_project_bootstrap_cluster_name }}"
+- name: "Create project: {{ integreatly_project_install_name }}"
   tower_project:
-    name: "{{ integreatly_project_bootstrap_cluster_name }}"
-    description: "{{ integreatly_project_bootstrap_cluster_desc }}"
+    name: "{{ integreatly_project_install_name }}"
+    description: "{{ integreatly_project_install_desc }}"
     organization: "{{ tower_organization }}"
     state: present
-    scm_type: "{{ integreatly_project_bootstrap_cluster_scm_type }}"
-    scm_url: "{{ integreatly_project_bootstrap_cluster_scm_url }}"
-    scm_branch: "{{ integreatly_project_bootstrap_cluster_scm_branch }}"
-    scm_clean: "{{ integreatly_project_bootstrap_cluster_scm_clean }}"
-    scm_update_on_launch: "{{ integreatly_project_bootstrap_cluster_scm_update_on_launch }}"
-    scm_delete_on_update: "{{ integreatly_project_bootstrap_cluster_scm_delete_on_update }}"
+    scm_type: "{{ integreatly_project_install_scm_type }}"
+    scm_url: "{{ integreatly_project_install_scm_url }}"
+    scm_branch: "{{ integreatly_project_install_scm_branch }}"
+    scm_clean: "{{ integreatly_project_install_scm_clean }}"
+    scm_update_on_launch: "{{ integreatly_project_install_scm_update_on_launch }}"
+    scm_delete_on_update: "{{ integreatly_project_install_scm_delete_on_update }}"
     scm_credential: "{{ integreatly_credential_bundle_github_name }}"
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
 
 - name: "Create inventory source AWS: {{ integreatly_inventory_source_aws_name }}"
   tower_inventory_source:
@@ -33,19 +35,21 @@
     update_on_launch: "{{ integreatly_inventory_source_aws_update_on_launch }}"
     instance_filters: "{{ integreatly_inventory_source_aws_instance_filters }}"
     state: present
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
 
-- name: "Create inventory source from Project: {{ integreatly_project_bootstrap_cluster_name }}"
+- name: "Create inventory source from Project: {{ integreatly_project_install_name }}"
   tower_inventory_source:
     name: "{{ integreatly_inventory_source_project_name }}"
     source: "{{ integreatly_inventory_source_project_type }}"
     inventory: "{{ integreatly_inventory_name }}"
-    description: "From Project: {{ integreatly_project_bootstrap_cluster_name }}"
+    description: "From Project: {{ integreatly_project_install_name }}"
     overwrite: "{{ integreatly_inventory_source_project_overwrite }}"
     overwrite_vars: "{{ integreatly_inventory_source_project_overwrite_vars }}"
     update_on_launch: "{{ integreatly_inventory_source_project_update_on_launch }}"
-    source_project: "{{ integreatly_project_bootstrap_cluster_name }}"
+    source_project: "{{ integreatly_project_install_name }}"
     source_path: "{{ integreatly_inventory_source_project_path }}"
     state: present
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
 
 - name: "Sync inventory sources"
   shell: "tower-cli inventory_source update {{ item }}"
@@ -62,6 +66,7 @@
     overwrite: "{{ integreatly_group_master_overwrite }}"
     overwrite_vars: "{{ integreatly_group_master_overwrite_vars }}"
     update_on_launch: "{{ integreatly_group_master_update_on_launch }}"
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
   register: master_group_data
 
 - name: "Retrieve tag_host_type_master group data"
@@ -96,6 +101,7 @@
     inventory: "{{ integreatly_inventory_name }}"
     description: "{{ integreatly_host_local_desc }}"
     state: present
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
   register: local_host_data
 
 - name: "Associate {{ integreatly_host_local_name }} with group {{ integreatly_group_local_name }}"
@@ -125,12 +131,12 @@
 
 - name: Generate extra vars file
   template:
-    dest: "/tmp/extra_vars_{{ cluster_type }}.yml"
-    src: "extra_vars_{{ cluster_type }}.yml.j2"
+    dest: "/tmp/extra_vars_{{ cluster_type }}_install.yml"
+    src: "extra_vars_{{ cluster_type }}_install.yml.j2"
 
 - name: "Update workflow stage {{ integreatly_job_template_deploy_name }}"
-  shell: "tower-cli job_template modify -n \"{{ integreatly_job_template_deploy_name }}\" -i {{ integreatly_inventory_name }} --project {{ integreatly_project_bootstrap_cluster_name }} --playbook {{ integreatly_job_template_deploy_playbook }} --credential {{ tower_credential_bundle_default_name }} --extra-vars '@/tmp/extra_vars_{{ cluster_type }}.yml'"
+  shell: "tower-cli job_template modify -n \"{{ integreatly_job_template_deploy_name }}\" -i {{ integreatly_inventory_name }} --project {{ integreatly_project_install_name }} --playbook {{ integreatly_job_template_deploy_playbook }} --credential {{ tower_credential_bundle_default_name }} --extra-vars '@/tmp/extra_vars_{{ cluster_type }}_install.yml'"
 
 - name: Cleanup temp var file
   file:
-    path: "/tmp/extra_vars_{{ cluster_type }}.yml"
+    path: "/tmp/extra_vars_{{ cluster_type }}_install.yml"
