@@ -7,6 +7,20 @@
     state: present
     tower_verify_ssl: '{{ tower_verify_ssl }}'
 
+- name: "Create inventory source from Project: {{ tower_credentials_project_name}}"
+  tower_inventory_source:
+    name: "{{ cluster_inventory_source_project_name }}"
+    source: "{{ cluster_inventory_source_project_type }}"
+    inventory: "{{ tower_inventory_name }}"
+    description: "From Project: {{ tower_credentials_project_name }}"
+    overwrite: "{{ cluster_inventory_source_project_overwrite }}"
+    overwrite_vars: "{{ cluster_inventory_source_project_overwrite_vars }}"
+    update_on_launch: "{{ cluster_inventory_source_project_update_on_launch }}"
+    source_project: "{{ tower_credentials_project_name }}"
+    source_path: "{{ cluster_inventory_source_project_path }}"
+    state: present
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
+
 - name: "Sync inventory sources"
   shell: "tower-cli inventory_source update {{ cluster_inventory_source_project_name }}"
 
