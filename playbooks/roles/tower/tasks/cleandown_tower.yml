@@ -1,5 +1,26 @@
 ---
-- name: 'Clean down the tower instance: {{ tower_host }}'
+- name: 'Check tower_environment is defined'
+  fail:
+    msg: "tower_environment is not defined"
+  when: tower_environment is not defined or tower_environment == ''
+
+- name: 'Check if running in CI/CD mode'
+  set_fact:
+    cleandown_confirmation_prompt: True
+  when: cicd_mode
+
+- name: "Confirmation prompt for cleaning down the > {{ tower_environment }} < tower instance"
+  pause:
+    prompt: 'Please confirm you want cleandown the {{ tower_environment }} tower instance? (yes/no)'
+  register: cleandown_confirmation_prompt
+  when: not cicd_mode
+
+- name: 'Check Confirmation'
+  fail:
+    msg: "Playbook run confirmation failed"
+  when: not cleandown_confirmation_prompt.user_input | bool
+
+- name: 'Clean down the tower instance: {{ lookup("vars", "_".join((tower_environment, "tower_host")) ) }}'
   shell: '{{ item }}'
   no_log: true
   with_items:
@@ -10,3 +31,4 @@
     - 'for i in $(tower-cli inventory list | awk "{print $1}" | grep -v id | grep -v ===); do tower-cli inventory delete $i; done'
     - 'for i in $(tower-cli organization list | awk "{print $1}" | grep -v id | grep -v ===); do tower-cli organization delete $i; done'
     - 'tower-cli credential_type delete -n le_privatekey'
+  when: cleandown_confirmation_prompt.user_input | bool
