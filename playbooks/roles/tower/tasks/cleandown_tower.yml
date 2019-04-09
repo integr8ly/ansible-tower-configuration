@@ -4,10 +4,16 @@
     msg: "tower_environment is not defined"
   when: tower_environment is not defined or tower_environment == ''
 
+- name: 'Check if running in CI/CD mode'
+  set_fact:
+    cleandown_confirmation_prompt: True
+  when: cicd_mode
+
 - name: "Confirmation prompt for cleaning down the > {{ tower_environment }} < tower instance"
   pause:
     prompt: 'Please confirm you want cleandown the {{ tower_environment }} tower instance? (yes/no)'
   register: cleandown_confirmation_prompt
+  when: not cicd_mode
 
 - name: 'Check Confirmation'
   fail:

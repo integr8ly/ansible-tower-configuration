@@ -1,6 +1,7 @@
 ---
 # Ansible Tower Configurations
-tower_login: true
+tower_login: True
+cicd_mode: False
 tower_environment: "{{ lookup('env','tower_environment')}}"
 tower_host: '{{ lookup("vars", "_".join((tower_environment, "tower_host")) ) }}'
 tower_username: '{{ lookup("vars", "_".join((tower_environment, "tower_username")) ) }}'
