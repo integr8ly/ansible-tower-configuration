@@ -1,10 +1,11 @@
 ---
 # Ansible Tower Configurations
 tower_login: true
-tower_host: ''
-tower_username: ''
-tower_password: ''
-tower_verify_ssl: false
+tower_environment: "{{ lookup('env','tower_environment') | default('local') }}"
+tower_host: '{{ lookup("vars", "_".join((tower_environment, "tower_host")) ) }}'
+tower_username: '{{ lookup("vars", "_".join((tower_environment, "tower_username")) ) }}'
+tower_password: '{{ lookup("vars", "_".join((tower_environment, "tower_password")) ) }}'
+tower_verify_ssl: '{{ lookup("vars", "_".join((tower_environment, "tower_verify_ssl")) ) }}'
 
 # Ansible Tower Openshift Configurations
 tower_openshift_username: ''
