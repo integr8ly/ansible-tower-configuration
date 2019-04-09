@@ -8,6 +8,8 @@ tower_username: '{{ lookup("vars", "_".join((tower_environment, "tower_username"
 tower_password: '{{ lookup("vars", "_".join((tower_environment, "tower_password")) ) }}'
 tower_verify_ssl: '{{ lookup("vars", "_".join((tower_environment, "tower_verify_ssl")) ) }}'
 
+tower_github_scm: ''
+
 # Ansible Tower Openshift Configurations
 tower_openshift_username: ''
 tower_openshift_password: ''

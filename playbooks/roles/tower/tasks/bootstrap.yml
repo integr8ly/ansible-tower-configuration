@@ -29,29 +29,11 @@
 # Import the credentials bootstrap task
 - include_tasks: bootstrap_credentials.yml
 
-
-- name: 'Create inventory: {{ tower_inventory_name }}'
-  tower_inventory:
-    name: '{{ tower_inventory_name }}'
-    description: '{{ tower_inventory_desc }}'
-    organization: '{{ tower_organization }}'
-    state: present
-    tower_verify_ssl: '{{ tower_verify_ssl }}'
-
-- name: 'Create local host'
-  tower_host:
-    name: '{{ tower_host_local_name }}'
-    inventory: '{{ tower_inventory_name }}'
-    description: '{{ tower_host_local_desc }}'
-    variables:
-      ansible_connection: local
-    state: present
-    tower_verify_ssl: '{{ tower_verify_ssl }}'
-
-
-# Import the credentials bootstrap task
+# Import the projects bootstrap task
 - include_tasks: bootstrap_projects.yml
 
+# Import the inventories bootstrap task
+- include_tasks: bootstrap_inventories.yml
 
 # Import Job Template bootstrapping
 - include_tasks: bootstrap_jobs.yml

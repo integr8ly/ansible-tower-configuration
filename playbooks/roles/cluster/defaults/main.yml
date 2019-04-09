@@ -2,7 +2,7 @@
 # common
 cluster_credential_git_user: ''
 cluster_credential_git_user_group: ''
-cluster_credential_git_repo: ''
+cluster_credential_git_repo: '{{ tower_credentials_project_scm_type_url }}'
 cluster_credential_git_ref: ''
 cluster_project_bootstrap_scm_type: git
 cluster_project_bootstrap_cluster_scm_clean: true
@@ -100,12 +100,3 @@ cluster_workflow_teardown_desc: "Workflow for Cluster Deprovision"
 
 tower_pod_openshift_user: ""
 tower_pod_openshift_pass: ""
-
-# Inventory
-
-cluster_inventory_source_project_name: "credential-inventory-source"
-cluster_inventory_source_project_type: 'scm'
-cluster_inventory_source_project_path: "inventories/"
-cluster_inventory_source_project_update_on_launch: false
-cluster_inventory_source_project_overwrite: false
-cluster_inventory_source_project_overwrite_vars: false

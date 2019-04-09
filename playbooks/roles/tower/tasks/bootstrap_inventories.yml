@@ -1,0 +1,28 @@
+---
+- name: 'Create inventory: {{ tower_inventory_name }}'
+  tower_inventory:
+    name: '{{ tower_inventory_name }}'
+    description: '{{ tower_inventory_desc }}'
+    organization: '{{ tower_organization }}'
+    state: present
+
+- name: 'Create local host'
+  tower_host:
+    name: '{{ tower_host_local_name }}'
+    inventory: '{{ tower_inventory_name }}'
+    description: '{{ tower_host_local_desc }}'
+    variables:
+      ansible_connection: local
+    state: present
+
+- name: 'Create a tower inventory source pointing at the private credentials repo'
+  tower_inventory_source:
+    name: '{{ "_".join((tower_credentials_project_name, "source")) }}'
+    description: '{{ tower_credentials_project_desc }}'
+    inventory: '{{ tower_inventory_name }}'
+    source: 'scm'
+    source_project: '{{ tower_credentials_project_name }}'
+    source_path: 'inventories/hosts'
+    update_on_launch: '{{ tower_credentials_project_scm_update_on_launch }}'
+    overwrite: true
+    state: present
