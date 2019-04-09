@@ -1,3 +1,0 @@
----
-tower_pod_openshift_username: "{{ tower_pod_openshift_user }}"
-tower_pod_openshift_password: "{{ tower_pod_openshift_pass }}"

@@ -114,7 +114,6 @@
           aws_access_key: "{{ dns_access_key | default(aws_access_key) }}"
           aws_secret_key: "{{ dns_secret_key | default(aws_secret_key) }}"
           overwrite: true
-      - shell: oc create secret tls "{{ oo_clusterid }}.certs" --cert=/tmp/{{ oo_clusterid }}/certs/wildcard.{{ base_cluster_url }}.crt --key=/tmp/{{ oo_clusterid }}/certs/wildcard.{{ base_cluster_url }}.key
     when: crt_result.stat.exists == false
 
   #
@@ -170,5 +169,37 @@
           aws_access_key: "{{ dns_access_key | default(aws_access_key) }}"
           aws_secret_key: "{{ dns_secret_key | default(aws_secret_key) }}"
           overwrite: true
-      - shell: oc create secret tls "{{ oo_clusterid }}.apps.certs" --cert=/tmp/{{ oo_clusterid }}/certs/wildcard.{{ apps_cluster_url }}.crt --key=/tmp/{{ oo_clusterid }}/certs/wildcard.{{ apps_cluster_url }}.key
     when: app_crt_result.stat.exists == false
+
+  - name: Create a bucket for backups
+    aws_s3:
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+      bucket: "{{ cluster_backup_integreatly_bucket_name }}"
+      mode: create
+      region: "{{ oo_sublocation }}"
+    ignore_errors: yes
+
+  - name: Backup certs to bucket
+    aws_s3:
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+      bucket: "{{ cluster_backup_bucket_name }}"
+      object: /certs/{{ oo_clusterid }}/wildcard.{{ item }}.crt
+      src: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ item }}.crt
+      mode: put
+    with_items:
+      - "{{ apps_cluster_url }}"
+      - "{{ base_cluster_url }}"
+
+  - name: Backup keys to bucket
+    aws_s3:
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+      bucket: "{{ cluster_backup_bucket_name }}"
+      object: /certs/{{ oo_clusterid }}/wildcard.{{ item }}.key
+      src: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ item }}.key
+      mode: put
+    with_items:
+      - "{{ apps_cluster_url }}"
+      - "{{ base_cluster_url }}"
