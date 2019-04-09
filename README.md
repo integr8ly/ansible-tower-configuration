@@ -43,7 +43,7 @@ The playbook requires a number of configs to be passed in, namely:
 * `tower_openshift_password`: The password of the Openshift user specified
 
 ```bash
-ansible-playbook -i inventories/hosts playbooks/install_bootstrap.yml -e tower_openshift_master_url=<tower_openshift_master_url> -e tower_openshift_username=<tower_openshift_username> -e tower_openshift_password=<tower_openshift_password>
+ansible-playbook -i inventories/hosts playbooks/install_tower.yml -e tower_openshift_master_url=<tower_openshift_master_url> -e tower_openshift_username=<tower_openshift_username> -e tower_openshift_password=<tower_openshift_password>
 ```
 
 A number of default values are used when installing Ansible Tower on the target Openshift cluster, any of which can be overridden with the use of environmental variables. These default values include several password values which are assigned a default value of `CHANGEME`, as can be seen below.
