@@ -1,0 +1,40 @@
+{
+    "apiVersion": "route.openshift.io/v1",
+    "kind": "Route",
+    "metadata": {
+        "labels": {
+            "3scale.component": "apicast",
+            "3scale.component-element": "wildcard-router",
+            "app": "3scale-api-management"
+        },
+        "name": "apicast-wildcard-router-integreatly"
+    },
+    "spec": {
+        "host": "wildcard.{{ scale_wildcard_url }}",
+        "port": {
+            "targetPort": "http"
+        },
+        "tls": {
+            "caCertificate": {{ scale_wildcard_ca_certificate_content | to_json }},
+            "certificate": {{ scale_wildcard_certificate_content | to_json }},
+            "insecureEdgeTerminationPolicy": "Allow",
+            "key": {{ scale_wildcard_private_key_content | to_json }},
+            "termination": "edge"
+        },
+        "to": {
+            "kind": "Service",
+            "name": "apicast-wildcard-router",
+            "weight": 100
+        },
+        "wildcardPolicy": "Subdomain"
+    },
+    "status": {
+        "ingress": [
+            {
+              "host": "wildcard.{{ scale_wildcard_url }}",
+              "routerName": "router",
+              "wildcardPolicy": "Subdomain"
+            }
+        ]
+    }
+}
