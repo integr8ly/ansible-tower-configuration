@@ -9,9 +9,11 @@
     cleandown_confirmation_prompt: True
   when: cicd_mode
 
+- import_tasks: authenticate_tower.yml
+
 - name: "Confirmation prompt for cleaning down the > {{ tower_environment }} < tower instance"
   pause:
-    prompt: 'Please confirm you want cleandown the {{ tower_environment }} tower instance? (yes/no)'
+    prompt: 'Please confirm you want cleandown the {{ tower_host }} tower instance? (yes/no)'
   register: cleandown_confirmation_prompt
   when: not cicd_mode
 
