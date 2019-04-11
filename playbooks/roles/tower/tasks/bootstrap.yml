@@ -8,7 +8,7 @@
     state: present
     tower_verify_ssl: '{{ tower_verify_ssl }}'
 
-- name: 'Create the {{ tower_team}} team'
+- name: 'Create the {{ tower_team }} team'
   tower_team:
     name: '{{ tower_team }}'
     organization: '{{ tower_organization }}'
