@@ -67,10 +67,11 @@ The bootstrap playbook requires a number of configs to be passed in, namely:
 * `tower_host`: The hostname of the target Ansible Tower instance
 * `tower_username`: The username to login with when integrating with Tower (requires admin permissions)
 * `tower_password`: The password of the tower_user specified
+* `tower_environment`: The Ansible Tower environment (dev/test/qe)
 * `tower_verify_ssl`: (Optional) Determines whether to verify the SSL certs installed on the Tower instance. By default this is set to `false`
 
 ```bash
-ansible-playbook -i inventories/hosts playbooks/bootstrap.yml -e tower_host=<tower-host> -e tower_username=<tower-username> -e tower_password=<tower-password>
+ansible-playbook -i inventories/hosts playbooks/bootstrap.yml -e tower_host=<tower-host> -e tower_username=<tower-username> -e tower_password=<tower-password> -e tower_environment=<tower-environment>
 ```
 
 ### Prerequisite Bootstrapping
@@ -83,9 +84,10 @@ The following bootstrap playbook requires a number of configs to be passed in, n
 * `tower_username`: The username to login with when integrating with Tower (requires admin permissions)
 * `tower_password`: The password of the tower_user specified
 * `tower_verify_ssl`: (Optional) Determines whether to verify the SSL certs installed on the Tower instance. By default this is set to `false`
+* `tower_environment`: The Ansible Tower environment (dev/test/qe)
 
 ```bash
-ansible-playbook -i inventories/hosts playbooks/bootstrap_tower.yml -e tower_host=<tower-host> -e tower_username=<tower-username> -e tower_password=<tower-password>
+ansible-playbook -i inventories/hosts playbooks/bootstrap_tower.yml -e tower_host=<tower-host> -e tower_username=<tower-username> -e tower_password=<tower-password> -e tower_environment=<tower-environment>
 ```
 
 ### Integreatly Bootstrapping
