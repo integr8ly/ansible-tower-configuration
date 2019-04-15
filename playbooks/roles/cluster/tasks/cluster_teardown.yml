@@ -172,6 +172,13 @@
   loop_control:
     label: "{{ item.id }}"
   when: aws_volumes.volumes is defined
+
+- name: Delete 3Scale bucket for {{ aws_cluster_name }}
+  aws_s3:
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    bucket: "{{ aws_cluster_name }}-3scale"
+    mode: delete
   
 - name: Get VPCs for {{ aws_cluster_name }}
   ec2_vpc_net_facts:
@@ -208,4 +215,3 @@
     name: "{{ aws_cluster_name }}"
     region: "{{ aws_region }}"
     state: absent
-
