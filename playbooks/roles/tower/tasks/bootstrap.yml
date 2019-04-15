@@ -25,6 +25,10 @@
     - 'tower-cli setting modify SOCIAL_AUTH_GITHUB_ORG_ORGANIZATION_MAP "{{ social_auth_github_org_organization_map }}"'
     - 'tower-cli setting modify SOCIAL_AUTH_GITHUB_ORG_TEAM_MAP "{{ social_auth_github_org_team_map }}"'
 
+- name: 'Generate generic tower extra vars file'
+  template:
+    src: 'tower_extra_vars.yml.j2'
+    dest: "{{ tower_extra_vars_file_path }}"
 
 # Import the credentials bootstrap task
 - include_tasks: bootstrap_credentials.yml
