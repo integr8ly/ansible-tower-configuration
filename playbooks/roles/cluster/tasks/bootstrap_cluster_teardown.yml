@@ -8,6 +8,7 @@
     project: "{{ cluster_job_template_teardown_project }}"
     state: present
     inventory: "{{ tower_inventory_name }}"
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
   register: cluster_create_teardown_out
   until: cluster_create_teardown_out is succeeded
   retries: 10
@@ -23,6 +24,7 @@
     state: present
     inventory: "{{ tower_inventory_name }}"
     vault_credential: "{{ tower_credential_bundle_vault_name }}"
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
   register: cluster_create_teardown_out
   until: cluster_create_teardown_out is succeeded
   retries: 10
@@ -37,6 +39,7 @@
     project: "{{ cluster_job_template_teardown_project }}"
     state: present
     inventory: "{{ tower_inventory_name }}"
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
   register: cluster_create_teardown_out
   until: cluster_create_teardown_out is succeeded
   retries: 10
@@ -49,6 +52,7 @@
     description: "{{ cluster_workflow_teardown_desc }}"
     state: present
     organization: "{{ tower_organization }}"
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
   
 - name: Retrieve AWS Credential Type ID
   shell: "tower-cli credential_type list --kind cloud -n \"Amazon Web Services\" -f id"
