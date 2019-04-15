@@ -159,7 +159,7 @@
     cluster_install_survey_aws_accounts: "{{ cluster_aws_accounts | join('\\n')}}"
 
 - name: "Update Workflow job template with survey"
-  shell: "tower-cli workflow modify --name=\"{{ cluster_workflow_job_template_name }}\" --survey-enabled=true --survey-spec='@{{ role_path }}/templates/workflow_survey.json'"
+  shell: "tower-cli workflow modify --name=\"{{ cluster_workflow_job_template_name }}\" --survey-enabled=true --survey-spec='@{{ role_path }}/templates/workflow_survey.json' --extra-vars='@{{ tower_extra_vars_file_path }}'"
 
 - name: "Update Workflow job template with schema"
   shell: "tower-cli workflow schema \"{{ cluster_workflow_job_template_name }}\" @cluster_workflow_schema.yml"

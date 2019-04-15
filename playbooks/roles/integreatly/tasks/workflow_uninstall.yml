@@ -55,7 +55,7 @@
     dest: "/tmp/workflow_uninstall_survey.json"
 
 - name: Update uninstall workflow job template with survey
-  shell: "tower-cli workflow modify --name=\"{{ integreatly_workflow_uninstall_job_template_name }}\" --survey-enabled=true --survey-spec='@/tmp/workflow_uninstall_survey.json'"
+  shell: "tower-cli workflow modify --name=\"{{ integreatly_workflow_uninstall_job_template_name }}\" --survey-enabled=true --survey-spec='@/tmp/workflow_uninstall_survey.json' --extra-vars='@{{ tower_extra_vars_file_path }}'"
 
 - name: Update uninstall workflow job template with schema
   shell: "tower-cli workflow schema \"{{ integreatly_workflow_uninstall_job_template_name }}\" @/tmp/workflow_uninstall_schema.yml"

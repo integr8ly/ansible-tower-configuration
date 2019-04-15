@@ -81,7 +81,7 @@
     dest: "/tmp/cluster_teardown_workflow_survey.json"
 
 - name: "Update {{ cluster_workflow_teardown_name }} workflow with survey"
-  shell: "tower-cli workflow modify --name=\"{{ cluster_workflow_teardown_name }}\" --survey-enabled=true --survey-spec='@/tmp/cluster_teardown_workflow_survey.json'"
+  shell: "tower-cli workflow modify --name=\"{{ cluster_workflow_teardown_name }}\" --survey-enabled=true --survey-spec='@/tmp/cluster_teardown_workflow_survey.json' --extra-vars='@{{ tower_extra_vars_file_path }}'"
 
 - name: Create {{ cluster_workflow_teardown_name }} workflow schema
   template:
