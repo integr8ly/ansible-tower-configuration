@@ -41,6 +41,11 @@
       cacheable: true
       no_log: true
 
+  - name: Generate IAM policy document
+    template:
+      src: roles/cluster/templates/iam_backups_policy.json.j2
+      dest: /tmp/iam_policy.json
+
   - name: "Add s3-backup-access-{{ oo_clusterid }} policy to backups user"
     iam_policy:
       aws_access_key: "{{ aws_access_key }}"
@@ -50,11 +55,6 @@
       policy_name: s3-backup-access-{{ oo_clusterid }}
       policy_document: "/tmp/iam_policy.json"
       state: present
-
-  - name: Generate IAM policy document
-    template:
-      src: roles/cluster/templates/iam_backups_policy.json.j2
-      dest: /tmp/iam_policy.json
 
 - name: create cluster-admin
   hosts: firstMaster
