@@ -71,4 +71,4 @@
 
   - name: Create secret for backups
     shell: "oc create secret generic {{ cluster_backup_secret_name }} --from-literal=aws_access_key={{ hostvars['localhost']['iam_access_key'] }} --from-literal=aws_secret_key={{ hostvars['localhost']['iam_secret_key'] }} --from-literal=bucket_name={{ cluster_backup_bucket_name }} -n {{ cluster_backup_namespace }}"
-     no_log: true
+    no_log: true
