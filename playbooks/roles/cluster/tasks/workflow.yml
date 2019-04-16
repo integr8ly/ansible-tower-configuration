@@ -1,22 +1,4 @@
 ---
-- name: Configure Openshift authenticate job template
-  tower_job_template:
-    name: "{{ cluster_job_template_openshift_auth_name }}"
-    description: "{{ cluster_job_template_openshift_auth_desc }}"
-    job_type: "{{ cluster_job_template_openshift_auth_type }}"
-    playbook: "{{ cluster_job_template_openshift_auth_playbook }}"
-    project: "{{ cluster_job_template_openshift_auth_project }}"
-    credential: "{{ tower_credential_bundle_default_name }}"
-    extra_vars_path: "roles/cluster/files/openshift_tower_auth.yml"
-    vault_credential: "{{ tower_credential_bundle_vault_name }}"
-    state: present
-    inventory: "{{ tower_inventory_name }}"
-    tower_verify_ssl: '{{ tower_verify_ssl }}'
-  register: cluster_create_openshift_auth_out
-  until: cluster_create_openshift_auth_out is succeeded
-  retries: 10
-  delay: 5
-
 - name: Configure generate inventory job template
   tower_job_template:
     name: "{{ cluster_job_template_generate_inventory_name }}"
