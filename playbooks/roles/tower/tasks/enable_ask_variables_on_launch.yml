@@ -1,0 +1,27 @@
+- name: Get workflow job template details for workflow {{ workflow_id }}
+  uri:
+    url: "https://{{ tower_host }}/api/v2/workflow_job_templates/{{ workflow_id }}/"
+    method: "GET"
+    user: "{{ tower_username }}"
+    password: "{{ tower_password }}"
+    force_basic_auth: yes
+    body_format: json
+  register: get_workflow_details_response
+
+- set_fact:
+    workflow: "{{ get_workflow_details_response.json }}"
+
+- name: "Create workflow update template"
+  template:
+    src: "workflow_update.json.j2"
+    dest: "/tmp/workflow_update.json"
+
+- name: Enable ask_variables_on_launch and add for workflow {{ workflow.name }}
+  uri:
+    url: "https://{{ tower_host }}/api/v2/workflow_job_templates/{{ workflow_id }}/"
+    method: "PUT"
+    user: "{{ tower_username }}"
+    password: "{{ tower_password }}"
+    force_basic_auth: yes
+    body_format: json
+    body: "{{ lookup('file', '/tmp/workflow_update.json')}}"

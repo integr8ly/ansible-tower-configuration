@@ -113,6 +113,7 @@
     state: present
     organization: "{{ tower_organization }}"
     tower_verify_ssl: '{{ tower_verify_ssl }}'
+  register: create_workflow_response
 
 - name: Create workflow schema
   template:
@@ -145,6 +146,13 @@
 
 - name: "Update Workflow job template with schema"
   shell: "tower-cli workflow schema \"{{ cluster_workflow_job_template_name }}\" @cluster_workflow_schema.yml"
+
+# Update the workflow to enable ask_variables_on_launch via the tower api
+- include_role:
+    name: tower
+    tasks_from: enable_ask_variables_on_launch.yml
+  vars:
+    workflow_id: "{{ create_workflow_response.id }}"
 
 - name: Clean up files
   file:
