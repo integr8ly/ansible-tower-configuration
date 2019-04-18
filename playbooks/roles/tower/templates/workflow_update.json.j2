@@ -1,0 +1,11 @@
+{
+    "name": "{{ workflow.name }}",
+    "description": "{{ workflow.description }}",
+    "extra_vars": "---\ntower_environment: {{ tower_environment }}",
+    "organization": "{{ workflow.organization }}",
+    "survey_enabled": "{{ workflow.survey_enabled }}",
+    "allow_simultaneous": "{{ workflow.allow_simultaneous}}",
+    "ask_variables_on_launch": true,
+    "inventory": "{{ workflow.inventory }}",
+    "ask_inventory_on_launch": "{{ workflow.ask_inventory_on_launch }}"
+}

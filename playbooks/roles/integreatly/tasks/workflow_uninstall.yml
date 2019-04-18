@@ -43,6 +43,7 @@
     state: present
     organization: "{{ integreatly_workflow_uninstall_job_template_organization }}"
     tower_verify_ssl: '{{ tower_verify_ssl }}'
+  register: create_workflow_response
 
 - name: Create uninstall workflow schema
   template:
@@ -59,6 +60,13 @@
 
 - name: Update uninstall workflow job template with schema
   shell: "tower-cli workflow schema \"{{ integreatly_workflow_uninstall_job_template_name }}\" @/tmp/workflow_uninstall_schema.yml"
+
+# Update the workflow to enable ask_variables_on_launch via the tower api
+- include_role:
+    name: tower
+    tasks_from: enable_ask_variables_on_launch.yml
+  vars:
+    workflow_id: "{{ create_workflow_response.id }}"
 
 - name: Cleanup temp uninstall workflow files
   file:

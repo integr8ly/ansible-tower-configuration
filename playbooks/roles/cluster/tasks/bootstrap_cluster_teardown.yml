@@ -53,6 +53,7 @@
     state: present
     organization: "{{ tower_organization }}"
     tower_verify_ssl: '{{ tower_verify_ssl }}'
+  register: create_workflow_response
   
 - name: Retrieve AWS Credential Type ID
   shell: "tower-cli credential_type list --kind cloud -n \"Amazon Web Services\" -f id"
@@ -90,3 +91,10 @@
 
 - name: "Update {{ cluster_workflow_teardown_name }} workflow job template with schema"
   shell: "tower-cli workflow schema \"{{ cluster_workflow_teardown_name }}\" @/tmp/cluster_teardown_workflow_schema.yml"
+
+# Update the workflow to enable ask_variables_on_launch via the tower api
+- include_role:
+    name: tower
+    tasks_from: enable_ask_variables_on_launch.yml
+  vars:
+    workflow_id: "{{ create_workflow_response.id }}"
