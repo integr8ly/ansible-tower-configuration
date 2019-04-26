@@ -1,0 +1,26 @@
+---
+openshift_master_public_url: "https://console.{{ cluster_name }}.openshift.com"
+openshift_master_url: "https://console.{{ cluster_name }}.openshift.com"
+eval_app_host: "{{ router_shard }}.{{ cluster_name }}.openshiftapps.com"
+github_client_id: "{{ github_client_id }}"
+github_client_secret: "{{ github_client_secret }}"
+openshift_token: "{{ openshift_token }}"
+rhsso_evals_admin_password: "{{ rhsso_admin_pass }}"
+threescale_storage_s3_aws_access_key: "{{ threescale_s3_access_key}}"
+threescale_storage_s3_aws_secret_key: "{{ threescale_s3_secret_key }}"
+threescale_storage_s3_aws_bucket: "{{ threescale_s3_bucket_name }}"
+threescale_storage_s3_aws_region: "{{ threescale_s3_bucket_region }}"
+
+
+aws_s3_backup_secret_name: s3-credentials
+aws_s3_backup_secret_namespace: openshift-integreatly-backups
+backup_restore_install: true
+create_cluster_admin: false
+eval_seed_users_count: 0
+eval_self_signed_certs: false
+gitea: false
+ns_prefix: openshift-
+openshift_login: true
+prerequisites_install: false
+run_master_tasks: false
+threescale_file_upload_storage: s3

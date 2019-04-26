@@ -1,0 +1,129 @@
+{
+    "description": "",
+    "name": "",
+    "spec": [
+      {
+        "question_description": "Name of target cluster to install Integreatly against",
+        "min": 0,
+        "default": "",
+        "max": 20,
+        "required": true,
+        "choices": "",
+        "variable": "cluster_name",
+        "question_name": "Cluster Name",
+        "type": "text"
+      },
+      {
+        "question_description": "Integreatly Installer Git branch/tag",
+        "min": 0,
+        "default": "",
+        "max": 1024,
+        "required": true,
+        "choices": "",
+        "new_question": true,
+        "variable": "integreatly_osd_install_branch",
+        "question_name": "Integreatly install branch",
+        "type": "text"
+      },
+      {
+        "question_description": "Router shard of the targeted cluster",
+        "min": 0,
+        "default": "",
+        "max": 5,
+        "required": true,
+        "choices": "",
+        "variable": "router_shard",
+        "question_name": "Router shard",
+        "type": "text"
+      },
+      {
+        "question_description": "Openshift token for cluster-admin user",
+        "min": 0,
+        "default": "",
+        "max": 1024,
+        "required": true,
+        "choices": "",
+        "new_question": true,
+        "variable": "openshift_token",
+        "question_name": "Openshift token",
+        "type": "password"
+      },
+      {
+        "question_description": "Github client id for launcher authentication",
+        "min": 0,
+        "default": "",
+        "max": 1024,
+        "required": true,
+        "choices": "",
+        "variable": "github_client_id",
+        "question_name": "Github client ID",
+        "type": "text"
+      },
+      {
+        "question_description": "Github client secret for launcher authentication",
+        "min": 0,
+        "default": "",
+        "max": 1024,
+        "required": true,
+        "choices": "",
+        "variable": "github_client_secret",
+        "question_name": "Github client secret",
+        "type": "password"
+      },
+      {
+        "question_description": "RHSSO admin password",
+        "min": 0,
+        "default": "",
+        "max": 1024,
+        "required": true,
+        "choices": "",
+        "variable": "rhsso_admin_pass",
+        "question_name": "RHSSO admin password",
+        "type": "password"
+      },
+      {
+        "question_description": "AWS access key for threescale s3 bucket access",
+        "min": 0,
+        "default": "",
+        "max": 1024,
+        "required": true,
+        "choices": "",
+        "variable": "threescale_s3_access_key",
+        "question_name": "3scale AWS access key",
+        "type": "text"
+      },
+      {
+        "question_description": "AWS secret key for threescale s3 bucket access",
+        "min": 0,
+        "default": "",
+        "max": 1024,
+        "required": true,
+        "choices": "",
+        "variable": "threescale_s3_secret_key",
+        "question_name": "3scale AWS secret key",
+        "type": "password"
+      },
+      {
+        "question_description": "3scale S3 bucket name",
+        "min": 0,
+        "default": "",
+        "max": 1024,
+        "required": true,
+        "choices": "",
+        "variable": "threescale_s3_bucket_name",
+        "question_name": "3scale S3 bucket name",
+        "type": "text"
+      },
+      {
+        "question_description": "3scale S3 bucket region",
+        "min": 0,
+        "default": "",
+        "max": 1024,
+        "required": true,
+        "choices": "",
+        "variable": "threescale_s3_bucket_region",
+        "question_name": "3scale S3 bucket region",
+        "type": "text"
+      }
+    ]
+  }
