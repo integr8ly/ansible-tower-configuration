@@ -74,6 +74,16 @@ The bootstrap playbook requires a number of configs to be passed in, namely:
 ansible-playbook -i inventories/hosts playbooks/bootstrap.yml -e tower_host=<tower-host> -e tower_username=<tower-username> -e tower_password=<tower-password> -e tower_environment=<tower-environment>
 ```
 
+#### Openshift Dedicated
+
+If you also wish to bootstrap the tower instance with the OSD integreatly install workflow you need to run this play after running the bootstrap.yml play.
+
+```
+ansible-playbook -i inventories/hosts playbooks/bootstrap_osd_integreatly_install.yml -e tower_environment=<tower-environment>
+```
+
+This will create the resources necessary to use the *Integreatly_Bootstrap_and_install_[OSD]* workflow which will install Integreatly on a targeted OSD cluster.
+
 ### Prerequisite Bootstrapping
 
 Prior to running any jobs stored in this repository, the target Ansible tower instance must first be bootstrapped with some generic resources.
