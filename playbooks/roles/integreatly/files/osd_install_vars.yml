@@ -1,6 +1,6 @@
 ---
 openshift_master_public_url: "https://console.{{ cluster_name }}.openshift.com"
-openshift_master_url: "https://console.{{ cluster_name }}.openshift.com"
+openshift_master_url: "https://api.{{ cluster_name }}.openshift.com"
 eval_app_host: "{{ router_shard }}.{{ cluster_name }}.openshiftapps.com"
 github_client_id: "{{ github_client_id }}"
 github_client_secret: "{{ github_client_secret }}"
