@@ -387,7 +387,7 @@
     delay: 5
 
   - name: "Associate {{ cluster_job_template_prerequisites_credentials }} credential to {{ cluster_job_template_prerequisites_name }}"
-    shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_prerequisites_name }}" --credential "{{ cluster_job_template_prerequisites_credentials }}"
+    shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_prerequisites_name }}-{{ oo_clusterid }}" --credential "{{ cluster_job_template_prerequisites_credentials }}"
 
   - name: Configure provision install job template
     tower_job_template:
@@ -436,8 +436,13 @@
       tower_verify_ssl: '{{ tower_verify_ssl }}'
     register: create_workflow_response
 
+  - name: Create workflow schema
+    template:
+      src: workflow_schema.yml.j2
+      dest: "cluster_workflow_schema_{{ oo_clusterid }}.yml"
+
   - name: "Update Workflow job template with schema"
-    shell: "tower-cli workflow schema \"{{ cluster_workflow_job_template_name }}_{{ oo_clusterid }}\" @cluster_workflow_schema.yml"
+    shell: "tower-cli workflow schema \"{{ cluster_workflow_job_template_name }}_{{ oo_clusterid }}\" @cluster_workflow_schema_{{ oo_clusterid }}.yml"
 
   # Update the workflow to enable ask_variables_on_launch via the tower api
   - include_role:
