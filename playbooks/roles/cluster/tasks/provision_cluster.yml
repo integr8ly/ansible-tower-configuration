@@ -1,0 +1,586 @@
+---
+  #
+  # Validate some variables that we need
+  #
+  - name: cluster_type
+    fail:  
+      msg: "cluster_type is not defined"
+    when: cluster_type is undefined
+  - name: oo_clusterid
+    fail:
+      msg: "oo_clusterid is not defined"
+    when: oo_clusterid is undefined
+
+  - name: Set staging acme directory
+    set_fact:
+      acme_directory_url: https://acme-staging-v02.api.letsencrypt.org/directory
+    when: le_staging is defined
+
+  - name: Set Production acme directory
+    set_fact:
+      acme_directory_url: https://acme-v02.api.letsencrypt.org/directory
+    when: le_staging is undefined
+
+  #
+  # Set some facts that we will refer to later
+  #
+  - name: Set AWS credentials
+    set_fact:
+      aws_access_key: "{{ lookup('env', 'AWS_ACCESS_KEY_ID' ) }}"
+      aws_secret_key: "{{ lookup('env', 'AWS_SECRET_ACCESS_KEY' ) }}"
+
+  - name: Set tower credentials
+    set_fact:
+      tower_host: '{{ lookup("vars", "_".join((tower_environment, "tower_host")) ) }}'
+      tower_username: '{{ lookup("vars", "_".join((tower_environment, "tower_username")) ) }}'
+      tower_password: '{{ lookup("vars", "_".join((tower_environment, "tower_password")) ) }}'
+      validate_certs: '{{ lookup("vars", "_".join((tower_environment, "tower_verify_ssl")) ) }}'
+
+  - name: set domain variable
+    set_fact:
+      domain: "{% if cluster_type=='dev' %}{{ dev_domain }}{% elif cluster_type=='poc' %}{{ poc_domain }}{% endif %}"
+
+  - name: Set cluster urls
+    set_fact:
+      base_cluster_url: "{{ oo_clusterid }}.{{ domain }}"
+      apps_cluster_url: "apps.{{ oo_clusterid }}.{{ domain }}"
+
+  - name: set 3scale wildcard URL
+    set_fact:
+      scale_wildcard_url: "amp.{{ oo_clusterid }}.{{ domain }}"
+
+  - name: Create temp directory
+    file:
+      path: /tmp/{{ oo_clusterid }}/certs
+      state: directory
+      recurse: yes
+
+  - name: Ensure the cert bucket exists
+    aws_s3:
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+      bucket: "{{ cluster_backup_bucket_name }}"
+      mode: create
+    ignore_errors: yes
+
+  #
+  # Check locally for CLUSTERNAME.DOMAIN cert. If you can't find it then check S3
+  #
+  - name: "Check if {{ base_cluster_url }} certificates exist"
+    stat:
+      path: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ base_cluster_url }}.crt
+    register: crt_result
+
+  - name: Check S3 for base cert and key
+    block:
+    - name: Check for cert
+      aws_s3:
+        bucket: "{{ cluster_backup_bucket_name }}"
+        object: certs/{{ oo_clusterid }}/wildcard.{{ base_cluster_url }}.crt
+        dest: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ base_cluster_url }}.crt
+        mode: get
+      register: crt_result_s3
+    - name: Check for key
+      aws_s3:
+        bucket: "{{ cluster_backup_bucket_name }}"
+        object: certs/{{ oo_clusterid }}/wildcard.{{ base_cluster_url }}.key
+        dest: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ base_cluster_url }}.key
+        mode: get
+    ignore_errors: true
+    when: crt_result.stat.exists == false
+
+  #
+  # Check locally for APPS.CLUSTERNAME.DOMAIN cert. If you can't find it then check S3
+  #
+  - stat: path=/tmp/{{ oo_clusterid }}/certs/wildcard.{{ apps_cluster_url }}.crt
+    register: app_crt_result
+
+  - name: Check S3 for apps cert and key
+    block:
+    - name: Check for cert
+      aws_s3:
+        bucket: "{{ cluster_backup_bucket_name }}"
+        object: certs/{{ oo_clusterid }}/wildcard.{{ apps_cluster_url }}.crt
+        dest: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ apps_cluster_url }}.crt
+        mode: get
+      register: app_crt_result_s3
+    - name: Check for key
+      aws_s3:
+        bucket: "{{ cluster_backup_bucket_name }}"
+        object: certs/{{ oo_clusterid }}/wildcard.{{ apps_cluster_url }}.key
+        dest: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ apps_cluster_url }}.key
+        mode: get
+    ignore_errors: true
+    when: app_crt_result.stat.exists == false
+
+  #
+  # Check locally for rootCA.pem. If you can't find it then check S3
+  #
+  - stat: path=/tmp/{{ oo_clusterid }}/certs/rootCA.pem
+    register: rootca_result
+
+  - name: Check S3 for rootCA cert
+    aws_s3:
+      bucket: "{{ cluster_backup_bucket_name }}"
+      object: certs/{{ oo_clusterid }}/rootCA.pem
+      dest: /tmp/{{ oo_clusterid }}/certs/rootCA.pem
+      mode: get
+    ignore_errors: true
+    register: app_crt_result_s3
+    when: rootca_result.stat.exists == false
+
+  #
+  # Check locally for amp.CLUSTERNAME.DOMAIN cert. If you can't find it then check S3
+  #
+  - stat: path=/tmp/{{ oo_clusterid }}/certs/wildcard.{{ scale_wildcard_url }}.crt
+    register: scale_crt_result
+
+  - name: Check S3 for 3scale cert and key
+    block:
+    - name: Check for cert
+      aws_s3:
+        bucket: "{{ cluster_backup_bucket_name }}"
+        object: certs/{{ oo_clusterid }}/wildcard.{{ scale_wildcard_url }}.crt
+        dest: /tmp/{{ oo_clusterid }}/wildcard.{{ scale_wildcard_url }}.crt
+        mode: get
+      register: scale_crt_result_s3
+    - name: Check for key
+      aws_s3:
+        bucket: "{{ cluster_backup_bucket_name }}"
+        object: certs/{{ oo_clusterid }}/wildcard.{{ scale_wildcard_url }}.key
+        dest: /tmp/{{ oo_clusterid }}/wildcard.{{ scale_wildcard_url }}.key
+        mode: get
+    ignore_errors: true
+    when: scale_crt_result.stat.exists == false
+
+  #
+  # LetsEncrypt cert generation
+  #
+  - name: Make sure account exists and has given contacts. We agree to TOS.
+    acme_account:
+        account_key_content: "{{ letsencrypt_private_key }}"
+        state: present
+        terms_agreed: yes
+        acme_version: 2
+        acme_directory: "{{ acme_directory_url }}"
+        contact:
+        - mailto:integreatly-notifications@redhat.com
+
+  - name: Create directory for certs
+    file:
+        path: "/tmp/{{ oo_clusterid }}/certs"
+        state: directory
+
+  - name: Generate a private key and csr for the cluster cert
+    block:
+      - openssl_privatekey:
+          path: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ oo_clusterid }}.{{ domain }}.key
+      - openssl_csr:
+          privatekey_path: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ base_cluster_url }}.key
+          path: "/tmp/{{ oo_clusterid }}/certs/wildcard.{{ base_cluster_url }}.csr"
+          common_name: "{{ base_cluster_url }}"
+          subject_alt_name: 'DNS:{{ base_cluster_url }},DNS:*.{{ base_cluster_url }}'
+    when: crt_result.stat.exists == false and crt_result_s3.failed == true
+
+  - name: Generate a private key and csr for the apps cert
+    block:
+      - openssl_privatekey:
+          path: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ apps_cluster_url }}.key
+      - openssl_csr:
+          privatekey_path: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ apps_cluster_url }}.key
+          path: "/tmp/{{ oo_clusterid }}/certs/wildcard.{{ apps_cluster_url }}.csr"
+          common_name: "{{ apps_cluster_url }}"
+          subject_alt_name: 'DNS:{{ apps_cluster_url }},DNS:*.{{ apps_cluster_url }}'
+    when: app_crt_result.stat.exists == false and app_crt_result_s3.failed == true
+
+  - name: Generate a private key and csr for the 3scale wildcard cert
+    block:
+      - openssl_privatekey:
+          path: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ scale_wildcard_url }}.key
+      - openssl_csr:
+          privatekey_path: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ scale_wildcard_url }}.key
+          path: "/tmp/{{ oo_clusterid }}/certs/wildcard.{{ scale_wildcard_url }}.csr"
+          common_name: "{{ scale_wildcard_url }}"
+          subject_alt_name: 'DNS:{{ scale_wildcard_url }},DNS:*.{{ scale_wildcard_url }}'
+    when: scale_crt_result.stat.exists == false and scale_crt_result_s3.failed == true
+
+  # Generate <clustername>.<domain> certs
+  - name: Generate "{{ oo_clusterid }}"."{{ domain }}" cert
+    block:
+      - acme_certificate:
+          account_key_content: "{{ letsencrypt_private_key }}"
+          account_email: "integreatly-notifications@redhat.com"
+          acme_version: 2
+          src: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ base_cluster_url}}.csr
+          dest: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ base_cluster_url }}.crt
+          challenge: dns-01
+          acme_directory: "{{ acme_directory_url }}"
+        register: base_cluster_challenge
+      - set_fact:
+          challenges:
+          - "{{ base_cluster_challenge.challenge_data[base_cluster_url]['dns-01'].resource_value | regex_replace('^(.*)$', '\"\\1\"') }}"
+          - "{{ base_cluster_challenge.challenge_data['*.' + base_cluster_url]['dns-01'].resource_value | regex_replace('^(.*)$', '\"\\1\"') }}"
+      - set_fact:
+          base_cluster_dns_challenge: "{{ challenges | join(',') }}"
+      - route53:
+          zone: "{{ domain }}"
+          record: "{{ base_cluster_challenge.challenge_data[base_cluster_url]['dns-01'].record }}"
+          type: TXT
+          ttl: 60
+          state: present
+          value: "{{ base_cluster_dns_challenge }}"
+          aws_access_key: "{{ dns_access_key | default(aws_access_key) }}"
+          aws_secret_key: "{{ dns_secret_key | default(aws_secret_key) }}"
+          wait: yes
+        when: base_cluster_challenge is changed
+      - acme_certificate:
+          account_key_content: "{{ letsencrypt_private_key }}"
+          account_email: "integreatly-notifications@redhat.com"
+          acme_version: 2
+          src: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ base_cluster_url }}.csr
+          cert: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ base_cluster_url }}.crt
+          chain: /tmp/{{ oo_clusterid }}/certs/rootCA.pem
+          challenge: dns-01
+          acme_directory: "{{ acme_directory_url }}"
+          remaining_days: 60
+          data: "{{ base_cluster_challenge }}"
+      - route53:
+          zone: "{{ domain }}"
+          record: "{{ base_cluster_challenge.challenge_data[base_cluster_url]['dns-01'].record }}"
+          value: "{{ base_cluster_dns_challenge }}"
+          type: TXT
+          ttl: 60
+          state: absent
+          aws_access_key: "{{ dns_access_key | default(aws_access_key) }}"
+          aws_secret_key: "{{ dns_secret_key | default(aws_secret_key) }}"
+          overwrite: true
+    when: crt_result.stat.exists == false and crt_result_s3.failed == true
+
+  # Generate apps.<clustername>.<domain> certs
+  - name: Generate apps."{{ oo_clusterid }}"."{{ domain }}" cert
+    block:
+      - acme_certificate:
+          account_key_content: "{{ letsencrypt_private_key }}"
+          account_email: "integreatly-notifications@redhat.com"
+          acme_version: 2
+          src: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ apps_cluster_url }}.csr
+          dest: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ apps_cluster_url }}.crt
+          challenge: dns-01
+          acme_directory: "{{ acme_directory_url }}"
+        register: apps_cluster_challenge
+      - set_fact:
+          challenges:
+          - "{{ apps_cluster_challenge.challenge_data[apps_cluster_url]['dns-01'].resource_value | regex_replace('^(.*)$', '\"\\1\"') }}"
+          - "{{ apps_cluster_challenge.challenge_data['*.' + apps_cluster_url]['dns-01'].resource_value | regex_replace('^(.*)$', '\"\\1\"') }}"
+      - set_fact:
+          apps_cluster_dns_challenge: "{{ challenges | join(',') }}"
+      - route53:
+          zone: "{{ domain }}"
+          record: "{{ apps_cluster_challenge.challenge_data[apps_cluster_url]['dns-01'].record }}"
+          type: TXT
+          ttl: 60
+          state: present
+          value: "{{ apps_cluster_dns_challenge }}"
+          aws_access_key: "{{ dns_access_key | default(aws_access_key) }}"
+          aws_secret_key: "{{ dns_secret_key | default(aws_secret_key) }}"
+          wait: yes
+        when: apps_cluster_challenge is changed
+      - acme_certificate:
+          account_key_content: "{{ letsencrypt_private_key }}"
+          account_email: "integreatly-notifications@redhat.com"
+          acme_version: 2
+          src: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ apps_cluster_url }}.csr
+          cert: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ apps_cluster_url }}.crt
+          chain: /tmp/{{ oo_clusterid }}/certs/rootCA.pem
+          challenge: dns-01
+          acme_directory: "{{ acme_directory_url }}"
+          remaining_days: 60
+          data: "{{ apps_cluster_challenge }}"
+      - route53:
+          zone: "{{ domain }}"
+          record: "{{ apps_cluster_challenge.challenge_data[apps_cluster_url]['dns-01'].record }}"
+          value: "{{ apps_cluster_dns_challenge }}"
+          type: TXT
+          ttl: 60
+          state: absent
+          aws_access_key: "{{ dns_access_key | default(aws_access_key) }}"
+          aws_secret_key: "{{ dns_secret_key | default(aws_secret_key) }}"
+          overwrite: true
+    when: app_crt_result.stat.exists == false and app_crt_result_s3.failed == true
+
+  # Generate 3scale-wildcard cert
+  - name: Generate "{{ scale_wildcard_url }}" cert
+    block:
+      - acme_certificate:
+          account_key_content: "{{ letsencrypt_private_key }}"
+          account_email: "integreatly-notifications@redhat.com"
+          acme_version: 2
+          src: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ scale_wildcard_url }}.csr
+          dest: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ scale_wildcard_url }}.crt
+          challenge: dns-01
+          acme_directory: "{{ acme_directory_url }}"
+        register: scale_wildcard_challenge
+      - set_fact:
+          challenges:
+          - "{{ scale_wildcard_challenge.challenge_data[scale_wildcard_url]['dns-01'].resource_value | regex_replace('^(.*)$', '\"\\1\"') }}"
+          - "{{ scale_wildcard_challenge.challenge_data['*.' + scale_wildcard_url]['dns-01'].resource_value | regex_replace('^(.*)$', '\"\\1\"') }}"
+      - set_fact:
+          scale_wildcard_dns_challenge: "{{ challenges | join(',') }}"
+      - route53:
+          zone: "{{ domain }}"
+          record: "{{ scale_wildcard_challenge.challenge_data[scale_wildcard_url]['dns-01'].record }}"
+          type: TXT
+          ttl: 60
+          state: present
+          value: "{{ scale_wildcard_dns_challenge }}"
+          aws_access_key: "{{ dns_access_key | default(aws_access_key) }}"
+          aws_secret_key: "{{ dns_secret_key | default(aws_secret_key) }}"
+          wait: yes
+        when: scale_wildcard_challenge is changed
+      - acme_certificate:
+          account_key_content: "{{ letsencrypt_private_key }}"
+          account_email: "integreatly-notifications@redhat.com"
+          acme_version: 2
+          src: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ scale_wildcard_url }}.csr
+          cert: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ scale_wildcard_url }}.crt
+          chain: /tmp/{{ oo_clusterid }}/certs/scale-rootCA.pem
+          challenge: dns-01
+          acme_directory: "{{ acme_directory_url }}"
+          remaining_days: 60
+          data: "{{ scale_wildcard_challenge }}"
+      - route53:
+          zone: "{{ domain }}"
+          record: "{{ scale_wildcard_challenge.challenge_data[scale_wildcard_url]['dns-01'].record }}"
+          value: "{{ scale_wildcard_dns_challenge }}"
+          type: TXT
+          ttl: 60
+          state: absent
+          aws_access_key: "{{ dns_access_key | default(aws_access_key) }}"
+          aws_secret_key: "{{ dns_secret_key | default(aws_secret_key) }}"
+          overwrite: true
+    when: scale_crt_result.stat.exists == false and cluster_type == 'poc' and scale_crt_result_s3.failed == true
+
+  #
+  # Setup backups and generate 3scale route json file
+  #
+  - name: Get 3scale wildcard cert contents
+    set_fact:
+      scale_wildcard_ca_certificate_content: "{{ lookup('file', '/tmp/{{ oo_clusterid }}/certs/scale-rootCA.pem') }}"
+      scale_wildcard_certificate_content: "{{ lookup('file', '/tmp/{{ oo_clusterid }}/certs/wildcard.{{ scale_wildcard_url }}.crt') }}"
+      scale_wildcard_private_key_content: "{{ lookup('file', '/tmp/{{ oo_clusterid }}/certs/wildcard.{{ scale_wildcard_url }}.key') }}"
+    when: cluster_type == 'poc'
+
+  - name: Generate 3scale wildcard route template
+    template:
+      src: files/3scale-wildcard.json.j2
+      dest: /tmp/{{ oo_clusterid }}/3scale-wildcard-route.json
+    when: cluster_type == 'poc'
+
+  - name: Create a bucket for integreatly backups
+    aws_s3:
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+      bucket: "{{ cluster_backup_integreatly_bucket_name }}"
+      mode: create
+      region: "{{ oo_sublocation }}"
+    ignore_errors: yes
+
+  - name: Backup certs to bucket
+    aws_s3:
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+      bucket: "{{ cluster_backup_bucket_name }}"
+      object: /certs/{{ oo_clusterid }}/{{ item }}
+      src: /tmp/{{ oo_clusterid }}/certs/{{ item }}
+      mode: put
+    with_items:
+      - "wildcard.{{ apps_cluster_url }}.crt"
+      - "wildcard.{{ base_cluster_url }}.crt"
+      - "rootCA.pem"
+
+  - name: Backup 3scale cert to bucket if it exists
+    aws_s3:
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+      bucket: "{{ cluster_backup_bucket_name }}"
+      object: /certs/{{ oo_clusterid }}/wildcard.{{ scale_wildcard_url }}.crt
+      src: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ scale_wildcard_url }}.crt
+      mode: put
+    when: cluster_type == 'poc'
+
+  - name: Backup keys to bucket
+    aws_s3:
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+      bucket: "{{ cluster_backup_bucket_name }}"
+      object: /certs/{{ oo_clusterid }}/wildcard.{{ item }}.key
+      src: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ item }}.key
+      mode: put
+    with_items:
+      - "{{ apps_cluster_url }}"
+      - "{{ base_cluster_url }}"
+
+  - name: Backup 3scale key to bucket if it exists
+    aws_s3:
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+      bucket: "{{ cluster_backup_bucket_name }}"
+      object: /certs/{{ oo_clusterid }}/wildcard.{{ scale_wildcard_url }}.key
+      src: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ scale_wildcard_url }}.key
+      mode: put
+    when: cluster_type == 'poc'
+
+  #
+  # Prerequisites for openshift-ansible
+  #
+  - name: Search for tagged AMI
+    ec2_ami_facts:
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+      region: "{{ oo_sublocation }}"
+      filters:
+        "tag:image": latest
+    register: found_ami_info
+
+  - name: Use the found AMI
+    set_fact:
+      g_play_image_id: "{{ found_ami_info['images'][0]['image_id'] }}"
+    ignore_errors: true
+
+  - fail:
+      msg: "AMI with tag 'image: latest' does not exist in: {{ oo_sublocation }}"
+    when: g_play_image_id is undefined
+
+  - name: Make dns directory
+    file:
+      path: "/tmp/oa_dns_hook/tasks"
+      recurse: yes
+      state: directory
+
+  - name: Get DNS task
+    get_url:
+      url: https://raw.githubusercontent.com/StevenTobin/openshift-tools/integreatly_cluster_create/ansible/roles/oa_aws_provisioning_dns_hook/tasks/main.yml
+      dest: "/tmp/oa_dns_hook/tasks/main.yml"
+      force: yes
+
+  - name: set logging flag
+    set_fact:
+        flag_provision_logging: "{% if survey_provision_logging=='true' %}true{% elif survey_provision_logging=='false'%}false{% else %}false{% endif %}"
+
+  - name: find provisioning vars vault file
+    get_url:
+      url: "https://raw.githubusercontent.com/fheng/integreatly_dev/fix_inventory/files/concurrent_provisioning_vars.yml.j2?token={{ token }}"
+      #url: "https://raw.githubusercontent.com/fheng/integreatly_dev/fix_inventory/files/provisioning_vars.yml.j2?token={{ token }}"
+      dest: /tmp/provisioning_vars.yml
+
+  - name: create the provisioning_vars.yml
+    template:
+      src: "/tmp/provisioning_vars.yml"
+      dest: "/tmp/{{ oo_clusterid }}/{{ oo_clusterid }}_inventory.yml"
+
+  - name: Clean up provisioning vars
+    file:
+      path: /tmp/provisioning_vars.yml
+      state: absent
+
+  - name: Create cluster inventory in tower
+    shell: tower-cli inventory create -n {{ oo_clusterid }} --tower-password {{ tower_password }} --tower-username {{ tower_username }} --tower-host {{ tower_host }} --variables @/tmp/{{ oo_clusterid }}/{{ oo_clusterid }}_inventory.yml --organization secret 
+
+  #
+  # Generate and launch workflow for cluster create
+  #
+  - name: Configure prerequisites job template
+    tower_job_template:
+      tower_host: "{{ tower_host }}"
+      tower_password: "{{ tower_password }}"
+      tower_username: "{{ tower_username }}"
+      name: "{{ cluster_job_template_prerequisites_name }}-{{ oo_clusterid }}"
+      description: "{{ cluster_job_template_prerequisites_desc }}"
+      job_type: "{{ cluster_job_template_prerequisites_type }}"
+      playbook: "{{ cluster_job_template_prerequisites_playbook }}"
+      project: "{{ cluster_job_template_prerequisites_project }}"
+      credential: "{{ tower_credential_bundle_default_name }}"
+      state: present
+      inventory: "{{ oo_clusterid }}"
+      tower_verify_ssl: '{{ tower_verify_ssl }}'
+    register: cluster_create_prerequisites_out
+    until: cluster_create_prerequisites_out is succeeded
+    retries: 10
+    delay: 5
+
+  - name: "Associate {{ cluster_job_template_prerequisites_credentials }} credential to {{ cluster_job_template_prerequisites_name }}-{{ oo_clusterid }}"
+    shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_prerequisites_name }}-{{ oo_clusterid }}" --credential "{{ cluster_job_template_prerequisites_credentials }}" --tower-password "{{ tower_password }}" --tower-username "{{ tower_username }}" --tower-host "{{ tower_host }}"
+
+  - name: Configure provision install job template
+    tower_job_template:
+      tower_host: "{{ tower_host }}"
+      tower_password: "{{ tower_password }}"
+      tower_username: "{{ tower_username }}"
+      name: "{{ cluster_job_template_install_name }}-{{ oo_clusterid }}"
+      description: "{{ cluster_job_template_install_desc }}"
+      job_type: "{{ cluster_job_template_install_type }}"
+      playbook: "{{ cluster_job_template_install_playbook }}"
+      project: "{{ cluster_job_template_install_project }}"
+      credential: "{{ tower_credential_bundle_default_name }}"
+      state: present
+      inventory: "{{ oo_clusterid }}"
+      tower_verify_ssl: '{{ tower_verify_ssl }}'
+    register: cluster_create_provision_install_out
+    until: cluster_create_provision_install_out is succeeded
+    retries: 10
+    delay: 5
+
+  - name: "Associate {{ cluster_credential_bundle_aws_name }} credentials {{ cluster_job_template_install_name }}-{{ oo_clusterid }}"
+    shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_install_name }}-{{ oo_clusterid }}" --credential "{{ cluster_credential_bundle_aws_name }}" --tower-password "{{ tower_password }}" --tower-username "{{ tower_username }}" --tower-host "{{ tower_host }}" 
+
+  - name: "Associate {{ cluster_job_template_install_credentials }} credential to {{ cluster_job_template_install_name }}-{{ oo_clusterid }}"
+    shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_install_name }}-{{ oo_clusterid }}" --credential "{{ cluster_job_template_install_credentials }}" --tower-password "{{ tower_password }}" --tower-username "{{ tower_username }}" --tower-host "{{ tower_host }}" 
+
+  - name: Configure post-install job template
+    tower_job_template:
+      tower_host: "{{ tower_host }}"
+      tower_password: "{{ tower_password }}"
+      tower_username: "{{ tower_username }}"
+      name: "{{ cluster_job_template_post_install_name }}-{{ oo_clusterid }}"
+      description: "{{ cluster_job_template_post_install_desc }}"
+      job_type: "{{ cluster_job_template_post_install_type }}"
+      playbook: "{{ cluster_job_template_post_install_playbook }}"
+      project: "{{ cluster_job_template_post_install_project }}"
+      credential: "{{ tower_credential_bundle_default_name }}"
+      state: present
+      inventory: "{{ oo_clusterid }}"
+      tower_verify_ssl: '{{ tower_verify_ssl }}'
+    register: cluster_create_post_install_out
+    until: cluster_create_post_install_out is succeeded
+    retries: 10
+    delay: 5
+
+  - name: Set workflow name
+    set_fact:
+      provision_workflow_name: "{{ cluster_workflow_job_template_name }}_{{ oo_clusterid }}"
+
+  - name: Create workflow schema
+    template:
+      src: workflow_schema.yml.j2
+      dest: "/tmp/cluster_workflow_schema_{{ oo_clusterid }}.yml"
+
+  - name: "Create workflow: {{ cluster_workflow_job_template_name }}_{{ oo_clusterid }}"
+    tower_workflow_template:
+      tower_host: "{{ tower_host }}"
+      tower_password: "{{ tower_password }}"
+      tower_username: "{{ tower_username }}"
+      name:  "{{ provision_workflow_name}}"
+      schema: "{{ lookup('file', '/tmp/cluster_workflow_schema_{{ oo_clusterid }}.yml' ) }}"
+      description: "{{ cluster_workflow_job_template_desc }}"
+      state: present
+      organization: "{{ tower_organization }}"
+      tower_verify_ssl: '{{ tower_verify_ssl }}'
+    register: create_workflow_response
+
+  - name: Clean up files
+    file:
+      path: cluster_workflow_schema.yml
+      state: absent
+
+  - name: "Launch cluster-provision for {{ oo_clusterid }}"
+    shell: tower-cli workflow_job launch --workflow-job-template "{{ cluster_workflow_job_template_name }}_{{ oo_clusterid }}" --tower-password "{{ tower_password }}" --tower-username "{{ tower_username }}" --tower-host "{{ tower_host }}" --wait

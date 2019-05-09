@@ -6,4 +6,4 @@
         ./roles/tower/defaults/main.yml
     - include_role:
         name: cluster
-        tasks_from: bootstrap_cluster_create.yml
+        tasks_from: provision_cluster.yml

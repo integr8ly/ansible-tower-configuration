@@ -1,18 +1,18 @@
 ---
-- name: Configure generate inventory job template
+- name: Configure cluster_provision job template
   tower_job_template:
-    name: "{{ cluster_job_template_generate_inventory_name }}"
-    description: "{{ cluster_job_template_generate_inventory_desc }}"
-    job_type: "{{ cluster_job_template_generate_inventory_type }}"
-    playbook: "{{ cluster_job_template_generate_inventory_playbook }}"
-    project: "{{ cluster_job_template_generate_inventory_project }}"
+    name: "{{ cluster_job_template_cluster_provision_name }}"
+    description: "{{ cluster_job_template_cluster_provision_desc }}"
+    job_type: "{{ cluster_job_template_cluster_provision_type }}"
+    playbook: "{{ cluster_job_template_cluster_provision_playbook }}"
+    project: "{{ cluster_job_template_cluster_provision_project }}"
     credential: "{{ tower_credential_bundle_default_name }}"
     vault_credential: "{{ tower_credential_bundle_vault_name }}"
     state: present
     inventory: "{{ tower_inventory_name }}"
     tower_verify_ssl: '{{ tower_verify_ssl }}'
-  register: cluster_create_generate_inventory_out
-  until: cluster_create_generate_inventory_out is succeeded
+  register: cluster_create_cluster_provision_out
+  until: cluster_create_cluster_provision_out is succeeded
   retries: 10
   delay: 5
 
@@ -20,93 +20,11 @@
   command: tower-cli credential create --name "le_privatekey" --credential-type "le_privatekey" --inputs '{"le_key":"{{ letsencrypt_private_key }}"}' --organization "{{ tower_organization }}"
   ignore_errors: true
 
-- name: "Associate AWS credential to {{ cluster_job_template_generate_inventory_name }}"
-  shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_generate_inventory_name }}" --credential "{{ cluster_credential_bundle_aws_name }}"
+- name: "Associate AWS credential to {{ cluster_job_template_cluster_provision_name }}"
+  shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_cluster_provision_name }}" --credential "{{ cluster_credential_bundle_aws_name }}"
 
-- name: "Associate le_privatekey credential to {{ cluster_job_template_generate_inventory_name }}" 
-  shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_generate_inventory_name }}" --credential "le_privatekey"
-
-- name: Configure pre-flight job template
-  tower_job_template:
-    name: "{{ cluster_job_template_preflight_name }}"
-    description: "{{ cluster_job_template_preflight_desc }}"
-    job_type: "{{ cluster_job_template_preflight_type }}"
-    playbook: "{{ cluster_job_template_preflight_playbook }}"
-    project: "{{ cluster_job_template_preflight_project }}"
-    credential: "{{ tower_credential_bundle_default_name }}"
-    vault_credential: "{{ tower_credential_bundle_vault_name }}"
-    state: present
-    inventory: "{{ tower_inventory_name }}"
-    tower_verify_ssl: '{{ tower_verify_ssl }}'
-  register: cluster_create_pre_flight_out
-  until: cluster_create_pre_flight_out is succeeded
-  retries: 10
-  delay: 5
-
-- name: "Associate AWS credential to {{ cluster_job_template_preflight_name }}"
-  shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_preflight_name }}" --credential "{{ cluster_credential_bundle_aws_name }}"
-
-- name: "Associate {{ cluster_job_template_preflight_credentials }} credential to {{ cluster_job_template_preflight_name }}"
-  shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_preflight_name }}" --credential "{{ cluster_job_template_preflight_credentials }}"
-
-- name: Configure prerequisites job template
-  tower_job_template:
-    name: "{{ cluster_job_template_prerequisites_name }}"
-    description: "{{ cluster_job_template_prerequisites_desc }}"
-    job_type: "{{ cluster_job_template_prerequisites_type }}"
-    playbook: "{{ cluster_job_template_prerequisites_playbook }}"
-    project: "{{ cluster_job_template_prerequisites_project }}"
-    credential: "{{ tower_credential_bundle_default_name }}"
-    vault_credential: "{{ tower_credential_bundle_vault_name }}"
-    state: present
-    inventory: "Provisioning_inventory"
-    tower_verify_ssl: '{{ tower_verify_ssl }}'
-  register: cluster_create_prerequisites_out
-  until: cluster_create_prerequisites_out is succeeded
-  retries: 10
-  delay: 5
-
-- name: "Associate {{ cluster_job_template_prerequisites_credentials }} credential to {{ cluster_job_template_prerequisites_name }}"
-  shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_prerequisites_name }}" --credential "{{ cluster_job_template_prerequisites_credentials }}"
-
-- name: Configure provision install job template
-  tower_job_template:
-    name: "{{ cluster_job_template_install_name }}"
-    description: "{{ cluster_job_template_install_desc }}"
-    job_type: "{{ cluster_job_template_install_type }}"
-    playbook: "{{ cluster_job_template_install_playbook }}"
-    project: "{{ cluster_job_template_install_project }}"
-    credential: "{{ tower_credential_bundle_default_name }}"
-    vault_credential: "{{ tower_credential_bundle_vault_name }}"
-    state: present
-    inventory: "Provisioning_inventory"
-    tower_verify_ssl: '{{ tower_verify_ssl }}'
-  register: cluster_create_provision_install_out
-  until: cluster_create_provision_install_out is succeeded
-  retries: 10
-  delay: 5
-
-- name: "Associate {{ cluster_credential_bundle_aws_name }} credentials {{ cluster_job_template_install_name }}"
-  shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_install_name }}" --credential "{{ cluster_credential_bundle_aws_name }}"
-
-- name: "Associate {{ cluster_job_template_install_credentials }} credential to {{ cluster_job_template_install_name }}"
-  shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_install_name }}" --credential "{{ cluster_job_template_install_credentials }}"
-- name: Configure post-install job template
-  tower_job_template:
-    name: "{{ cluster_job_template_post_install_name }}"
-    description: "{{ cluster_job_template_post_install_desc }}"
-    job_type: "{{ cluster_job_template_post_install_type }}"
-    playbook: "{{ cluster_job_template_post_install_playbook }}"
-    project: "{{ cluster_job_template_post_install_project }}"
-    credential: "{{ tower_credential_bundle_default_name }}"
-    vault_credential: "{{ tower_credential_bundle_vault_name }}"
-    state: present
-    inventory: "Provisioning_inventory"
-    tower_verify_ssl: '{{ tower_verify_ssl }}'
-  register: cluster_create_post_install_out
-  until: cluster_create_post_install_out is succeeded
-  retries: 10
-  delay: 5
+- name: "Associate le_privatekey credential to {{ cluster_job_template_cluster_provision_name }}" 
+  shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_cluster_provision_name }}" --credential "le_privatekey"
 
 - name: "Create workflow: {{ cluster_workflow_job_template_name }}"
   tower_workflow_template:
