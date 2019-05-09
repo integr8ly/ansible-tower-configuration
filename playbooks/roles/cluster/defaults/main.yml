@@ -29,23 +29,17 @@ cluster_credential_bundle_le_key_name: 'le_privatekey'
 # Cluster create templates #
 #                          #
 
-cluster_job_template_openshift_auth_name: "Openshift_Authenticate_tower_pod"
-cluster_job_template_openshift_auth_desc: "Login to tower openshift user"
-cluster_job_template_openshift_auth_type: 'run'
-cluster_job_template_openshift_auth_playbook: 'playbooks/authenticate_openshift.yml'
-cluster_job_template_openshift_auth_project: '{{ tower_configuration_project_name }}'
-
-cluster_job_template_generate_inventory_name: "Generate_Inventory"
-cluster_job_template_generate_inventory_desc: "Generate provisioning vars file for cluster create"
-cluster_job_template_generate_inventory_type: 'run'
-cluster_job_template_generate_inventory_playbook: 'playbooks/cluster_create_generate_inventory.yml'
-cluster_job_template_generate_inventory_credentials: '{{ cluster_credential_bundle_le_key_name }}'
-cluster_job_template_generate_inventory_project: '{{ tower_configuration_project_name }}'
+cluster_job_template_cluster_provision_name: "Cluster_provision"
+cluster_job_template_cluster_provision_desc: "Provision 3.11 cluster"
+cluster_job_template_cluster_provision_type: 'run'
+cluster_job_template_cluster_provision_playbook: 'playbooks/cluster_create_generate_inventory.yml'
+cluster_job_template_cluster_provision_credentials: '{{ cluster_credential_bundle_le_key_name }}'
+cluster_job_template_cluster_provision_project: '{{ tower_configuration_project_name }}'
 
 cluster_job_template_preflight_name: "Pre_flight"
 cluster_job_template_preflight_desc: "Pre-flight"
 cluster_job_template_preflight_type: 'run'
-cluster_job_template_preflight_playbook: 'playbooks/cluster_create_pre_flight.yml'
+cluster_job_template_preflight_playbook: 'playbooks/cluster_create.yml'
 cluster_job_template_preflight_credentials: '{{ cluster_credential_bundle_le_key_name }}'
 cluster_job_template_preflight_project: '{{ tower_configuration_project_name }}'
 

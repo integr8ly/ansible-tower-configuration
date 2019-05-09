@@ -1,12 +1,4 @@
 ---
-- name: "Create inventory: provisioning_inventory"
-  tower_inventory:
-    name: "Provisioning_inventory"
-    description: "Floating inventory for cluster create workflow"
-    organization: "{{ tower_organization }}"
-    state: present
-    tower_verify_ssl: '{{ tower_verify_ssl }}'
-
 - name: "Create inventory source from Project: {{ tower_credentials_project_name}}"
   tower_inventory_source:
     name: "{{ cluster_inventory_source_project_name }}"
