@@ -179,6 +179,13 @@
     aws_secret_key: "{{ aws_secret_key }}"
     bucket: "{{ aws_cluster_name }}-3scale"
     mode: delete
+
+- name: Delete Integreatly backups bucket for {{ aws_cluster_name }}
+  aws_s3:
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    bucket: "{{ aws_cluster_name }}-integreatly-backups"
+    mode: delete    
   
 - name: Get VPCs for {{ aws_cluster_name }}
   ec2_vpc_net_facts:
