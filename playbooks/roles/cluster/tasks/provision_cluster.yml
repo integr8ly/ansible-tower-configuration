@@ -386,7 +386,7 @@
     retries: 10
     delay: 5
 
-  - name: "Associate {{ cluster_job_template_prerequisites_credentials }} credential to {{ cluster_job_template_prerequisites_name }}"
+  - name: "Associate {{ cluster_job_template_prerequisites_credentials }} credential to {{ cluster_job_template_prerequisites_name }}-{{ oo_clusterid }}"
     shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_prerequisites_name }}-{{ oo_clusterid }}" --credential "{{ cluster_job_template_prerequisites_credentials }}"
 
   - name: Configure provision install job template
@@ -429,7 +429,7 @@
 
   - name: "Create workflow: {{ cluster_workflow_job_template_name }}_{{ oo_clusterid }}"
     tower_workflow_template:
-      name:  "{{ cluster_workflow_job_template_name }}-{{ oo_clusterid }}"
+      name:  "{{ cluster_workflow_job_template_name }}_{{ oo_clusterid }}"
       description: "{{ cluster_workflow_job_template_desc }}"
       state: present
       organization: "{{ tower_organization }}"
