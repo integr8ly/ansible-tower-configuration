@@ -1,0 +1,12 @@
+---
+- name: Vault encrypting variables
+  block:
+  - copy:
+      content: "{{ item.value }}"
+      dest: /tmp/{{ item.name }}.yml
+  - shell: ansible-vault encrypt /tmp/{{ item.name }}.yml && sed -i -e 's/^/       /' /tmp/{{ item.name }}.yml
+  - set_fact:
+      "{{ item.name }}_enc": "{{ lookup('file', '/tmp/{{ item.name }}.yml') }}"
+  - file:
+      state: absent
+      path: "/tmp/{{ item.name }}.yml"
