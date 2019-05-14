@@ -7,7 +7,7 @@
     state: present
     scm_type: "{{ integreatly_project_install_scm_type }}"
     scm_url: "{{ integreatly_osd_project_install_scm_url }}"
-    scm_branch: "{{ integreatly_project_install_scm_branch }}"
+    scm_branch: "{{ integreatly_osd_install_branch }}"
     scm_clean: "{{ integreatly_project_install_scm_clean }}"
     scm_update_on_launch: "{{ integreatly_project_install_scm_update_on_launch }}"
     scm_delete_on_update: "{{ integreatly_project_install_scm_delete_on_update }}"
