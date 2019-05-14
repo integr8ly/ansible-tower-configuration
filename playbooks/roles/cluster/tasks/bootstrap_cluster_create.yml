@@ -45,3 +45,30 @@
     state: present
     kind: cloud
     tower_verify_ssl: '{{ tower_verify_ssl }}'
+
+- name: Add Custom Credential
+  command: tower-cli credential create --name "le_privatekey" --credential-type "le_privatekey" --inputs '{"le_key":"{{ letsencrypt_private_key }}"}' --organization "{{ tower_organization }}"
+  ignore_errors: true
+
+- name: Create Cluster_provision job template
+  tower_job_template:
+    name: "{{ cluster_job_template_cluster_provision_name }}"
+    description: "{{ cluster_job_template_cluster_provision_desc }}"
+    job_type: "{{ cluster_job_template_cluster_provision_type }}"
+    playbook: "{{ cluster_job_template_cluster_provision_playbook }}"
+    project: "{{ cluster_job_template_cluster_provision_project }}"
+    credential: "{{ tower_credential_bundle_default_name }}"
+    vault_credential: "{{ tower_credential_bundle_vault_name }}"
+    state: present
+    inventory: "{{ tower_inventory_name }}"
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
+  register: cluster_create_cluster_provision_out
+  until: cluster_create_cluster_provision_out is succeeded
+  retries: 10
+  delay: 5
+
+- name: "Associate AWS credential to {{ cluster_job_template_cluster_provision_name }}"
+  shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_cluster_provision_name }}" --credential "{{ cluster_credential_bundle_aws_name }}"
+
+- name: "Associate le_privatekey credential to {{ cluster_job_template_cluster_provision_name }}" 
+  shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_cluster_provision_name }}" --credential "le_privatekey"

@@ -7,6 +7,3 @@
     - include_role:
         name: cluster
         tasks_from: bootstrap_cluster_create.yml
-    - include_role:
-        name: cluster
-        tasks_from: workflow.yml

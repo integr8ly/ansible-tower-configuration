@@ -32,7 +32,7 @@ cluster_credential_bundle_le_key_name: 'le_privatekey'
 cluster_job_template_cluster_provision_name: "Cluster_provision"
 cluster_job_template_cluster_provision_desc: "Provision 3.11 cluster"
 cluster_job_template_cluster_provision_type: 'run'
-cluster_job_template_cluster_provision_playbook: 'playbooks/cluster_create_generate_inventory.yml'
+cluster_job_template_cluster_provision_playbook: 'playbooks/cluster_provision.yml'
 cluster_job_template_cluster_provision_credentials: '{{ cluster_credential_bundle_le_key_name }}'
 cluster_job_template_cluster_provision_project: '{{ tower_configuration_project_name }}'
 
