@@ -24,3 +24,5 @@ openshift_login: true
 prerequisites_install: false
 run_master_tasks: false
 threescale_file_upload_storage: s3
+integreatly_operator: false 
+amq_streams: false
