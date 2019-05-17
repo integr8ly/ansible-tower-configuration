@@ -124,6 +124,39 @@
         "variable": "threescale_s3_bucket_region",
         "question_name": "3scale S3 bucket region",
         "type": "text"
+      },
+      {
+        "question_description": "AWS access key for backups s3 bucket access",
+        "min": 0,
+        "default": "",
+        "max": 1024,
+        "required": true,
+        "choices": "",
+        "variable": "backup_s3_access_key",
+        "question_name": "Backups AWS access key",
+        "type": "text"
+      },
+      {
+        "question_description": "AWS secret key for backups s3 bucket access",
+        "min": 0,
+        "default": "",
+        "max": 1024,
+        "required": true,
+        "choices": "",
+        "variable": "backup_s3_secret_key",
+        "question_name": "Backups AWS secret key",
+        "type": "password"
+      },
+      {
+        "question_description": "Backups S3 bucket name",
+        "min": 0,
+        "default": "",
+        "max": 1024,
+        "required": true,
+        "choices": "",
+        "variable": "backup_s3_bucket_name",
+        "question_name": "Backups S3 bucket name",
+        "type": "text"
       }
     ]
   }
