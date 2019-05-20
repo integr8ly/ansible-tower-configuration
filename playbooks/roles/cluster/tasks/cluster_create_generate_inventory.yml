@@ -57,7 +57,14 @@
 
 - name: set domain variable
   set_fact:
-    domain: "{% if cluster_type is undefined %}{{ dev_domain }}{% elif cluster_type=='POC' %}{{ poc_domain }}{% endif %}"
+    domain: "{% if cluster_type=='dev' %}{{ dev_domain }}{% elif cluster_type=='poc' %}{{ poc_domain }}{% endif %}"
+
+- name: Overwrite DNS task file if neccessary
+  get_url:
+    url: https://raw.githubusercontent.com/StevenTobin/openshift-tools/integreatly_cluster_create_3scale/ansible/roles/oa_aws_provisioning_dns_hook/tasks/main.yml
+    dest: "/tmp/oa_dns_hook/tasks/main.yml"
+    force: yes
+  when: cluster_type == 'poc'
 
 - name: create the provisioning_vars.yml
   template:
