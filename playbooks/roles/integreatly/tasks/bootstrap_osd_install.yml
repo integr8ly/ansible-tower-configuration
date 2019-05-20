@@ -13,6 +13,17 @@
     scm_delete_on_update: "{{ integreatly_project_install_scm_delete_on_update }}"
     scm_credential: "{{ integreatly_credential_bundle_github_name }}"
     tower_verify_ssl: "{{ tower_verify_ssl }}"
+  register: integreatly_install_out
+  until: integreatly_install_out is succeeded
+  retries: 10
+  delay: 5
+
+- name: Wait for project to be successfully synced to tower
+  shell: tower-cli project status {{ integreatly_install_out.id }} 
+  register: integreatly_sync_out
+  until: integreatly_sync_out.stdout.find("successful") != -1
+  retries: 10
+  delay: 5
 
 - name: Create OSD inventory in tower
   tower_inventory:
@@ -30,18 +41,15 @@
     description: "From Project: integreatly-install-release-{{ integreatly_osd_install_branch }}"
     overwrite: "{{ integreatly_inventory_source_project_overwrite }}"
     overwrite_vars: "{{ integreatly_inventory_source_project_overwrite_vars }}"
-    update_on_launch: "{{ integreatly_inventory_source_project_update_on_launch }}"
+    update_on_launch: "{{ integreatly_osd_source_project_update_on_launch }}"
     source_project: "integreatly-install-{{ integreatly_osd_install_branch }}"
     source_path: "{{ integreatly_osd_install_source_path }}"
     state: present
     tower_verify_ssl: "{{ tower_verify_ssl }}"
-  register: integreatly_install_out
-  until: integreatly_install_out is succeeded
+  register: integreatly_source_out
+  until: integreatly_source_out is succeeded
   retries: 10
   delay: 5
-
-- name: Sync inventory source
-  shell: "tower-cli inventory_source update {{ integreatly_osd_install_source_name }}"
 
 - name: Create OSD Integreatly bootstrap job template
   tower_job_template:
