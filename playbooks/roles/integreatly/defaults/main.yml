@@ -126,3 +126,4 @@ integreatly_osd_install_name: "Integreatly_Install_Template_[OSD]"
 integreatly_osd_bootstrap_name: "Integreatly_Bootstrap_Template_[OSD]"
 integreatly_osd_workflow_name: "Integreatly_Bootstrap_and_Install_[OSD]"
 integreatly_osd_workflow_description: "Workflow to configure and install integreatly on an OSD cluster"
+integreatly_osd_source_project_update_on_launch: true
