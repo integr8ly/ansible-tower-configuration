@@ -1,0 +1,8 @@
+---
+- hosts: localhost
+  gather_facts: no
+  tasks:
+    - include_role:
+        name: repository_validation
+        tasks_from: bootstrap.yml
+        

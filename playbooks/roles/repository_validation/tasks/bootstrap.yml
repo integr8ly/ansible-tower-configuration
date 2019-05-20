@@ -1,0 +1,54 @@
+---
+- name: '{{ repository_validation_job_template_repository_sync_name }}'
+  tower_job_template:
+    name: '{{ repository_validation_job_template_repository_sync_name }}'
+    description: '{{ repository_validation_job_template_repository_sync_desc }}'
+    job_type: '{{ repository_validation_job_template_repository_sync_job_type }}'
+    playbook: '{{ repository_validation_job_template_repository_sync_job_playbook }}'
+    project: '{{ tower_configuration_project_name }}'
+    state: present
+    inventory: '{{ tower_inventory_name }}'
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
+    vault_credential: "{{ tower_credential_bundle_vault_name }}"
+  register: repository_validation_job_template_repository_raw
+  until: repository_validation_job_template_repository_raw is succeeded
+  retries: 10
+  delay: 5
+
+- name: Create email notification template
+  shell: >
+    tower-cli notification_template create
+    --name '{{ repository_validation_send_grid_name }}'
+    --description '{{ repository_validation_send_grid_description }}'
+    --notification-type email
+    --organization {{ repository_validation_send_grid_organization }}
+    --sender {{ repository_validation_send_grid_sender }}
+    --recipients '{{ repository_validation_send_grid_recipients }}'
+    --username {{ repository_validation_send_grid_user }}
+    --password {{ repository_validation_send_grid_password }}
+    --host {{ repository_validation_send_grid_host }}
+    --port {{ repository_validation_send_grid_port }}
+
+- name: Retrieve {{ repository_validation_job_template_repository_sync_name }} job template Id
+  shell: tower-cli job_template get --name '{{ repository_validation_job_template_repository_sync_name }}' -f id
+  register: job_template_id
+
+- name: Retrieve {{ repository_validation_send_grid_name }} notification template Id
+  shell: tower-cli notification_template get --name '{{ repository_validation_send_grid_name }}' -f id
+  register: notification_template_id
+
+- name: Associating the {{ repository_validation_send_grid_name }} notification with the {{ repository_validation_job_template_repository_sync_name }} job template
+  shell: >
+    tower-cli job_template associate_notification_template 
+    --job-template {{ job_template_id.stdout }} 
+    --notification-template {{ notification_template_id.stdout }} 
+    --status error
+
+- name: Create {{ repository_validation_scheduled_job_name }} schedule
+  shell: >
+    tower-cli schedule create
+    --name '{{ repository_validation_scheduled_job_name }}'
+    --description '{{ repository_validation_scheduled_job_desc }}'
+    --job-template {{ job_template_id.stdout }}
+    --rrule '{{ repository_validation_scheduled_job_rule }}'
+    --enabled '{{ enable_sync }}'

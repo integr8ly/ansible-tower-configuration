@@ -1,0 +1,31 @@
+---
+# Tower dummy credentials repository
+repository_validation_tower_dummy_project_name: tower_dummy_credentials
+repository_validation_tower_dummy_project_url: https://github.com/integr8ly/tower_dummy_credentials.git
+repository_validation_tower_dummy_project_branch: master
+
+# Integreatly dev repository
+repository_validation_integreatly_dev_project_name: integreatly_dev
+
+# Repository sync job template
+repository_validation_job_template_repository_sync_name: Compare Credential Repositories
+repository_validation_job_template_repository_sync_desc: Checks The tower dummy credentials project for new variables
+repository_validation_job_template_repository_sync_job_type: run
+repository_validation_job_template_repository_sync_project: "{{ tower_configuration_project_name }}"
+repository_validation_job_template_repository_sync_job_playbook: playbooks/compare_credential_repositories.yml
+
+# Send grid 
+repository_validation_send_grid_name: 'Credential Repositories Sync Failure'
+repository_validation_send_grid_description: 'Checks the credential repositories for discrepancies'
+repository_validation_send_grid_organization: integreatly
+repository_validation_send_grid_user: "{{ send_grid_user }}"
+repository_validation_send_grid_sender: "{{ send_grid_sender }}"
+repository_validation_send_grid_password: "{{ send_grid_password }}"
+repository_validation_send_grid_recipients: 'robrien@redhat.com, pamccart@redhat.com, stobin@redhat.com'
+repository_validation_send_grid_host: smtp.sendgrid.net
+repository_validation_send_grid_port: 587
+
+# Scheduled job 
+repository_validation_scheduled_job_name: Nightly Credential Repositories Sync
+repository_validation_scheduled_job_desc: Scheduled job to check the credentials repositories for differences
+repository_validation_scheduled_job_rule: 'DTSTART;TZID=Europe/Dublin:20190524T033000 RRULE:FREQ=DAILY;INTERVAL=1'

@@ -3,3 +3,4 @@
 - import_playbook: "./bootstrap_integreatly.yml"
 - import_playbook: "./bootstrap_cluster_create.yml"
 - import_playbook: "./bootstrap_cluster_teardown.yml"
+- import_playbook: "./bootstrap_repository_validation.yml"
