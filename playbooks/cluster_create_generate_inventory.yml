@@ -5,3 +5,4 @@
     - include_role:
         name: cluster
         tasks_from: cluster_create_generate_inventory.yml
+      
