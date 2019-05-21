@@ -4,11 +4,18 @@
       aws_access_key: "{{ lookup('env', 'AWS_ACCESS_KEY_ID' ) }}"
       aws_secret_key: "{{ lookup('env', 'AWS_SECRET_ACCESS_KEY' ) }}"
 
+  - name: Set tower credentials
+    set_fact:
+      tower_host: '{{ lookup("vars", "_".join((tower_environment, "tower_host")) ) }}'
+      tower_username: '{{ lookup("vars", "_".join((tower_environment, "tower_username")) ) }}'
+      tower_password: '{{ lookup("vars", "_".join((tower_environment, "tower_password")) ) }}'
+      validate_certs: '{{ lookup("vars", "_".join((tower_environment, "tower_verify_ssl")) ) }}'
+
   - name: set domain variable
     set_fact:
       domain: "{% if cluster_type=='dev' %}{{ dev_domain }}{% elif cluster_type=='poc' %}{{ poc_domain }}{% endif %}"
 
-  - name: Set urls
+  - name: Set cluster urls
     set_fact:
       base_cluster_url: "{{ oo_clusterid }}.{{ domain }}"
       apps_cluster_url: "apps.{{ oo_clusterid }}.{{ domain }}"
@@ -39,7 +46,7 @@
         acme_version: 2
         acme_directory: "https://acme-v02.api.letsencrypt.org/directory"
         contact:
-        - mailto:integreatly-sre@redhat.com
+        - mailto:integreatly-notifications@redhat.com
 
   - name: Create directory for certs
     file:
@@ -87,7 +94,7 @@
     block:
       - acme_certificate:
           account_key_content: "{{ letsencrypt_private_key }}"
-          account_email: "integreatly-sre@redhat.com"
+          account_email: "integreatly-notifications@redhat.com"
           acme_version: 2
           src: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ base_cluster_url}}.csr
           dest: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ base_cluster_url }}.crt
@@ -113,7 +120,7 @@
         when: base_cluster_challenge is changed
       - acme_certificate:
           account_key_content: "{{ letsencrypt_private_key }}"
-          account_email: "integreatly-sre@redhat.com"
+          account_email: "integreatly-notifications@redhat.com"
           acme_version: 2
           src: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ base_cluster_url }}.csr
           cert: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ base_cluster_url }}.crt
@@ -142,7 +149,7 @@
     block:
       - acme_certificate:
           account_key_content: "{{ letsencrypt_private_key }}"
-          account_email: "integreatly-sre@redhat.com"
+          account_email: "integreatly-notifications@redhat.com"
           acme_version: 2
           src: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ apps_cluster_url }}.csr
           dest: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ apps_cluster_url }}.crt
@@ -168,7 +175,7 @@
         when: apps_cluster_challenge is changed
       - acme_certificate:
           account_key_content: "{{ letsencrypt_private_key }}"
-          account_email: "integreatly-sre@redhat.com"
+          account_email: "integreatly-notifications@redhat.com"
           acme_version: 2
           src: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ apps_cluster_url }}.csr
           cert: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ apps_cluster_url }}.crt
@@ -197,7 +204,7 @@
     block:
       - acme_certificate:
           account_key_content: "{{ letsencrypt_private_key }}"
-          account_email: "integreatly-sre@redhat.com"
+          account_email: "integreatly-notifications@redhat.com"
           acme_version: 2
           src: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ scale_wildcard_url }}.csr
           dest: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ scale_wildcard_url }}.crt
@@ -223,7 +230,7 @@
         when: scale_wildcard_challenge is changed
       - acme_certificate:
           account_key_content: "{{ letsencrypt_private_key }}"
-          account_email: "integreatly-sre@redhat.com"
+          account_email: "integreatly-notifications@redhat.com"
           acme_version: 2
           src: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ scale_wildcard_url }}.csr
           cert: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ scale_wildcard_url }}.crt
@@ -257,13 +264,21 @@
       dest: /tmp/{{ oo_clusterid }}/3scale-wildcard-route.json
     when: cluster_type == 'poc'
 
-  - name: Create a bucket for backups
+  - name: Create a bucket for integreatly backups
     aws_s3:
       aws_access_key: "{{ aws_access_key }}"
       aws_secret_key: "{{ aws_secret_key }}"
       bucket: "{{ cluster_backup_integreatly_bucket_name }}"
       mode: create
       region: "{{ oo_sublocation }}"
+    ignore_errors: yes
+
+  - name: Ensure the cert bucket exists
+    aws_s3:
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+      bucket: "{{ cluster_backup_bucket_name }}"
+      mode: create
     ignore_errors: yes
 
   - name: Backup certs to bucket
@@ -341,29 +356,19 @@
         flag_provision_logging: "{% if survey_provision_logging=='true' %}true{% elif survey_provision_logging=='false'%}false{% else %}false{% endif %}"
 
   - name: find provisioning vars vault file
-    find:
-      paths: /var/lib/awx/projects
-      patterns: 'provisioning_vars.yml.j2'
-      recurse: yes
-    register: found_files
-
-  - fail:
-      msg: "No provisioning vars file found, is the credentials repo present and the inventory source up to date?"
-    when: found_files is undefined
-
-  - name: set domain variable
-    set_fact:
-      domain: "{% if cluster_type is undefined %}{{ dev_domain }}{% elif cluster_type=='POC' %}{{ poc_domain }}{% endif %}"
+    get_url:
+      url: https://raw.githubusercontent.com/integr8ly/tower_dummy_credentials/master/files/provisioning_vars.yml.j2
+      dest: /tmp/provisioning_vars.yml
 
   - name: create the provisioning_vars.yml
     template:
-      src: "{{ found_files.files[0].path }}"
+      src: "/tmp/provisioning_vars.yml"
       dest: "/tmp/{{ oo_clusterid }}/{{ oo_clusterid }}_inventory.yml"
 
   - name: Create cluster inventory in tower
-    shell: tower-cli inventory create -n {{ oo_clusterid }} --organization secret
+    shell: tower-cli inventory create -n {{ oo_clusterid }} --tower-password {{ tower_password }} --tower-username {{ tower_username }} --tower-host {{ tower_host }} --insecure {% if validate_certs=='false' %}false{% else %}true{% endif %} --organization secret
 
-  - name: Generate {{ oo_clusterid }} inventory in tower
+  - name: Populate {{ oo_clusterid }} inventory in tower
     shell: "awx-manage inventory_import --source=/tmp/{{ oo_clusterid }}/{{ oo_clusterid }}_inventory.yml --inventory-name={{ oo_clusterid }} --overwrite"
 
   #
@@ -372,6 +377,10 @@
 
   - name: Configure prerequisites job template
     tower_job_template:
+      tower_host: "{{ tower_host }}"
+      tower_password: "{{ tower_password }}"
+      tower_username: "{{ tower_username }}"
+      validate_certs: "{{ validate_certs }}"
       name: "{{ cluster_job_template_prerequisites_name }}-{{ oo_clusterid }}"
       description: "{{ cluster_job_template_prerequisites_desc }}"
       job_type: "{{ cluster_job_template_prerequisites_type }}"
@@ -387,10 +396,14 @@
     delay: 5
 
   - name: "Associate {{ cluster_job_template_prerequisites_credentials }} credential to {{ cluster_job_template_prerequisites_name }}-{{ oo_clusterid }}"
-    shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_prerequisites_name }}-{{ oo_clusterid }}" --credential "{{ cluster_job_template_prerequisites_credentials }}"
+    shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_prerequisites_name }}-{{ oo_clusterid }}" --credential "{{ cluster_job_template_prerequisites_credentials }}" --tower-password "{{ tower_password }}" --tower-username "{{ tower_username }}" --tower-host "{{ tower_host }}" --insecure {% if validate_certs=='false' %}false{% else %}true{% endif %}
 
   - name: Configure provision install job template
     tower_job_template:
+      tower_host: "{{ tower_host }}"
+      tower_password: "{{ tower_password }}"
+      tower_username: "{{ tower_username }}"
+      validate_certs: "{{ validate_certs }}"
       name: "{{ cluster_job_template_install_name }}-{{ oo_clusterid }}"
       description: "{{ cluster_job_template_install_desc }}"
       job_type: "{{ cluster_job_template_install_type }}"
@@ -406,13 +419,17 @@
     delay: 5
 
   - name: "Associate {{ cluster_credential_bundle_aws_name }} credentials {{ cluster_job_template_install_name }}-{{ oo_clusterid }}"
-    shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_install_name }}-{{ oo_clusterid }}" --credential "{{ cluster_credential_bundle_aws_name }}"
+    shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_install_name }}-{{ oo_clusterid }}" --credential "{{ cluster_credential_bundle_aws_name }}" --tower-password "{{ tower_password }}" --tower-username "{{ tower_username }}" --tower-host "{{ tower_host }}" --insecure {% if validate_certs=='false' %}false{% else %}true{% endif %}
 
   - name: "Associate {{ cluster_job_template_install_credentials }} credential to {{ cluster_job_template_install_name }}-{{ oo_clusterid }}"
-    shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_install_name }}-{{ oo_clusterid }}" --credential "{{ cluster_job_template_install_credentials }}"
+    shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_install_name }}-{{ oo_clusterid }}" --credential {{ cluster_job_template_install_credentials }}" --tower-password "{{ tower_password }}" --tower-username "{{ tower_username }}" --tower-host "{{ tower_host }}" --insecure {% if validate_certs=='false' %}false{% else %}true{% endif %}
 
   - name: Configure post-install job template
     tower_job_template:
+      tower_host: "{{ tower_host }}"
+      tower_password: "{{ tower_password }}"
+      tower_username: "{{ tower_username }}"
+      validate_certs: "{{ validate_certs }}"
       name: "{{ cluster_job_template_post_install_name }}-{{ oo_clusterid }}"
       description: "{{ cluster_job_template_post_install_desc }}"
       job_type: "{{ cluster_job_template_post_install_type }}"
@@ -429,6 +446,10 @@
 
   - name: "Create workflow: {{ cluster_workflow_job_template_name }}_{{ oo_clusterid }}"
     tower_workflow_template:
+      tower_host: "{{ tower_host }}"
+      tower_password: "{{ tower_password }}"
+      tower_username: "{{ tower_username }}"
+      validate_certs: "{{ validate_certs }}"
       name:  "{{ cluster_workflow_job_template_name }}_{{ oo_clusterid }}"
       description: "{{ cluster_workflow_job_template_desc }}"
       state: present
@@ -442,7 +463,7 @@
       dest: "cluster_workflow_schema_{{ oo_clusterid }}.yml"
 
   - name: "Update Workflow job template with schema"
-    shell: "tower-cli workflow schema \"{{ cluster_workflow_job_template_name }}_{{ oo_clusterid }}\" @cluster_workflow_schema_{{ oo_clusterid }}.yml"
+    shell: tower-cli workflow schema \"{{ cluster_workflow_job_template_name }}_{{ oo_clusterid }}\" @cluster_workflow_schema_{{ oo_clusterid }}.yml --tower-password "{{ tower_password }}" --tower-username "{{ tower_username }}" --tower-host "{{ tower_host }}" --insecure {% if validate_certs=='false' %}false{% else %}true{% endif %}"
 
   # Update the workflow to enable ask_variables_on_launch via the tower api
   - include_role:
