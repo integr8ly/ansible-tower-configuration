@@ -55,7 +55,6 @@
     tower_host: "{{ tower_host }}"
     tower_password: "{{ tower_password }}"
     tower_username: "{{ tower_username }}"
-    validate_certs: "{{ validate_certs }}"
     name: "{{ cluster_job_template_cluster_provision_name }}"
     description: "{{ cluster_job_template_cluster_provision_desc }}"
     job_type: "{{ cluster_job_template_cluster_provision_type }}"
