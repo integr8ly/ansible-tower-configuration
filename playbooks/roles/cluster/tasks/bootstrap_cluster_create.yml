@@ -49,3 +49,23 @@
 - name: Add Custom Credential
   command: tower-cli credential create --name "le_privatekey" --credential-type "le_privatekey" --inputs '{"le_key":"{{ letsencrypt_private_key }}"}' --organization "{{ tower_organization }}"
   ignore_errors: true
+
+- name: Configure provision cluster job template
+  tower_job_template:
+    tower_host: "{{ tower_host }}"
+    tower_password: "{{ tower_password }}"
+    tower_username: "{{ tower_username }}"
+    validate_certs: "{{ validate_certs }}"
+    name: "{{ cluster_job_template_cluster_provision_name }}"
+    description: "{{ cluster_job_template_cluster_provision_desc }}"
+    job_type: "{{ cluster_job_template_cluster_provision_type }}"
+    playbook: "{{ cluster_job_template_cluster_provision_playbook }}"
+    project: "{{ cluster_job_template_cluster_provision_project }}"
+    credential: "{{ tower_credential_bundle_default_name }}"
+    state: present
+    inventory: "{{ oo_clusterid }}"
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
+  register: cluster_create_prerequisites_out
+  until: cluster_create_prerequisites_out is succeeded
+  retries: 10
+  delay: 5
