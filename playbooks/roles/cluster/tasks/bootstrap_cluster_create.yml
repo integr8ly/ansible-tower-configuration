@@ -62,7 +62,7 @@
     project: "{{ cluster_job_template_cluster_provision_project }}"
     credential: "{{ tower_credential_bundle_default_name }}"
     state: present
-    inventory: "{{ oo_clusterid }}"
+    inventory: "{{ tower_inventory_name }}"
     tower_verify_ssl: '{{ tower_verify_ssl }}'
   register: cluster_create_prerequisites_out
   until: cluster_create_prerequisites_out is succeeded
