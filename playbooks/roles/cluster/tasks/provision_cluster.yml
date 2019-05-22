@@ -479,7 +479,7 @@
     shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_install_name }}-{{ oo_clusterid }}" --credential "{{ cluster_credential_bundle_aws_name }}" --tower-password "{{ tower_password }}" --tower-username "{{ tower_username }}" --tower-host "{{ tower_host }}" --insecure {% if validate_certs=='false' %}false{% else %}true{% endif %}
 
   - name: "Associate {{ cluster_job_template_install_credentials }} credential to {{ cluster_job_template_install_name }}-{{ oo_clusterid }}"
-    shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_install_name }}-{{ oo_clusterid }}" --credential {{ cluster_job_template_install_credentials }}" --tower-password "{{ tower_password }}" --tower-username "{{ tower_username }}" --tower-host "{{ tower_host }}" --insecure {% if validate_certs=='false' %}false{% else %}true{% endif %}
+    shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_install_name }}-{{ oo_clusterid }}" --credential "{{ cluster_job_template_install_credentials }}" --tower-password "{{ tower_password }}" --tower-username "{{ tower_username }}" --tower-host "{{ tower_host }}" --insecure {% if validate_certs=='false' %}false{% else %}true{% endif %}
 
   - name: Configure post-install job template
     tower_job_template:
