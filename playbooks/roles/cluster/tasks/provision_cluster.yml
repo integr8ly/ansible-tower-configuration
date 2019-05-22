@@ -1,4 +1,19 @@
 ---
+  #
+  # Validate some variables that we need
+  #
+  - name: cluster_type
+    fail:  
+      msg: "cluster_type is not defined"
+    when: cluster_type is undefined
+  - name: oo_clusterid
+    fail:
+      msg: "oo_clusterid is not defined"
+    when: oo_clusterid is undefined
+
+  #
+  # Set some facts that we will refer to later
+  #
   - name: Set AWS credentials
     set_fact:
       aws_access_key: "{{ lookup('env', 'AWS_ACCESS_KEY_ID' ) }}"
@@ -24,7 +39,10 @@
     set_fact:
       scale_wildcard_url: "amp.{{ oo_clusterid }}.{{ domain }}"
 
-  - name: Check if certificates exist
+  #
+  # Check locally for CLUSTERNAME.DOMAIN cert. If you can't find it then check S3
+  #
+  - name: "Check if {{ base_cluster_url }} certificates exist"
     stat:
       path: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ base_cluster_url }}.crt
     register: crt_result
@@ -38,6 +56,9 @@
     register: crt_result_s3
     when: crt_result.stat.exists == false
 
+  #
+  # Check locally for APPS.CLUSTERNAME.DOMAIN cert. If you can't find it then check S3
+  #
   - stat: path=/tmp/{{ oo_clusterid }}/certs/wildcard.{{ apps_cluster_url }}.crt
     register: app_crt_result
 
@@ -50,6 +71,9 @@
     register: app_crt_result_s3
     when: app_crt_result.stat.exists == false
 
+  #
+  # Check locally for rootCA.pem. If you can't find it then check S3
+  #
   - stat: path=/tmp/{{ oo_clusterid }}/certs/rootCA.pem
     register: rootca_result
 
@@ -62,6 +86,9 @@
     register: app_crt_result_s3
     when: rootca_result.stat.exists == false
 
+  #
+  # Check locally for amp.CLUSTERNAME.DOMAIN cert. If you can't find it then check S3
+  #
   - stat: path=/tmp/{{ oo_clusterid }}/certs/wildcard.{{ scale_wildcard_url }}.crt
     register: scale_wildcard_result
 
@@ -74,6 +101,9 @@
     register: app_crt_result_s3
     when: scale_wildcard_result.stat.exists == false
 
+  #
+  # LetsEncrypt cert generation
+  #
   - name: Make sure account exists and has given contacts. We agree to TOS.
     acme_account:
         account_key_content: "{{ letsencrypt_private_key }}"
@@ -122,10 +152,7 @@
           subject_alt_name: 'DNS:{{ scale_wildcard_url }},DNS:*.{{ scale_wildcard_url }}'
     when: scale_wildcard_result.stat.exists == false
 
-  #
   # Generate <clustername>.<domain> certs
-  #
-
   - name: Generate "{{ oo_clusterid }}"."{{ domain }}" cert
     block:
       - acme_certificate:
@@ -177,10 +204,7 @@
           overwrite: true
     when: crt_result.stat.exists == false
 
-  #
   # Generate apps.<clustername>.<domain> certs
-  #
-
   - name: Generate apps."{{ oo_clusterid }}"."{{ domain }}" cert
     block:
       - acme_certificate:
@@ -232,10 +256,7 @@
           overwrite: true
     when: app_crt_result.stat.exists == false
 
-  #
   # Generate 3scale-wildcard cert
-  #
-
   - name: Generate "{{ scale_wildcard_url }}" cert
     block:
       - acme_certificate:
@@ -287,6 +308,9 @@
           overwrite: true
     when: scale_wildcard_result.stat.exists == false and cluster_type == 'poc'
 
+  #
+  # Setup backups and generate 3scale route json file
+  #
   - name: Get 3scale wildcard cert contents
     set_fact:
       scale_wildcard_ca_certificate_content: "{{ lookup('file', '/tmp/{{ oo_clusterid }}/certs/scale-rootCA.pem') }}"
@@ -352,6 +376,9 @@
       - "{{ apps_cluster_url }}"
       - "{{ base_cluster_url }}"
 
+  #
+  # Prerequisites for openshift-ansible
+  #
   - name: Search for tagged AMI
     ec2_ami_facts:
       aws_access_key: "{{ aws_access_key }}"
@@ -382,12 +409,6 @@
       dest: "/tmp/oa_dns_hook/tasks/main.yml"
       force: yes
 
-  - name: create directory for user under /tmp
-    file:
-      path: "/tmp/{{ lookup('env', 'USER') }}/{{ oo_clusterid }}"
-      recurse: yes
-      state: directory
-
   - name: set logging flag
     set_fact:
         flag_provision_logging: "{% if survey_provision_logging=='true' %}true{% elif survey_provision_logging=='false'%}false{% else %}false{% endif %}"
@@ -411,7 +432,6 @@
   #
   # Generate and launch workflow for cluster create
   #
-
   - name: Configure prerequisites job template
     tower_job_template:
       tower_host: "{{ tower_host }}"
@@ -501,13 +521,6 @@
 
   - name: "Update Workflow job template with schema"
     shell: tower-cli workflow schema \"{{ cluster_workflow_job_template_name }}_{{ oo_clusterid }}\" @cluster_workflow_schema_{{ oo_clusterid }}.yml --tower-password "{{ tower_password }}" --tower-username "{{ tower_username }}" --tower-host "{{ tower_host }}" --insecure {% if validate_certs=='false' %}false{% else %}true{% endif %}"
-
-  # Update the workflow to enable ask_variables_on_launch via the tower api
-  - include_role:
-      name: tower
-      tasks_from: enable_ask_variables_on_launch.yml
-    vars:
-      workflow_id: "{{ create_workflow_response.id }}"
 
   - name: Clean up files
     file:
