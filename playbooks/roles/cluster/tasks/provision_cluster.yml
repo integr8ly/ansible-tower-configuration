@@ -11,6 +11,10 @@
       msg: "oo_clusterid is not defined"
     when: oo_clusterid is undefined
 
+  - name: check testing flag
+    set_fact:
+      acme_directory_url: "{% if le_staging=='true' %}https://acme-staging-v02.api.letsencrypt.org/directory{% else %}https://acme-v02.api.letsencrypt.org/directory{% endif %}"
+
   #
   # Set some facts that we will refer to later
   #
@@ -110,7 +114,7 @@
         state: present
         terms_agreed: yes
         acme_version: 2
-        acme_directory: "https://acme-v02.api.letsencrypt.org/directory"
+        acme_directory: "{{ acme_directory_url }}"
         contact:
         - mailto:integreatly-notifications@redhat.com
 
@@ -162,7 +166,7 @@
           src: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ base_cluster_url}}.csr
           dest: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ base_cluster_url }}.crt
           challenge: dns-01
-          acme_directory: https://acme-v02.api.letsencrypt.org/directory
+          acme_directory: "{{ acme_directory_url }}"
         register: base_cluster_challenge
       - set_fact:
           challenges:
@@ -189,7 +193,7 @@
           cert: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ base_cluster_url }}.crt
           chain: /tmp/{{ oo_clusterid }}/certs/rootCA.pem
           challenge: dns-01
-          acme_directory: https://acme-v02.api.letsencrypt.org/directory
+          acme_directory: "{{ acme_directory_url }}"
           remaining_days: 60
           data: "{{ base_cluster_challenge }}"
       - route53:
@@ -214,7 +218,7 @@
           src: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ apps_cluster_url }}.csr
           dest: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ apps_cluster_url }}.crt
           challenge: dns-01
-          acme_directory: https://acme-v02.api.letsencrypt.org/directory
+          acme_directory: "{{ acme_directory_url }}"
         register: apps_cluster_challenge
       - set_fact:
           challenges:
@@ -241,7 +245,7 @@
           cert: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ apps_cluster_url }}.crt
           chain: /tmp/{{ oo_clusterid }}/certs/rootCA.pem
           challenge: dns-01
-          acme_directory: https://acme-v02.api.letsencrypt.org/directory
+          acme_directory: "{{ acme_directory_url }}"
           remaining_days: 60
           data: "{{ apps_cluster_challenge }}"
       - route53:
@@ -266,7 +270,7 @@
           src: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ scale_wildcard_url }}.csr
           dest: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ scale_wildcard_url }}.crt
           challenge: dns-01
-          acme_directory: https://acme-v02.api.letsencrypt.org/directory
+          acme_directory: "{{ acme_directory_url }}"
         register: scale_wildcard_challenge
       - set_fact:
           challenges:
@@ -293,7 +297,7 @@
           cert: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ scale_wildcard_url }}.crt
           chain: /tmp/{{ oo_clusterid }}/certs/scale-rootCA.pem
           challenge: dns-01
-          acme_directory: https://acme-v02.api.letsencrypt.org/directory
+          acme_directory: "{{ acme_directory_url }}"
           remaining_days: 60
           data: "{{ scale_wildcard_challenge }}"
       - route53:
