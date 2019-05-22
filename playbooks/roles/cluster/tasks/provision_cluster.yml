@@ -57,6 +57,7 @@
       object: certs/{{ oo_clusterid }}/wildcard.{{ base_cluster_url }}.crt
       dest: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ base_cluster_url }}.crt
       mode: get
+    ignore_errors: true
     register: crt_result_s3
     when: crt_result.stat.exists == false
 
@@ -72,6 +73,7 @@
       object: certs/{{ oo_clusterid }}/wildcard.{{ apps_cluster_url }}.crt
       dest: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ apps_cluster_url }}.crt
       mode: get
+    ignore_errors: true
     register: app_crt_result_s3
     when: app_crt_result.stat.exists == false
 
@@ -87,6 +89,7 @@
       object: certs/{{ oo_clusterid }}/rootCA.pem
       dest: /tmp/{{ oo_clusterid }}/certs/rootCA.pem
       mode: get
+    ignore_errors: true
     register: app_crt_result_s3
     when: rootca_result.stat.exists == false
 
@@ -94,7 +97,7 @@
   # Check locally for amp.CLUSTERNAME.DOMAIN cert. If you can't find it then check S3
   #
   - stat: path=/tmp/{{ oo_clusterid }}/certs/wildcard.{{ scale_wildcard_url }}.crt
-    register: scale_wildcard_result
+    register: scale_crt_result
 
   - name: Check S3 for 3scale cert
     aws_s3:
@@ -102,8 +105,9 @@
       object: certs/{{ oo_clusterid }}/wildcard.{{ scale_wildcard_url }}.crt
       dest: /tmp/{{ oo_clusterid }}/wildcard.{{ scale_wildcard_url }}.crt
       mode: get
-    register: app_crt_result_s3
-    when: scale_wildcard_result.stat.exists == false
+    ignore_errors: true
+    register: scale_crt_result_s3
+    when: scale_crt_result.stat.exists == false
 
   #
   # LetsEncrypt cert generation
@@ -132,7 +136,7 @@
           path: "/tmp/{{ oo_clusterid }}/certs/wildcard.{{ base_cluster_url }}.csr"
           common_name: "{{ base_cluster_url }}"
           subject_alt_name: 'DNS:{{ base_cluster_url }},DNS:*.{{ base_cluster_url }}'
-    when: crt_result.stat.exists == false
+    when: crt_result.stat.exists == false and crt_result_s3.failed == true
 
   - name: Generate a private key and csr for the apps cert
     block:
@@ -143,7 +147,7 @@
           path: "/tmp/{{ oo_clusterid }}/certs/wildcard.{{ apps_cluster_url }}.csr"
           common_name: "{{ apps_cluster_url }}"
           subject_alt_name: 'DNS:{{ apps_cluster_url }},DNS:*.{{ apps_cluster_url }}'
-    when: app_crt_result.stat.exists == false
+    when: app_crt_result.stat.exists == false and app_crt_result_s3.failed == true
 
   - name: Generate a private key and csr for the 3scale wildcard cert
     block:
@@ -154,7 +158,7 @@
           path: "/tmp/{{ oo_clusterid }}/certs/wildcard.{{ scale_wildcard_url }}.csr"
           common_name: "{{ scale_wildcard_url }}"
           subject_alt_name: 'DNS:{{ scale_wildcard_url }},DNS:*.{{ scale_wildcard_url }}'
-    when: scale_wildcard_result.stat.exists == false
+    when: scale_crt_result.stat.exists == false and scale_crt_result_s3.failed == true
 
   # Generate <clustername>.<domain> certs
   - name: Generate "{{ oo_clusterid }}"."{{ domain }}" cert
@@ -206,7 +210,7 @@
           aws_access_key: "{{ dns_access_key | default(aws_access_key) }}"
           aws_secret_key: "{{ dns_secret_key | default(aws_secret_key) }}"
           overwrite: true
-    when: crt_result.stat.exists == false
+    when: crt_result.stat.exists == false and crt_result_s3.failed == true
 
   # Generate apps.<clustername>.<domain> certs
   - name: Generate apps."{{ oo_clusterid }}"."{{ domain }}" cert
@@ -258,7 +262,7 @@
           aws_access_key: "{{ dns_access_key | default(aws_access_key) }}"
           aws_secret_key: "{{ dns_secret_key | default(aws_secret_key) }}"
           overwrite: true
-    when: app_crt_result.stat.exists == false
+    when: app_crt_result.stat.exists == false and app_crt_result_s3.failed == true
 
   # Generate 3scale-wildcard cert
   - name: Generate "{{ scale_wildcard_url }}" cert
@@ -310,7 +314,7 @@
           aws_access_key: "{{ dns_access_key | default(aws_access_key) }}"
           aws_secret_key: "{{ dns_secret_key | default(aws_secret_key) }}"
           overwrite: true
-    when: scale_wildcard_result.stat.exists == false and cluster_type == 'poc'
+    when: scale_crt_result.stat.exists == false and cluster_type == 'poc' and scale_crt_result_s3.failed == true
 
   #
   # Setup backups and generate 3scale route json file
