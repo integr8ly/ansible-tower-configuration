@@ -520,7 +520,7 @@
       dest: "cluster_workflow_schema_{{ oo_clusterid }}.yml"
 
   - name: "Update Workflow job template with schema"
-    shell: tower-cli workflow schema \"{{ cluster_workflow_job_template_name }}_{{ oo_clusterid }}\" @cluster_workflow_schema_{{ oo_clusterid }}.yml --tower-password "{{ tower_password }}" --tower-username "{{ tower_username }}" --tower-host "{{ tower_host }}" --insecure {% if validate_certs=='false' %}false{% else %}true{% endif %}"
+    shell: tower-cli workflow schema \"{{ cluster_workflow_job_template_name }}_{{ oo_clusterid }}\" @cluster_workflow_schema_"{{ oo_clusterid }}".yml --tower-password "{{ tower_password }}" --tower-username "{{ tower_username }}" --tower-host "{{ tower_host }}" --insecure {% if validate_certs=='false' %}false{% else %}true{% endif %}
 
   - name: Clean up files
     file:
