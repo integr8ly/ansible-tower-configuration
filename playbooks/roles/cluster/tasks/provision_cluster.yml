@@ -432,7 +432,7 @@
       dest: "/tmp/{{ oo_clusterid }}/{{ oo_clusterid }}_inventory.yml"
 
   - name: Create cluster inventory in tower
-    shell: tower-cli inventory create -n {{ oo_clusterid }} --tower-password {{ tower_password }} --tower-username {{ tower_username }} --tower-host {{ tower_host }} --insecure {% if validate_certs=='false' %}false{% else %}true{% endif %} --organization secret
+    shell: tower-cli inventory create -n {{ oo_clusterid }} --tower-password {{ tower_password }} --tower-username {{ tower_username }} --tower-host {{ tower_host }} --organization secret
 
   - name: Populate {{ oo_clusterid }} inventory in tower
     shell: "awx-manage inventory_import --source=/tmp/{{ oo_clusterid }}/{{ oo_clusterid }}_inventory.yml --inventory-name={{ oo_clusterid }} --overwrite"
@@ -461,7 +461,7 @@
     delay: 5
 
   - name: "Associate {{ cluster_job_template_prerequisites_credentials }} credential to {{ cluster_job_template_prerequisites_name }}-{{ oo_clusterid }}"
-    shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_prerequisites_name }}-{{ oo_clusterid }}" --credential "{{ cluster_job_template_prerequisites_credentials }}" --tower-password "{{ tower_password }}" --tower-username "{{ tower_username }}" --tower-host "{{ tower_host }}" --insecure {% if validate_certs=='false' %}false{% else %}true{% endif %}
+    shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_prerequisites_name }}-{{ oo_clusterid }}" --credential "{{ cluster_job_template_prerequisites_credentials }}" --tower-password "{{ tower_password }}" --tower-username "{{ tower_username }}" --tower-host "{{ tower_host }}"
 
   - name: Configure provision install job template
     tower_job_template:
@@ -484,10 +484,10 @@
     delay: 5
 
   - name: "Associate {{ cluster_credential_bundle_aws_name }} credentials {{ cluster_job_template_install_name }}-{{ oo_clusterid }}"
-    shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_install_name }}-{{ oo_clusterid }}" --credential "{{ cluster_credential_bundle_aws_name }}" --tower-password "{{ tower_password }}" --tower-username "{{ tower_username }}" --tower-host "{{ tower_host }}" --insecure {% if validate_certs=='false' %}false{% else %}true{% endif %}
+    shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_install_name }}-{{ oo_clusterid }}" --credential "{{ cluster_credential_bundle_aws_name }}" --tower-password "{{ tower_password }}" --tower-username "{{ tower_username }}" --tower-host "{{ tower_host }}" 
 
   - name: "Associate {{ cluster_job_template_install_credentials }} credential to {{ cluster_job_template_install_name }}-{{ oo_clusterid }}"
-    shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_install_name }}-{{ oo_clusterid }}" --credential "{{ cluster_job_template_install_credentials }}" --tower-password "{{ tower_password }}" --tower-username "{{ tower_username }}" --tower-host "{{ tower_host }}" --insecure {% if validate_certs=='false' %}false{% else %}true{% endif %}
+    shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_install_name }}-{{ oo_clusterid }}" --credential "{{ cluster_job_template_install_credentials }}" --tower-password "{{ tower_password }}" --tower-username "{{ tower_username }}" --tower-host "{{ tower_host }}" 
 
   - name: Configure post-install job template
     tower_job_template:
@@ -528,7 +528,7 @@
       dest: "cluster_workflow_schema_{{ oo_clusterid }}.yml"
 
   - name: "Update Workflow job template with schema"
-    shell: tower-cli workflow schema \"{{ cluster_workflow_job_template_name }}_{{ oo_clusterid }}\" @cluster_workflow_schema_"{{ oo_clusterid }}".yml --tower-password "{{ tower_password }}" --tower-username "{{ tower_username }}" --tower-host "{{ tower_host }}" --insecure {% if validate_certs=='false' %}false{% else %}true{% endif %}
+    shell: tower-cli workflow schema \"{{ cluster_workflow_job_template_name }}_{{ oo_clusterid }}\" @cluster_workflow_schema_"{{ oo_clusterid }}".yml --tower-password "{{ tower_password }}" --tower-username "{{ tower_username }}" --tower-host "{{ tower_host }}"
 
   - name: Clean up files
     file:
