@@ -423,7 +423,7 @@
 
   - name: find provisioning vars vault file
     get_url:
-      url: https://raw.githubusercontent.com/integr8ly/tower_dummy_credentials/master/files/provisioning_vars.yml.j2
+      url: "{% if token %}https://raw.githubusercontent.com/fheng/integreatly_dev/master/files/provisioning_vars.yml.j2?token={{ token }}{% else %}https://raw.githubusercontent.com/fheng/integreatly_dev/master/files/provisioning_vars.yml.j2{% endif %}"
       dest: /tmp/provisioning_vars.yml
 
   - name: create the provisioning_vars.yml
