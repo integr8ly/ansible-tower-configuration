@@ -429,7 +429,7 @@
 
   - name: find provisioning vars vault file
     get_url:
-      url: "{% if token %}https://raw.githubusercontent.com/fheng/integreatly_dev/master/files/provisioning_vars.yml.j2?token={{ token }}{% else %}https://raw.githubusercontent.com/fheng/integreatly_dev/master/files/provisioning_vars.yml.j2{% endif %}"
+      url: "{% if token %}https://raw.githubusercontent.com/fheng/integreatly_dev/fix_inventory/files/provisioning_vars.yml.j2?token={{ token }}{% else %}https://raw.githubusercontent.com/fheng/integreatly_dev/master/files/provisioning_vars.yml.j2{% endif %}"
       dest: /tmp/provisioning_vars.yml
 
   - name: create the provisioning_vars.yml
