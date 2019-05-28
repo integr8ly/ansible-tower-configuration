@@ -71,14 +71,14 @@
         "type": "password"
       },
       {
-        "question_description": "RHSSO admin password",
+        "question_description": "Customer admin password",
         "min": 0,
         "default": "",
         "max": 1024,
         "required": true,
         "choices": "",
         "variable": "rhsso_admin_pass",
-        "question_name": "RHSSO admin password",
+        "question_name": "Customer admin password",
         "type": "password"
       },
       {
