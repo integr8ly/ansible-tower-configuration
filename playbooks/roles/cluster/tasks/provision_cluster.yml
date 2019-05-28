@@ -11,9 +11,15 @@
       msg: "oo_clusterid is not defined"
     when: oo_clusterid is undefined
 
-  - name: check testing flag
+  - name: Set staging acme directory
     set_fact:
-      acme_directory_url: "{% if le_staging=='true' %}https://acme-staging-v02.api.letsencrypt.org/directory{% else %}https://acme-v02.api.letsencrypt.org/directory{% endif %}"
+      acme_directory_url: https://acme-staging-v02.api.letsencrypt.org/directory
+    when: le_staging is defined
+
+  - name: Set Production acme directory
+    set_fact:
+      acme_directory_url: https://acme-v02.api.letsencrypt.org/directory
+    when: le_staging is undefined
 
   #
   # Set some facts that we will refer to later
@@ -435,7 +441,7 @@
     shell: tower-cli inventory create -n {{ oo_clusterid }} --tower-password {{ tower_password }} --tower-username {{ tower_username }} --tower-host {{ tower_host }} --organization secret
 
   - name: Populate {{ oo_clusterid }} inventory in tower
-    shell: "awx-manage inventory_import --source=/tmp/{{ oo_clusterid }}/{{ oo_clusterid }}_inventory.yml --inventory-name={{ oo_clusterid }} --overwrite"
+    shell: "tower-cli inventory modify -n {{ oo_clusterid }} --tower-password {{ tower_password }} --tower-username {{ tower_username }} --tower-host {{ tower_host }} --variables @/tmp/{{ oo_clusterid }}/{{ oo_clusterid }}_inventory.yml"
 
   #
   # Generate and launch workflow for cluster create
