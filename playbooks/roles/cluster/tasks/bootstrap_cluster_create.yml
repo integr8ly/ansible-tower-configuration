@@ -65,13 +65,13 @@
     inventory: "{{ tower_inventory_name }}"
     tower_verify_ssl: '{{ tower_verify_ssl }}'
     vault_credential: "{{ tower_credential_bundle_vault_name }}"
+    survey_spec: "{{ lookup('file', 'cluster_provision_survey.json') }}"
+    extra_vars_path: "{{ tower_extra_vars_file_path }}"
+    survey_enabled: yes
   register: cluster_create_prerequisites_out
   until: cluster_create_prerequisites_out is succeeded
   retries: 10
   delay: 5
-
-- name: "Update job template with survey"
-  shell: "tower-cli job_template modify --name=\"{{ cluster_job_template_cluster_provision_name }}\" --survey-enabled=true --survey-spec='@{{ role_path }}/templates/workflow_survey.json' --extra-vars='@{{ tower_extra_vars_file_path }}'"
 
 - name: "Associate AWS credential to {{ cluster_job_template_generate_inventory_name }}"
   shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_cluster_provision_name }}" --credential "{{ cluster_credential_bundle_aws_name }}" 
