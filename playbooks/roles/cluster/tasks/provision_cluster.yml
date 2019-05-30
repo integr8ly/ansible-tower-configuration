@@ -512,25 +512,27 @@
     retries: 10
     delay: 5
 
+  - name: Set workflow name
+    set_fact:
+      provision_workflow_name: "{{ cluster_workflow_job_template_name }}_{{ oo_clusterid }}"
+
+  - name: Create workflow schema
+    template:
+      src: workflow_schema.yml.j2
+      dest: "/tmp/cluster_workflow_schema_{{ oo_clusterid }}.yml"
+
   - name: "Create workflow: {{ cluster_workflow_job_template_name }}_{{ oo_clusterid }}"
     tower_workflow_template:
       tower_host: "{{ tower_host }}"
       tower_password: "{{ tower_password }}"
       tower_username: "{{ tower_username }}"
-      name:  "{{ cluster_workflow_job_template_name }}_{{ oo_clusterid }}"
+      name:  "{{ provision_workflow_name}}"
+      schema: "{{ lookup('file', '/tmp/cluster_workflow_schema_{{ oo_clusterid }}.yml' ) }}"
       description: "{{ cluster_workflow_job_template_desc }}"
       state: present
       organization: "{{ tower_organization }}"
       tower_verify_ssl: '{{ tower_verify_ssl }}'
     register: create_workflow_response
-
-  - name: Create workflow schema
-    template:
-      src: workflow_schema.yml.j2
-      dest: "cluster_workflow_schema_{{ oo_clusterid }}.yml"
-
-  - name: "Update Workflow job template with schema"
-    shell: tower-cli workflow schema \"{{ cluster_workflow_job_template_name }}_{{ oo_clusterid }}\" @cluster_workflow_schema_"{{ oo_clusterid }}".yml --tower-password "{{ tower_password }}" --tower-username "{{ tower_username }}" --tower-host "{{ tower_host }}"
 
   - name: Clean up files
     file:
