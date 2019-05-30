@@ -57,12 +57,20 @@
       path: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ base_cluster_url }}.crt
     register: crt_result
 
-  - name: Check S3 for base cert
-    aws_s3:
-      bucket: "{{ cluster_backup_bucket_name }}"
-      object: certs/{{ oo_clusterid }}/wildcard.{{ base_cluster_url }}.crt
-      dest: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ base_cluster_url }}.crt
-      mode: get
+  - name: Check S3 for base cert and key
+    block:
+    - name: Check for cert
+      aws_s3:
+        bucket: "{{ cluster_backup_bucket_name }}"
+        object: certs/{{ oo_clusterid }}/wildcard.{{ base_cluster_url }}.crt
+        dest: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ base_cluster_url }}.crt
+        mode: get
+    - name: Check for key
+      aws_s3:
+        bucket: "{{ cluster_backup_bucket_name }}"
+        object: certs/{{ oo_clusterid }}/wildcard.{{ base_cluster_url }}.key
+        dest: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ base_cluster_url }}.key
+        mode: get
     ignore_errors: true
     register: crt_result_s3
     when: crt_result.stat.exists == false
@@ -73,12 +81,20 @@
   - stat: path=/tmp/{{ oo_clusterid }}/certs/wildcard.{{ apps_cluster_url }}.crt
     register: app_crt_result
 
-  - name: Check S3 for apps cert
-    aws_s3:
-      bucket: "{{ cluster_backup_bucket_name }}"
-      object: certs/{{ oo_clusterid }}/wildcard.{{ apps_cluster_url }}.crt
-      dest: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ apps_cluster_url }}.crt
-      mode: get
+  - name: Check S3 for apps cert and key
+    block:
+    - name: Check for cert
+      aws_s3:
+        bucket: "{{ cluster_backup_bucket_name }}"
+        object: certs/{{ oo_clusterid }}/wildcard.{{ apps_cluster_url }}.crt
+        dest: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ apps_cluster_url }}.crt
+        mode: get
+    - name: Check for key
+      aws_s3:
+        bucket: "{{ cluster_backup_bucket_name }}"
+        object: certs/{{ oo_clusterid }}/wildcard.{{ apps_cluster_url }}.crt
+        dest: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ apps_cluster_url }}.crt
+        mode: get
     ignore_errors: true
     register: app_crt_result_s3
     when: app_crt_result.stat.exists == false
@@ -105,12 +121,20 @@
   - stat: path=/tmp/{{ oo_clusterid }}/certs/wildcard.{{ scale_wildcard_url }}.crt
     register: scale_crt_result
 
-  - name: Check S3 for 3scale cert
-    aws_s3:
-      bucket: "{{ cluster_backup_bucket_name }}"
-      object: certs/{{ oo_clusterid }}/wildcard.{{ scale_wildcard_url }}.crt
-      dest: /tmp/{{ oo_clusterid }}/wildcard.{{ scale_wildcard_url }}.crt
-      mode: get
+  - name: Check S3 for 3scale cert and key
+    block:
+    - name: Check for cert
+      aws_s3:
+        bucket: "{{ cluster_backup_bucket_name }}"
+        object: certs/{{ oo_clusterid }}/wildcard.{{ scale_wildcard_url }}.crt
+        dest: /tmp/{{ oo_clusterid }}/wildcard.{{ scale_wildcard_url }}.crt
+        mode: get
+    - name: Check for key
+      aws_s3:
+        bucket: "{{ cluster_backup_bucket_name }}"
+        object: certs/{{ oo_clusterid }}/wildcard.{{ scale_wildcard_url }}.key
+        dest: /tmp/{{ oo_clusterid }}/wildcard.{{ scale_wildcard_url }}.key
+        mode: get
     ignore_errors: true
     register: scale_crt_result_s3
     when: scale_crt_result.stat.exists == false
