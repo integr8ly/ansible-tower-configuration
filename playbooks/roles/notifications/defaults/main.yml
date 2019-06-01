@@ -1,0 +1,10 @@
+---
+email_notification_name: 'Project Comparison Sync Failure'
+email_notification_description: 'Compares variables in the given repositories'
+email_notification_organization: 'integreatly'
+email_notification_user: '{{ send_grid_user }}'
+email_notification_sender: '{{ send_grid_sender }}'
+email_notification_password: '{{ send_grid_password }}'
+email_notification_recipients: '{{ send_grid_email_recipients }}'
+email_notification_host: '{{ send_grid_host }}'
+email_notification_port: '{{ send_grid_port }}'

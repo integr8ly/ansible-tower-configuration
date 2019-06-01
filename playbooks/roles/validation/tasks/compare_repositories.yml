@@ -1,0 +1,33 @@
+---
+- include_tasks: bootstrap_projects.yml
+- include_tasks: bootstrap_inventories.yml
+
+- name: Retrieve Variables from {{ tower_dummy_credentials_inventory_name }} inventory
+  shell: tower-cli inventory get --name '{{ tower_dummy_credentials_inventory_name }}' --format json
+  register: tower_dummy_inventory
+
+- set_fact:
+    tower_variables: '{{ tower_dummy_inventory.stdout | from_json }}'
+
+- set_fact:
+    tower_variable_keys: "{{ tower_variables.variables | from_json | reject('match','<CHANGEME>*') | list | sort }}"
+
+- name: Retrieve Variables from {{ comparison_project_inventory_name }} inventory
+  shell: tower-cli inventory get --name '{{ comparison_project_inventory_name }}' --format json
+  register: comparison_project_variables
+
+- set_fact:
+    comparison_variables: '{{ comparison_project_variables.stdout | from_json }}'
+
+- set_fact:
+    comparison_variable_keys: '{{ comparison_variables.variables | from_json | list | sort }}'
+
+- set_fact:
+    differences: '{{ tower_variable_keys | difference(comparison_variable_keys) }}'
+  register: diff_result
+
+- include_tasks: cleanup.yml
+
+- fail:
+    msg: 'The {{ tower_dummy_project_name }} repository contains the following variables that are not in the {{ comparison_project_name }} repository: {{ diff_result.ansible_facts.differences }}'
+  when: 'diff_result.ansible_facts.differences | length != 0'

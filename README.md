@@ -4,7 +4,6 @@ Repo for bootstrapping Ansible Tower instances.
 
 ## Table of contents
 
-
   - [1. Credentials repository](#1-credentials-repository)
   - [2. Building Images](#2-building-images)
     - [2.1 Integreatly Ansible Tower Base Image](#21-integreatly-ansible-tower-base-image)
@@ -16,11 +15,12 @@ Repo for bootstrapping Ansible Tower instances.
       - [4.1.1 Openshift Dedicated](#411-openshift-dedicated)
     - [4.2 Prerequisite Bootstrapping](#42-prerequisite-bootstrapping)
     - [4.3 Integreatly Bootstrapping](#43-integreatly-bootstrapping)
-    - [4.4 Integreatly Install](#44-integreatly-install)
-    - [4.5 Integreatly Uninstall](#45-integreatly-uninstall)
-    - [4.6 Cluster Create](#46-cluster-create)
-    - [4.7 Cluster Deprovision](#47-cluster-deprovision)
-  - [5. Contributing](#5-contributing)
+    - [4.4 Integreatly Uninstall](#44-integreatly-uninstall)
+    - [4.5 Cluster Create](#45-cluster-create)
+    - [4.6 Cluster Deprovision](#46-cluster-deprovision)
+    - [4.7 Validation Bootstrapping](#47-validation-bootstrapping)
+    - [4.8 Notifications Bootstrapping](#48-notifications-bootstrapping)
+  - [5. Contributing](#5-contributing)  
 
 ## 1. Credentials repository
 
@@ -100,7 +100,7 @@ To allow the Cluster Provision job to run successfully we need to allow the ansi
 
 ### 4.1 Tower Bootstrapping
 
-The `bootstrap.yml` playbook will run the Prerequisite, Integreatly, Cluster Create and Cluster Teardown bootstrap playbooks in succession. These individual playbooks can be run independently if required, with instructions on how to do so in the following sections. The playbook requires the target tower environment to be specified.
+The `bootstrap.yml` playbook will run the Prerequisite, Integreatly, Cluster Create, Cluster Teardown, Validation and Notification bootstrap playbooks in succession. These individual playbooks can be run independently if required, with instructions on how to do so in the following sections. The playbook requires the target tower environment to be specified.
 
 * `tower_environment`: The Ansible Tower environment (dev/test/qe etc.)
 
@@ -138,7 +138,7 @@ There are no additional parameters required by default:
 ansible-playbook -i <path-to-local-credentials-project>/hosts playbooks/bootstrap_integreatly.yml --ask-vault-pass
 ```
 
-### 4.4 Integreatly Install
+### 4.3 Integreatly Install
 
 Following the bootstrapping of Integreatly resources, a new workflow named `Integreatly Install Workflow` should be available from the Tower console:
 
@@ -153,7 +153,7 @@ The workflow requires the following parameters to be specified before running:
 * `User Count`: The number of users to pre-seed the Integreatly environment with
 * `Self Signed Certs`: Set to `false` by default. Set to `true` if the target Openshift cluster uses self signed certificates
 
-### 4.5 Integreatly Uninstall
+### 4.4 Integreatly Uninstall
 
 Following the bootstrapping of Integreatly resources, a new workflow named `Integreatly Uninstall Workflow` should be available from the Tower console:
 
@@ -166,7 +166,7 @@ The workflow requires the following parameters to be specified before running:
 * `GIT URL`: The URL of the target Integreatly installer Git repository
 * `GIT Ref`: Git reference for Integreatly installer repository
 
-### 4.6 Cluster Create
+### 4.5 Cluster Create
 
 Once the tower bootstrapping has been run you can bootstrap the cluster create resources. To create all the resources necessary to run a cluster create you must run the `bootstrap_cluster_create.yml` playbook. The playbook doesn't take any extra variables so the command to run is:
 
@@ -183,7 +183,7 @@ The workflow requires the following parameters to be specified before running:
 * `Domain Name`: The domain name to be used to create the cluster
 * `AWS Account Name`: The name of the AWS account to be used to create the cluster
 
-### 4.7 Cluster Deprovision
+### 4.6 Cluster Deprovision
 
 Once the tower bootstrapping has been run you can bootstrap the cluster deprovision resources. To create all the resources necessary to run a cluster deprovision you must run the `bootstrap_cluster_teardown.yml` playbook. The playbook doesn't take any extra variables so the command to run is:
 
@@ -199,6 +199,30 @@ The workflow requires the following parameters to be specified before running:
 * `AWS Region`: The region that the cluster resides in
 * `Domain Name`: The cluster domain name
 * `AWS Account Name`: The name of the AWS account used to create the cluster
+
+### 4.7 Validation Bootstrapping
+
+The `bootstrap_validation.yml` playbook will bootstrap the target Ansible Tower instance with the resources required to compare the variables in the supplied repository with the variables in the [external credentials repository](https://github.com/integr8ly/tower_dummy_credentials).
+
+```bash
+ansible-playbook -i <path-to-local-credentials-project>/hosts playbooks/bootstrap_validation.yml -ask-vault-pass
+```
+
+Once the bootstrapping process has completed, a new job template named `Compare Project Variables` will be available, which  requires the following parameters to be specified via the survey before running:
+
+* `Tower Dummy Credentials Repository Branch`: The branch of the tower dummy credentials project
+* `Comparison Project Name`: The name of the project to compare against
+* `Comparison Project SSH URL`: The Github SSH URL of the project to compare
+* `Comparison Project Branch`: The branch of the comparison project to used in the comparison
+* `Inventory Path`: The inventory source path of the variables in the comparison project
+
+### 4.8 Notifications Bootstrapping
+
+The `bootstrap_notifications.yml` playbook will bootstrap the target Ansible Tower instance with resources required to send an email notification if the [validation job](https://github.com/integr8ly/ansible-tower-configuration#47-validation-bootstrapping) fails. A scheduled job named `Credential Repositories Sync` that runs the `Compare Project Variables` job template is also created, with this scheduled job being disabled default.
+
+```bash
+ansible-playbook -i <path-to-local-credentials-project>/hosts playbooks/bootstrap_notifications.yml -ask-vault-pass
+```
 
 ## 5. Contributing
 Please open a Github issue for any bugs or problems you encounter.

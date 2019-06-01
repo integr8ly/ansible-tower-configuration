@@ -1,0 +1,50 @@
+---
+- name: 'Create inventory: {{ tower_dummy_credentials_inventory_name }}'
+  tower_inventory:
+    name: '{{ tower_dummy_credentials_inventory_name }}'
+    description: '{{ tower_dummy_credentials_inventory_desc }}'
+    organization: '{{ tower_organization }}'
+    state: present
+    tower_verify_ssl: "{{ tower_verify_ssl }}"
+
+- name: 'Create inventory: {{ comparison_project_inventory_name }}'
+  tower_inventory:
+    name: '{{ comparison_project_inventory_name }}'
+    description: '{{ comparison_project_desc }}'
+    organization: '{{ tower_organization }}'
+    state: present
+    tower_verify_ssl: "{{ tower_verify_ssl }}"
+
+- name: 'Create inventory source from project: {{ tower_dummy_project_name }}'
+  tower_inventory_source:
+    name: '{{ tower_dummy_project_inventory_source_name }}'
+    source: '{{ tower_dummy_project_inventory_source_type }}'
+    inventory: '{{ tower_dummy_credentials_inventory_name }}'
+    description: 'From Project: {{ tower_dummy_project_name }}'
+    overwrite: '{{ tower_dummy_project_inventory_source_overwrite }}'
+    overwrite_vars: '{{ tower_dummy_project_inventory_source_overwrite_vars }}'
+    update_on_launch: '{{ tower_dummy_project_inventory_source_update_on_launch }}'
+    source_project: '{{ tower_dummy_project_name }}'
+    source_path: '{{ tower_dummy_project_inventory_source_path }}'
+    state: present
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
+
+- name: 'Create inventory source from project: {{ comparison_project_name }}'
+  tower_inventory_source:
+    name: '{{ comparison_project_inventory_source_name }}'
+    source: '{{ comparison_project_inventory_source_type }}'
+    inventory: '{{ comparison_project_inventory_name }}'
+    description: 'From Project: {{ comparison_project_name }}'
+    overwrite: '{{ comparison_project_inventory_source_overwrite }}'
+    overwrite_vars: '{{ comparison_project_inventory_source_overwrite_vars }}'
+    update_on_launch: '{{ comparison_project_inventory_source_update_on_launch }}'
+    source_project: '{{ comparison_project_name }}'
+    source_path: '{{ comparison_project_inventory_source_path }}'
+    state: present
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
+
+- name: Sync and wait for inventory sources to become available
+  shell: "tower-cli inventory_source update '{{ item }}' && tower-cli inventory_source wait --name '{{ item }}'"
+  with_items:
+    - '{{ tower_dummy_project_inventory_source_name }}'
+    - '{{ comparison_project_inventory_source_name }}'

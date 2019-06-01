@@ -1,0 +1,48 @@
+---
+- name: Delete projects
+  tower_project:
+    name: "{{ item }}"
+    state: absent
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
+  with_items:
+    - '{{ tower_dummy_project_name }}'
+    - '{{ comparison_project_name }}'
+  register: projects_deleted
+  retries: 5
+  until: projects_deleted is succeeded
+
+- name: 'Delete inventory source from project: {{ tower_dummy_project_name }}'
+  tower_inventory_source:
+    name: '{{ tower_dummy_project_inventory_source_name }}'
+    source: '{{ tower_dummy_project_inventory_source_type }}'
+    inventory: '{{ tower_dummy_credentials_inventory_name }}'
+    state: absent
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
+  register: inventory_source_deleted
+  retries: 5
+  until: inventory_source_deleted is succeeded
+
+- name: 'Delete inventory source from project: {{ comparison_project_name }}'
+  tower_inventory_source:
+    name: '{{ comparison_project_inventory_source_name }}'
+    source: '{{ comparison_project_inventory_source_type }}'
+    inventory: '{{ comparison_project_inventory_name }}'
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
+    state: absent
+  register: inventory_source_deleted
+  retries: 5
+  until: inventory_source_deleted is succeeded
+
+- name: Delete inventories
+  tower_inventory:
+    name: '{{ item }}'
+    organization: '{{ tower_organization }}'
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
+    state: absent
+  with_items:
+    - '{{ tower_dummy_credentials_inventory_name }}'
+    - '{{ comparison_project_inventory_source_name }}'
+  register: inventories_deleted
+  retries: 5
+  until: inventories_deleted is succeeded
+  

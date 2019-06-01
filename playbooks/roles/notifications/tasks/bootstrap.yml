@@ -1,0 +1,49 @@
+---
+- name: Create email notification template
+  shell: >
+    tower-cli notification_template create
+    --name '{{ email_notification_name }}'
+    --description '{{ email_notification_description }}'
+    --notification-type email
+    --organization {{ email_notification_organization }}
+    --sender {{ email_notification_sender }}
+    --recipients '{{ email_notification_recipients }}'
+    --username {{ email_notification_user }}
+    --password {{ email_notification_password }}
+    --host {{ email_notification_host }}
+    --port {{ email_notification_port }}
+
+- name: Retrieve {{ comparison_template_name }} job template Id
+  shell: tower-cli job_template get --name '{{ comparison_template_name }}' -f id
+  register: job_template_id
+
+- name: Retrieve {{ email_notification_name }} notification template Id
+  shell: tower-cli notification_template get --name '{{ email_notification_name }}' -f id
+  register: notification_template_id
+
+- name: Associate the {{ email_notification_name }} notification with the {{ comparison_template_name }} job template
+  shell: >
+    tower-cli job_template associate_notification_template 
+    --job-template {{ job_template_id.stdout }} 
+    --notification-template {{ notification_template_id.stdout }} 
+    --status error
+
+- name: Template variables for scheduled job
+  template:
+    src: scheduled_job_variables.yml.j2
+    dest: '/tmp/scheduled_job_variables.json'
+
+- name: Create {{ scheduled_job_name }} schedule
+  shell: >
+    tower-cli schedule create
+    --name '{{ scheduled_job_name }}'
+    --description '{{ scheduled_job_desc }}'
+    --job-template {{ job_template_id.stdout }}
+    --rrule '{{ scheduled_job_rule }}'
+    --enabled '{{ enable_sync }}'
+    --extra-data '@/tmp/scheduled_job_variables.json'
+
+- name: Delete tmp file
+  file:
+    state: absent
+    path: '/tmp/repository_comparison_survey.json'
