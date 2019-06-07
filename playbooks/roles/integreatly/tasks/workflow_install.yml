@@ -22,6 +22,7 @@
     credential: "{{ integreatly_job_template_deploy_credentials }}"
     state: present
     inventory: "{{ tower_inventory_name }}"
+    vault_credential: "{{ tower_credential_bundle_vault_name }}"
     tower_verify_ssl: '{{ tower_verify_ssl }}'
 
 - name: Retrieve AWS Credential Type ID
