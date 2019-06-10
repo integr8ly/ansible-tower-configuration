@@ -1,48 +1,48 @@
 ---
-- name: "Create integreatly install project for {{ integreatly_osd_install_branch }}"
+- name: "Create integreatly update project for {{ integreatly_osd_update_branch }}"
   tower_project:
-    name: "integreatly-install-{{ integreatly_osd_install_branch }}"
-    description: "{{ integreatly_osd_install_desc }}"
+    name: "integreatly-update-{{ integreatly_osd_update_branch }}"
+    description: "{{ integreatly_osd_upgrade_desc }}"
     organization: "{{ integreatly_osd_install_org }}"
     state: present
     scm_type: "{{ integreatly_project_install_scm_type }}"
     scm_url: "{{ integreatly_osd_project_install_scm_url }}"
-    scm_branch: "{{ integreatly_osd_install_branch }}"
+    scm_branch: "{{ integreatly_osd_update_branch }}"
     scm_clean: "{{ integreatly_project_install_scm_clean }}"
     scm_update_on_launch: "{{ integreatly_project_install_scm_update_on_launch }}"
     scm_delete_on_update: "{{ integreatly_project_install_scm_delete_on_update }}"
     scm_credential: "{{ integreatly_credential_bundle_github_name }}"
     tower_verify_ssl: "{{ tower_verify_ssl }}"
-  register: integreatly_install_out
-  until: integreatly_install_out is succeeded
+  register: integreatly_update_out
+  until: integreatly_update_out is succeeded
   retries: 10
   delay: 5
 
 - name: Wait for project to be successfully synced to tower
-  shell: tower-cli project status {{ integreatly_install_out.id }} 
+  shell: tower-cli project status {{ integreatly_update_out.id }} 
   register: integreatly_sync_out
   until: integreatly_sync_out.stdout.find("successful") != -1
   retries: 10
   delay: 5
 
-- name: Create OSD install inventory in tower
+- name: Create OSD update inventory in tower
   tower_inventory:
-    name: "{{ integreatly_osd_install_inventory }}"
+    name: "{{ integreatly_osd_update_inventory }}"
     description: "Inventory for OSD Integreatly installs"
     organization: "{{ integreatly_osd_install_org }}"
     state: present
     tower_verify_ssl: "{{ tower_verify_ssl }}"
 
-- name: Create inventory source for OSD inventory
+- name: Create inventory source for OSD update inventory
   tower_inventory_source:
-    name: "{{ integreatly_osd_install_source_name }}"
-    inventory: "{{ integreatly_osd_install_inventory }}"
+    name: "{{ integreatly_osd_upgrade_source_name }}"
+    inventory: "{{ integreatly_osd_update_inventory }}"
     source: "{{ integreatly_inventory_source_project_type }}"
-    description: "From Project: integreatly-install-release-{{ integreatly_osd_install_branch }}"
+    description: "From Project: integreatly-update-{{ integreatly_osd_update_branch }}"
     overwrite: "{{ integreatly_inventory_source_project_overwrite }}"
     overwrite_vars: "{{ integreatly_inventory_source_project_overwrite_vars }}"
     update_on_launch: "{{ integreatly_osd_source_project_update_on_launch }}"
-    source_project: "integreatly-install-{{ integreatly_osd_install_branch }}"
+    source_project: "integreatly-update-{{ integreatly_osd_update_branch }}"
     source_path: "{{ integreatly_osd_install_source_path }}"
     state: present
     tower_verify_ssl: "{{ tower_verify_ssl }}"
@@ -54,11 +54,11 @@
 - name: Create OSD Integreatly bootstrap job template
   tower_job_template:
     job_type: run
-    playbook: playbooks/osd_integreatly_install.yml
-    name: "{{ integreatly_osd_bootstrap_name }}"
+    playbook: playbooks/osd_integreatly_update.yml
+    name: "{{ integreatly_osd_upgrade_bootstrap_name }}"
     project: "{{ tower_configuration_project_name }}"
     credential: "{{ tower_credential_bundle_default_name }}"
-    description: Job for bootstrapping Integreatly deploy on Openshift Dedicated
+    description: Job for bootstrapping Integreatly upgrades on Openshift Dedicated
     state: present 
     inventory: "{{ tower_inventory_name }}"
     tower_verify_ssl: "{{ tower_verify_ssl }}"
@@ -66,14 +66,14 @@
 - name: Create OSD Integreatly deploy job template
   tower_job_template:
     job_type: run
-    playbook: playbooks/install.yml
-    name: "{{ integreatly_osd_install_name }}"
-    project: "integreatly-install-{{ integreatly_osd_install_branch }}"
+    playbook: "playbooks/upgrades/upgrade.yaml"
+    name: "{{ integreatly_osd_upgrade_name }}"
+    project: "integreatly-update-{{ integreatly_osd_update_branch }}"
     credential: "{{ tower_credential_bundle_default_name }}"
-    description: Job for deploying Integreatly on Openshift Dedicated
+    description: Job for upgrading Integreatly on Openshift Dedicated
     state: present 
     extra_vars_path: roles/integreatly/files/osd_install_vars.yml
-    inventory: "{{ integreatly_osd_install_inventory }}"
+    inventory: "{{ integreatly_osd_update_inventory }}"
     tower_verify_ssl: "{{ tower_verify_ssl }}"
   register: integreatly_deploy_out
   until: integreatly_deploy_out is succeeded
@@ -81,6 +81,4 @@
   delay: 5
 
 - name: "Update workflow stage {{ integreatly_job_template_deploy_name }}"
-  shell: "tower-cli job_template modify -n \"{{ integreatly_osd_install_name }}\" --project integreatly-install-{{ integreatly_osd_install_branch }} --playbook playbooks/install.yml"
-
-
+  shell: "tower-cli job_template modify -n \"{{ integreatly_osd_upgrade_name }}\" --project integreatly-update-{{ integreatly_osd_update_branch }} --playbook playbooks/upgrades/upgrade.yaml"

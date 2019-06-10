@@ -1,0 +1,33 @@
+---
+- include_tasks: bootstrap_osd_update.yml
+
+- name: "Create workflow: {{ integreatly_osd_upgrade_workflow_name }}"
+  tower_workflow_template:
+    name:  "{{ integreatly_osd_upgrade_workflow_name }}"
+    description: "{{ integreatly_osd_workflow_description }}"
+    state: present
+    organization: "{{ integreatly_osd_install_org }}"
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
+  register: create_workflow_response
+
+- name: Create upgrade workflow schema
+  template:
+    src: osd_workflow_upgrade_schema.yml.j2
+    dest: "/tmp/osd_workflow_upgrade_schema.yml"
+
+- name: Update upgrade workflow job template with survey
+  shell: "tower-cli workflow modify --name=\"{{ integreatly_osd_upgrade_workflow_name }}\" --survey-enabled=true --survey-spec='@{{ role_path }}/files/osd_upgrade_survey.json'"
+
+- name: Update upgrade workflow job template with schema
+  shell: "tower-cli workflow schema \"{{ integreatly_osd_upgrade_workflow_name }}\" @/tmp/osd_workflow_upgrade_schema.yml"
+
+# Update the workflow to enable ask_variables_on_launch via the tower api
+- include_role:
+    name: tower
+    tasks_from: enable_ask_variables_on_launch.yml
+  vars:
+    workflow_id: "{{ create_workflow_response.id }}"
+
+- name: Cleanup temp upgrade workflow files
+  file:
+    path: "/tmp/osd_workflow_install_schema.yml"
