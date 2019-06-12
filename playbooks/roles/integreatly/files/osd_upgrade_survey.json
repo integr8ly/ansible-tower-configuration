@@ -1,0 +1,52 @@
+{
+    "description": "",
+    "name": "",
+    "spec": [
+      {
+        "question_description": "Name of target cluster to run Integreatly upgrade",
+        "min": 0,
+        "default": "",
+        "max": 20,
+        "required": true,
+        "choices": "",
+        "variable": "cluster_name",
+        "question_name": "Cluster Name",
+        "type": "text"
+      },
+      {
+        "question_description": "Integreatly Upgrade Git branch/tag",
+        "min": 0,
+        "default": "",
+        "max": 1024,
+        "required": true,
+        "choices": "",
+        "new_question": true,
+        "variable": "integreatly_osd_update_branch",
+        "question_name": "Integreatly upgrade branch",
+        "type": "text"
+      },
+      {
+        "question_description": "Router shard of the targeted cluster",
+        "min": 0,
+        "default": "",
+        "max": 5,
+        "required": true,
+        "choices": "",
+        "variable": "router_shard",
+        "question_name": "Router shard",
+        "type": "text"
+      },
+      {
+        "question_description": "Openshift token for cluster-admin user",
+        "min": 0,
+        "default": "",
+        "max": 1024,
+        "required": true,
+        "choices": "",
+        "new_question": true,
+        "variable": "openshift_token",
+        "question_name": "Openshift token",
+        "type": "password"
+      }
+    ]
+  }
