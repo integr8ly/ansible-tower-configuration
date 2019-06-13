@@ -3,6 +3,6 @@
   shell: "oc login -u {{ tower_openshift_username }} -p {{ tower_openshift_password }} {{ tower_openshift_master_url }} --insecure-skip-tls-verify"
   when: tower_openshift_login and openshift_token is undefined
 
-- name: "Targeting openshift cluster {{ openshift_master_url }}"
-  shell: "oc login --token {{ openshift_token }} {{ openshift_master_url }}"
+- name: "Targeting openshift cluster {{ cluster_name }}"
+  shell: "oc login --token {{ openshift_token }} https://api.{{ cluster_name }}.openshift.com"
   when: "openshift_token is defined"
