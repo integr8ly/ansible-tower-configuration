@@ -1,6 +1,8 @@
 ---
 - job_template: "{{ tower_job_template_authenticate_tower_name }}"
   success:
-  - job_template: "{{ integreatly_osd_upgrade_bootstrap_name }}"
+  - job_template: "{{ tower_job_template_authenticate_openshift_name }}"
     success:
-    - job_template: "{{ integreatly_osd_upgrade_name }}"
+    - job_template: "{{ integreatly_osd_upgrade_bootstrap_name }}"
+      success:
+      - job_template: "{{ integreatly_osd_upgrade_name }}"
