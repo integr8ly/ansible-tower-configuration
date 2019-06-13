@@ -2,14 +2,14 @@
 
 # Cluster Configurations
 cluster_name: ''
-cluster_type: 'poc' # (poc|rhpds|dev)
 cluster_provisioning_vars_inventory: "{{ cluster_name }}"
 cluster_aws_region: ''
 cluster_aws_access_key: ''
 cluster_aws_secret_access_key: ''
 
-# Integreatly
+# Integreatly Configurations
 integreatly_version: 'release-1.4.0'
+integreatly_install_type: 'poc'
 
 # Workflow Job Template
 integreatly_workflow_install_job_template_name: 'Integreatly Install Workflow'

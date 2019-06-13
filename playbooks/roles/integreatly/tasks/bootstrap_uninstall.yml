@@ -17,11 +17,11 @@
 
 - name: Generate extra vars file
   template:
-    dest: "/tmp/extra_vars_{{ cluster_type }}_uninstall.yml"
-    src: "extra_vars_{{ cluster_type }}_uninstall.yml.j2"
+    dest: "/tmp/extra_vars_{{ integreatly_install_type }}_uninstall.yml"
+    src: "extra_vars_{{ integreatly_install_type }}_uninstall.yml.j2"
 
 - name: "Update workflow stage {{ integreatly_job_template_uninstall_name }}"
-  shell: "tower-cli job_template modify -n \"{{ integreatly_job_template_uninstall_name }}\" -i {{ integreatly_inventory_name }} --project {{ integreatly_project_uninstall_name }} --playbook {{ integreatly_job_template_uninstall_playbook }} --credential {{ tower_credential_bundle_default_name }} --extra-vars '@/tmp/extra_vars_{{ cluster_type }}_uninstall.yml'"
+  shell: "tower-cli job_template modify -n \"{{ integreatly_job_template_uninstall_name }}\" -i {{ integreatly_inventory_name }} --project {{ integreatly_project_uninstall_name }} --playbook {{ integreatly_job_template_uninstall_playbook }} --credential {{ tower_credential_bundle_default_name }} --extra-vars '@/tmp/extra_vars_{{ integreatly_install_type }}_uninstall.yml'"
   register: uninstall_workflow_update
   retries: 10
   delay: 3

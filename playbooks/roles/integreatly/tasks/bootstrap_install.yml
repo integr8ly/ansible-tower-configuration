@@ -131,12 +131,12 @@
 
 - name: Generate extra vars file
   template:
-    dest: "/tmp/extra_vars_{{ cluster_type }}_install.yml"
-    src: "extra_vars_{{ cluster_type }}_install.yml.j2"
+    dest: "/tmp/extra_vars_{{ integreatly_install_type }}_install.yml"
+    src: "extra_vars_{{ integreatly_install_type }}_install.yml.j2"
 
 - name: "Update workflow stage {{ integreatly_job_template_deploy_name }}"
-  shell: "tower-cli job_template modify -n \"{{ integreatly_job_template_deploy_name }}\" -i {{ integreatly_inventory_name }} --project {{ integreatly_project_install_name }} --playbook {{ integreatly_job_template_deploy_playbook }} --credential {{ tower_credential_bundle_default_name }} --extra-vars '@/tmp/extra_vars_{{ cluster_type }}_install.yml'"
+  shell: "tower-cli job_template modify -n \"{{ integreatly_job_template_deploy_name }}\" -i {{ integreatly_inventory_name }} --project {{ integreatly_project_install_name }} --playbook {{ integreatly_job_template_deploy_playbook }} --credential {{ tower_credential_bundle_default_name }} --extra-vars '@/tmp/extra_vars_{{ integreatly_install_type }}_install.yml'"
 
 - name: Cleanup temp var file
   file:
-    path: "/tmp/extra_vars_{{ cluster_type }}_install.yml"
+    path: "/tmp/extra_vars_{{ integreatly_install_type }}_install.yml"
