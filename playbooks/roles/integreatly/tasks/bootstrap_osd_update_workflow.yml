@@ -4,7 +4,7 @@
 - name: "Create workflow: {{ integreatly_osd_upgrade_workflow_name }}"
   tower_workflow_template:
     name:  "{{ integreatly_osd_upgrade_workflow_name }}"
-    description: "{{ integreatly_osd_workflow_description }}"
+    description: "{{ integreatly_osd_upgrade_desc }}"
     state: present
     organization: "{{ integreatly_osd_install_org }}"
     tower_verify_ssl: '{{ tower_verify_ssl }}'

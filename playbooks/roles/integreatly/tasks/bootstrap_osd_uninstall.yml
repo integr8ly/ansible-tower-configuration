@@ -1,0 +1,84 @@
+---
+- name: "Create integreatly uninstall project for {{ integreatly_osd_uninstall_branch }}"
+  tower_project:
+    name: "integreatly-uninstall-{{ integreatly_osd_uninstall_branch }}"
+    description: "{{ integreatly_osd_uninstall_desc }}"
+    organization: "{{ integreatly_osd_uninstall_org }}"
+    state: present
+    scm_type: "{{ integreatly_project_uninstall_scm_type }}"
+    scm_url: "{{ integreatly_osd_project_uninstall_scm_url }}"
+    scm_branch: "{{ integreatly_osd_uninstall_branch }}"
+    scm_clean: "{{ integreatly_project_uninstall_scm_clean }}"
+    scm_update_on_launch: "{{ integreatly_project_uninstall_scm_update_on_launch }}"
+    scm_delete_on_update: "{{ integreatly_project_uninstall_scm_delete_on_update }}"
+    scm_credential: "{{ integreatly_credential_bundle_github_name }}"
+    tower_verify_ssl: "{{ tower_verify_ssl }}"
+  register: integreatly_uninstall_out
+  until: integreatly_uninstall_out is succeeded
+  retries: 10
+  delay: 5
+
+- name: Wait for project to be successfully synced to tower
+  shell: tower-cli project status {{ integreatly_uninstall_out.id }} 
+  register: integreatly_sync_out
+  until: integreatly_sync_out.stdout.find("successful") != -1
+  retries: 10
+  delay: 5
+
+- name: Create OSD uninstall inventory in tower
+  tower_inventory:
+    name: "{{ integreatly_osd_uninstall_inventory }}"
+    description: "Inventory for OSD Integreatly uninstalls"
+    organization: "{{ integreatly_osd_uninstall_org }}"
+    state: present
+    tower_verify_ssl: "{{ tower_verify_ssl }}"
+
+- name: Create inventory source for OSD inventory
+  tower_inventory_source:
+    name: "{{ integreatly_osd_uninstall_source_name }}"
+    inventory: "{{ integreatly_osd_uninstall_inventory }}"
+    source: "{{ integreatly_inventory_source_project_type }}"
+    description: "From Project: integreatly-uninstall-release-{{ integreatly_osd_install_branch }}"
+    overwrite: "{{ integreatly_inventory_source_project_overwrite }}"
+    overwrite_vars: "{{ integreatly_inventory_source_project_overwrite_vars }}"
+    update_on_launch: "{{ integreatly_osd_source_project_update_on_launch }}"
+    source_project: "integreatly-uninstall-{{ integreatly_osd_install_branch }}"
+    source_path: "{{ integreatly_osd_uninstall_source_path }}"
+    state: present
+    tower_verify_ssl: "{{ tower_verify_ssl }}"
+  register: integreatly_source_out
+  until: integreatly_source_out is succeeded
+  retries: 10
+  delay: 5
+
+- name: Create OSD Integreatly uninstall bootstrap job template
+  tower_job_template:
+    job_type: run
+    playbook: playbooks/osd_integreatly_uninstall.yml
+    name: "{{ integreatly_osd_uninstall_bootstrap_name }}"
+    project: "{{ tower_configuration_project_name }}"
+    credential: "{{ tower_credential_bundle_default_name }}"
+    description: Job for bootstrapping Integreatly uninstall on Openshift Dedicated
+    state: present 
+    inventory: "{{ tower_inventory_name }}"
+    tower_verify_ssl: "{{ tower_verify_ssl }}"
+
+- name: Create OSD Integreatly uninstall job template
+  tower_job_template:
+    job_type: run
+    playbook: playbooks/uninstall.yml
+    name: "{{ integreatly_osd_uninstall_name }}"
+    project: "integreatly-uninstall-{{ integreatly_osd_uninstall_branch }}"
+    credential: "{{ tower_credential_bundle_default_name }}"
+    description: Job for uninstalling Integreatly on Openshift Dedicated
+    state: present 
+    extra_vars_path: roles/integreatly/files/osd_install_vars.yml
+    inventory: "{{ integreatly_osd_uninstall_inventory }}"
+    tower_verify_ssl: "{{ tower_verify_ssl }}"
+  register: integreatly_deploy_out
+  until: integreatly_deploy_out is succeeded
+  retries: 10
+  delay: 5
+
+- name: "Update workflow stage {{ integreatly_job_template_uninstall_name }}"
+  shell: "tower-cli job_template modify -n \"{{ integreatly_osd_uninstall_name }}\" --project integreatly-uninstall-{{ integreatly_osd_uninstall_branch }} --playbook playbooks/uninstall.yml"

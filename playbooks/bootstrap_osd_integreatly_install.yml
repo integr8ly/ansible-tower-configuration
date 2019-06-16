@@ -10,3 +10,7 @@
     - include_role:
         name: integreatly
         tasks_from: bootstrap_osd_update_workflow.yml
+    - include_role:
+        name: integreatly
+        tasks_from: bootstrap_osd_uninstall_workflow.yml
+    
