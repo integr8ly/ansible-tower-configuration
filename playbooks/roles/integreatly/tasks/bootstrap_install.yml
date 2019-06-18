@@ -69,6 +69,18 @@
     tower_verify_ssl: '{{ tower_verify_ssl }}'
   register: master_group_data
 
+- name: "Create local group: {{ integreatly_group_local_name }}"
+  tower_group:
+    inventory: "{{ integreatly_inventory_name }}"
+    name: "{{ integreatly_group_local_name }}"
+    description: "{{ integreatly_group_local_desc }}"
+    state: present
+    overwrite: "{{ integreatly_group_local_overwrite }}"
+    overwrite_vars: "{{ integreatly_group_local_overwrite_vars }}"
+    update_on_launch: "{{ integreatly_group_local_update_on_launch }}"
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
+  register: local_group_data
+
 - name: "Retrieve tag_host_type_master group data"
   shell: "tower-cli group get -i {{ integreatly_inventory_name }} --name {{ integreatly_group_master_aws_name }} -f json"
   register: master_group_aws_data_raw
@@ -76,8 +88,8 @@
   delay: 3
   until: master_group_aws_data_raw.rc == 0
 
-- name: "Retrieve local group data"
-  shell: "tower-cli group get -i {{ integreatly_inventory_name }} --name local -f json"
+- name: "Retrieve {{ integreatly_group_local_name }} group data"
+  shell: "tower-cli group get -i {{ integreatly_inventory_name }} --name {{ integreatly_group_local_name }} -f json"
   register: local_group_data_raw
   retries: 10
   delay: 3
