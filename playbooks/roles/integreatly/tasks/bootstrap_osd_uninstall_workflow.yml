@@ -1,0 +1,33 @@
+---
+- include_tasks: bootstrap_osd_uninstall.yml
+
+- name: "Create workflow: {{ integreatly_workflow_uninstall_job_template_name }}"
+  tower_workflow_template:
+    name:  "{{ integreatly_osd_uninstall_workflow_name }}"
+    description: "{{ integreatly_osd_uninstall_workflow_description }}"
+    state: present
+    organization: "{{ integreatly_osd_uninstall_org }}"
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
+  register: create_workflow_response
+
+- name: Create uninstall workflow schema
+  template:
+    src: osd_workflow_uninstall_schema.yml.j2
+    dest: "/tmp/osd_workflow_uninstall_schema.yml"
+
+- name: Update uninstall workflow job template with survey
+  shell: "tower-cli workflow modify --name=\"{{ integreatly_osd_uninstall_workflow_name }}\" --survey-enabled=true --survey-spec='@{{ role_path }}/files/osd_uninstall_survey.json'"
+
+- name: Update uninstall workflow job template with schema
+  shell: "tower-cli workflow schema \"{{ integreatly_osd_uninstall_workflow_name }}\" @/tmp/osd_workflow_uninstall_schema.yml"
+
+# Update the workflow to enable ask_variables_on_launch via the tower api
+- include_role:
+    name: tower
+    tasks_from: enable_ask_variables_on_launch.yml
+  vars:
+    workflow_id: "{{ create_workflow_response.id }}"
+    
+- name: Cleanup temp install workflow files
+  file:
+    path: "/tmp/osd_workflow_uninstall_schema.yml"
