@@ -126,6 +126,13 @@
   retries: 10
   delay: 5
 
+- name: "Remove master.evals.example.com host reference from inventory"
+  shell: "tower-cli host delete -n master.evals.example.com -i {{ integreatly_inventory_name }}"
+  register: remove_host_ref_raw
+  until: remove_host_ref_raw is succeeded
+  retries: 10
+  delay: 5
+
 - name: Retrieve cluster provisioning vars inventory
   shell: "tower-cli inventory get -n \"{{ cluster_provisioning_vars_inventory }}\" -f json"
   register: cluster_provisioning_vars_raw
