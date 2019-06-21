@@ -91,7 +91,7 @@ integreatly_inventory_source_aws_instance_filters: "tag:clusterid={{ cluster_nam
 
 integreatly_inventory_source_project_name: "{{ cluster_name }}-inventory-source-project-{{ integreatly_project_install_name }}"
 integreatly_inventory_source_project_type: 'scm'
-integreatly_inventory_source_project_path: "inventories/"
+integreatly_inventory_source_project_path: "inventories/tower.template"
 integreatly_inventory_source_project_update_on_launch: false
 integreatly_inventory_source_project_overwrite: false
 integreatly_inventory_source_project_overwrite_vars: false
