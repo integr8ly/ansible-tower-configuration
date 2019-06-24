@@ -68,6 +68,7 @@
     survey_spec: "{{ lookup('file', 'cluster_provision_survey.json') }}"
     extra_vars_path: "{{ tower_extra_vars_file_path }}"
     survey_enabled: yes
+    concurrent_jobs_enabled: yes
   register: cluster_create_prerequisites_out
   until: cluster_create_prerequisites_out is succeeded
   retries: 10

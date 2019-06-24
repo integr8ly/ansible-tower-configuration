@@ -37,7 +37,7 @@
         "type": "multiplechoice"
       },
       {
-        "question_description": "Token for Credential repo visit: https://github.com/<credential-repo>/blob/master/files/provisioning_vars.yml.j2 and click raw to find token",
+        "question_description": "Token for Credential repo visit: https://github.com/<credential-repo>/blob/master/files/concurrent_provisioning_vars.yml.j2 and click raw to find token",
         "min": 0,
         "default": "",
         "max": 1024,
