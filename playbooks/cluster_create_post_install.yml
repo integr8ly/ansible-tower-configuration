@@ -15,21 +15,21 @@
       name: "{{ facts.instances[0]['public_dns_name'] }}"
       groups: "firstMaster"
 
-  - name: "Delete s3 IAM user for {{ oo_clusterid }}-backups if it exists"
+  - name: "Delete s3 IAM user for {{ cluster_backup_integreatly_bucket_name }} if it exists"
     iam:
       iam_type: user
       aws_access_key: "{{ aws_access_key }}"
       aws_secret_key: "{{ aws_secret_key }}"
-      name: "{{ oo_clusterid }}-backups"
+      name: "{{ cluster_backup_integreatly_bucket_name }}"
       state: absent
     ignore_errors: yes
 
-  - name: "Create s3 IAM user for {{ oo_clusterid }}-backups"
+  - name: "Create s3 IAM user for {{ cluster_backup_integreatly_bucket_name }}"
     iam:
       iam_type: user
       aws_access_key: "{{ aws_access_key }}"
       aws_secret_key: "{{ aws_secret_key }}"
-      name: "{{ oo_clusterid }}-backups"
+      name: "{{ cluster_backup_integreatly_bucket_name }}"
       state: present
       access_key_state: create
     register: iam_user
@@ -51,7 +51,7 @@
       aws_access_key: "{{ aws_access_key }}"
       aws_secret_key: "{{ aws_secret_key }}"
       iam_type: user
-      iam_name: "{{ oo_clusterid }}-backups"
+      iam_name: "{{ cluster_backup_integreatly_bucket_name }}"
       policy_name: s3-backup-access-{{ oo_clusterid }}
       policy_document: "/tmp/iam_policy.json"
       state: present

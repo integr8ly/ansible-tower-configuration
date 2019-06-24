@@ -38,7 +38,7 @@
     {
       "question_description": "Flag for provisioning logging stack",
       "min": null,
-      "default": "",
+      "default": "true",
       "max": null,
       "required": true,
       "choices": "true\nfalse",
