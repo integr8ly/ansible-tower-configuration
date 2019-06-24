@@ -23,6 +23,7 @@
     state: present
     inventory: "{{ tower_inventory_name }}"
     tower_verify_ssl: '{{ tower_verify_ssl }}'
+    extra_vars_path: '{{ tower_extra_vars_file_path }}'
 
 - name: "Configure Cluster Clean Down template: {{ integreatly_job_template_cleandown_name }}"
   tower_job_template:
