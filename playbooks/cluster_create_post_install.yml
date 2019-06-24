@@ -72,3 +72,15 @@
   - name: Create secret for backups
     shell: "oc create secret generic {{ cluster_backup_secret_name }} --from-literal=aws_access_key={{ hostvars['localhost']['iam_access_key'] }} --from-literal=aws_secret_key={{ hostvars['localhost']['iam_secret_key'] }} --from-literal=bucket_name={{ cluster_backup_bucket_name }} -n {{ cluster_backup_namespace }}"
     no_log: true
+  
+  - name: Retrieving IP addresses of master nodes
+    shell: "oc get nodes -o wide | grep master | awk '{ print $7 }'"
+    register: master_node_ip_addresses
+
+  - name: Cluster Details
+    debug:
+      msg: "{{ item }}"
+    with_items:
+    - "Console URL: {{ openshift_master_public_console_url }}"
+    - "Admin username: {{ openshift_master_htpasswd_users.keys() }}"
+    - "Master node IP addresses: {{ master_node_ip_addresses.stdout_lines }}"
