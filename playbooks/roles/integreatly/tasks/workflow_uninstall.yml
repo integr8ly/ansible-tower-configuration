@@ -11,6 +11,7 @@
     state: present
     inventory: "{{ tower_inventory_name }}"
     tower_verify_ssl: '{{ tower_verify_ssl }}'
+    concurrent_jobs_enabled: '{{ integreatly_job_template_uninstall_concurrency }}'
 
 - name: "Configure Integreatly Bootstrap Uninstall job template: {{ integreatly_job_template_bootstrap_uninstall_name }}"
   tower_job_template:
@@ -24,6 +25,7 @@
     inventory: "{{ tower_inventory_name }}"
     tower_verify_ssl: '{{ tower_verify_ssl }}'
     extra_vars_path: '{{ tower_extra_vars_file_path }}'
+    concurrent_jobs_enabled: '{{ integreatly_job_template_bootstrap_uninstall_concurrency }}'
 
 - name: "Configure Cluster Clean Down template: {{ integreatly_job_template_cleandown_name }}"
   tower_job_template:
@@ -44,6 +46,7 @@
     state: present
     organization: "{{ integreatly_workflow_uninstall_job_template_organization }}"
     tower_verify_ssl: '{{ tower_verify_ssl }}'
+    allow_simultaneous: '{{ integreatly_workflow_uninstall_job_template_concurrency }}'
   register: create_workflow_response
 
 - name: Create uninstall workflow schema
