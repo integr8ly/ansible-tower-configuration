@@ -6,6 +6,7 @@
     password: "{{ tower_password }}"
     force_basic_auth: yes
     body_format: json
+    validate_certs: '{{ tower_verify_ssl }}'
   register: get_workflow_details_response
 
 - set_fact:
@@ -24,4 +25,5 @@
     password: "{{ tower_password }}"
     force_basic_auth: yes
     body_format: json
+    validate_certs: '{{ tower_verify_ssl }}'
     body: "{{ lookup('file', '/tmp/workflow_update.json')}}"
