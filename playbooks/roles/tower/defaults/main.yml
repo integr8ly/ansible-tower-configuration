@@ -92,7 +92,7 @@ tower_kubernetes_task_image: quay.io/integreatly/ansible-tower-container
 tower_kubernetes_web_image: quay.io/integreatly/ansible-tower-container
 
 tower_openshift_skip_tls_verify: true
-tower_openshift_pg_emptydir: true
+tower_openshift_pg_emptydir: false
 
 tower_dockerhub_base: ansible
 tower_create_preload_data: True
@@ -131,6 +131,7 @@ tower_pg_port: 5432
 
 tower_docker_compose_dir: /var/lib/awx
 tower_openshift_pg_pvc_name: postgresql
+tower_openshift_pg_pvc_size: 100Gi
 
 tower_default_cpu: 1500m
 tower_default_memory: 2Gi
