@@ -63,7 +63,7 @@ The `install_tower.yml` playbook will install Ansible Tower on a target Openshif
 * `tower_openshift_master_url`: The URL of the target Openshift cluster
 
 ```bash
-ansible-playbook -i <path-to-local-credentials-project>/inventories/hosts playbooks/install_tower.yml -e tower_openshift_master_url=<tower_openshift_master_url> --ask-vault-pass
+ansible-playbook -i <path-to-local-credentials-project>/inventories/hosts playbooks/install_tower.yml -e tower_openshift_master_url=<tower_openshift_master_url> -e tower_openshift_pg_pvc_size=10Gi --ask-vault-pass
 ```
 
 A number of default values are used when installing Ansible Tower on the target Openshift cluster, any of which can be overridden with the use of environmental variables. These default values include several password values which are assigned a default value of `CHANGEME`, as can be seen below.
@@ -75,6 +75,7 @@ A number of default values are used when installing Ansible Tower on the target 
 * `tower_admin_password`: The password required to login to the newly installed Tower instance (default password is `CHANGEME`)
 * `tower_rabbitmq_password`: The password required to login to RabbitMQ (default password is `CHANGEME`)
 * `tower_pg_password`: The password required to login to PostgreSQL (default password is `CHANGEME`)
+* `tower_openshift_pg_pvc_size`: Size of Postgres persistent volume. Defaults to `100Gi` which is recommended for production environments
 
 ### 3.1 Tower Host Name Update
 
