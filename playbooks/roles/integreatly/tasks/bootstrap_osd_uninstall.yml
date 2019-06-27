@@ -38,11 +38,11 @@
     name: "{{ integreatly_osd_uninstall_source_name }}"
     inventory: "{{ integreatly_osd_uninstall_inventory }}"
     source: "{{ integreatly_inventory_source_project_type }}"
-    description: "From Project: integreatly-uninstall-release-{{ integreatly_osd_install_branch }}"
+    description: "From Project: integreatly-uninstall-release-{{ integreatly_osd_uninstall_branch }}"
     overwrite: "{{ integreatly_inventory_source_project_overwrite }}"
     overwrite_vars: "{{ integreatly_inventory_source_project_overwrite_vars }}"
     update_on_launch: "{{ integreatly_osd_source_project_update_on_launch }}"
-    source_project: "integreatly-uninstall-{{ integreatly_osd_install_branch }}"
+    source_project: "integreatly-uninstall-{{ integreatly_osd_uninstall_branch }}"
     source_path: "{{ integreatly_osd_uninstall_source_path }}"
     state: present
     tower_verify_ssl: "{{ tower_verify_ssl }}"
