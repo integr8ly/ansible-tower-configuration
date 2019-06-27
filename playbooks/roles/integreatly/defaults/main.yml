@@ -118,7 +118,7 @@ integreatly_host_local_desc: "Localhost: {{ cluster_name }}"
 integreatly_install_survey_aws_accounts: []
 
 # OSD install
-integreatly_osd_install_branch: 'release-1.4.0'
+integreatly_osd_install_branch: "{{ integreatly_version }}"
 integreatly_osd_project_install_scm_url: "git@github.com:integr8ly/installation.git"
 integreatly_osd_install_desc: "Integreatly Project: {{ integreatly_osd_install_branch }}"
 integreatly_osd_install_org: integreatly
@@ -132,7 +132,7 @@ integreatly_osd_workflow_description: "Workflow to configure and install integre
 integreatly_osd_source_project_update_on_launch: true
 
 # OSD uninstall
-integreatly_osd_uninstall_branch: 'release-1.4.0'
+integreatly_osd_uninstall_branch: "{{ integreatly_version }}"
 integreatly_osd_project_uninstall_scm_url: "git@github.com:integr8ly/installation.git"
 integreatly_osd_uninstall_desc: "Integreatly Project: {{ integreatly_osd_uninstall_branch }}"
 integreatly_osd_uninstall_org: integreatly
@@ -146,10 +146,10 @@ integreatly_osd_uninstall_workflow_description: "Workflow to uninstall integreat
 integreatly_osd_uninstall_source_project_update_on_launch: true
 
 # OSD upgrade
+integreatly_osd_update_branch: "{{ integreatly_version }}"
 integreatly_osd_upgrade_bootstrap_name: "Integreatly_Upgrade_Bootstrap_Template_[OSD]"
 integreatly_osd_upgrade_source_name: update-project-source
 integreatly_osd_upgrade_name: "Integreatly_Upgrade_[OSD]"
 integreatly_osd_upgrade_workflow_name: "Integreatly_Bootstrap_and_Upgrade_[OSD]"
 integreatly_osd_upgrade_desc: "Workflow to upgrade integreatly on an OSD cluster"
 integreatly_osd_update_inventory: OSD_update_inventory
-integreatly_osd_update_branch: "release-1.4.0"
