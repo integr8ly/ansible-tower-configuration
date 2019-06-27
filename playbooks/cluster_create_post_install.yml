@@ -15,37 +15,21 @@
       name: "{{ facts.instances[0]['public_dns_name'] }}"
       groups: "firstMaster"
 
-<<<<<<< HEAD
-  - name: "Delete s3 IAM user for {{ cluster_backup_integreatly_bucket_name }} if it exists"
-=======
   - name: "Delete s3 IAM user for {{ openshift_clusterid }}-backups if it exists"
->>>>>>> consolidate pre install plays into one
     iam:
       iam_type: user
       aws_access_key: "{{ aws_access_key }}"
       aws_secret_key: "{{ aws_secret_key }}"
-<<<<<<< HEAD
-      name: "{{ cluster_backup_integreatly_bucket_name }}"
-      state: absent
-    ignore_errors: yes
-
-  - name: "Create s3 IAM user for {{ cluster_backup_integreatly_bucket_name }}"
-=======
       name: "{{ openshift_clusterid }}-backups"
       state: absent
     ignore_errors: yes
 
   - name: "Create s3 IAM user for {{ openshift_clusterid }}-backups"
->>>>>>> consolidate pre install plays into one
     iam:
       iam_type: user
       aws_access_key: "{{ aws_access_key }}"
       aws_secret_key: "{{ aws_secret_key }}"
-<<<<<<< HEAD
-      name: "{{ cluster_backup_integreatly_bucket_name }}"
-=======
       name: "{{ openshift_clusterid }}-backups"
->>>>>>> consolidate pre install plays into one
       state: present
       access_key_state: create
     register: iam_user
@@ -67,13 +51,8 @@
       aws_access_key: "{{ aws_access_key }}"
       aws_secret_key: "{{ aws_secret_key }}"
       iam_type: user
-<<<<<<< HEAD
-      iam_name: "{{ cluster_backup_integreatly_bucket_name }}"
-      policy_name: s3-backup-access-{{ oo_clusterid }}
-=======
       iam_name: "{{ openshift_clusterid }}-backups"
       policy_name: s3-backup-access-{{ openshift_clusterid }}
->>>>>>> consolidate pre install plays into one
       policy_document: "/tmp/iam_policy.json"
       state: present
 
@@ -107,8 +86,5 @@
     - "Console URL: {{ openshift_master_public_console_url }}"
     - "Admin username: {{ openshift_master_htpasswd_users.keys() }}"
     - "Master node IP addresses: {{ master_node_ip_addresses.stdout_lines }}"
-<<<<<<< HEAD
-=======
     shell: "oc create secret generic s3-credentials --from-literal=aws_access_key={{ hostvars['localhost']['iam_access_key'] }} --from-literal=aws_secret_key={{ hostvars['localhost']['iam_secret_key'] }} --from-literal=bucket_name={{ cluster_backup_bucket_name }} -n {{ cluster_backup_namespace }}"
     no_log: true
->>>>>>> consolidate pre install plays into one
