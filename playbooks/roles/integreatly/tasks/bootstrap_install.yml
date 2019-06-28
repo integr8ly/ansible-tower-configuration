@@ -23,6 +23,13 @@
     scm_credential: "{{ integreatly_credential_bundle_github_name }}"
     tower_verify_ssl: '{{ tower_verify_ssl }}'
 
+- name: "Sync project: {{ integreatly_project_install_name }}"
+  shell: "tower-cli project update -n {{ integreatly_project_install_name }}"
+  register: install_project_update
+  retries: 10
+  delay: 3
+  until: install_project_update.rc == 0
+
 - name: "Create inventory source AWS: {{ integreatly_inventory_source_aws_name }}"
   tower_inventory_source:
     name: "{{ integreatly_inventory_source_aws_name }}"

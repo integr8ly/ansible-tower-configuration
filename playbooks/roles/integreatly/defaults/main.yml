@@ -15,10 +15,12 @@ integreatly_install_type: 'poc'
 integreatly_workflow_install_job_template_name: 'Integreatly Install Workflow'
 integreatly_workflow_install_job_template_desc: 'Workflow for Installing Integreatly on Openshift'
 integreatly_workflow_install_job_template_organization: "{{ tower_organization }}"
+integreatly_workflow_install_job_template_concurrency: true
 
 integreatly_workflow_uninstall_job_template_name: 'Integreatly Uninstall Workflow'
 integreatly_workflow_uninstall_job_template_desc: 'Workflow for Uninstalling Integreatly on Openshift'
 integreatly_workflow_uninstall_job_template_organization: "{{ tower_organization }}"
+integreatly_workflow_uninstall_job_template_concurrency: true
 
 # Integreatly Credentials
 integreatly_credential_bundle_github_name: "tower_github_scm"
@@ -31,12 +33,14 @@ integreatly_job_template_bootstrap_install_desc: 'Job for bootstrapping integrea
 integreatly_job_template_bootstrap_install_type: 'run'
 integreatly_job_template_bootstrap_install_playbook: 'playbooks/bootstrap_integreatly_install.yml'
 integreatly_job_template_bootstrap_install_credentials: "{{ tower_credential_bundle_default_name }}"
+integreatly_job_template_bootstrap_install_concurrency: true
 
 integreatly_job_template_deploy_name: 'Integreatly Deploy Template'
 integreatly_job_template_deploy_desc: 'Job for deploying Integreatly on Openshift'
 integreatly_job_template_deploy_type: 'run'
 integreatly_job_template_deploy_playbook: 'playbooks/install.yml'
 integreatly_job_template_deploy_credentials: "{{ tower_credential_bundle_default_name }}"
+integreatly_job_template_deploy_concurrency: true
 
 # Integreatly Job Templates: Uninstall
 integreatly_job_template_uninstall_name: 'Integreatly Uninstall Template'
@@ -44,12 +48,14 @@ integreatly_job_template_uninstall_desc: 'Job for uninstalling Integreatly on Op
 integreatly_job_template_uninstall_type: 'run'
 integreatly_job_template_uninstall_playbook: 'playbooks/uninstall.yml'
 integreatly_job_template_uninstall_credentials: "{{ tower_credential_bundle_default_name }}"
+integreatly_job_template_uninstall_concurrency: true
 
 integreatly_job_template_bootstrap_uninstall_name: 'Integreatly Bootstrap Uninstall Template'
 integreatly_job_template_bootstrap_uninstall_desc: 'Job for bootstrapping resources for Integreatly uninstall'
 integreatly_job_template_bootstrap_uninstall_type: 'run'
 integreatly_job_template_bootstrap_uninstall_playbook: 'playbooks/bootstrap_integreatly_uninstall.yml'
 integreatly_job_template_bootstrap_uninstall_credentials: "{{ tower_credential_bundle_default_name }}"
+integreatly_job_template_bootstrap_uninstall_concurrency: true
 
 integreatly_job_template_cleandown_name: 'Integreatly Clean Down Template'
 integreatly_job_template_cleandown_desc: 'Job for cleaning down Integreatly resources'
@@ -64,7 +70,7 @@ integreatly_project_install_desc: "Integreatly Project for Branch: {{ integreatl
 integreatly_project_install_scm_type: git
 integreatly_project_install_scm_clean: true
 integreatly_project_install_scm_url: ''
-integreatly_project_install_scm_update_on_launch: true
+integreatly_project_install_scm_update_on_launch: false
 integreatly_project_install_scm_delete_on_update: true
 
 integreatly_project_uninstall_scm_branch: ''
@@ -73,7 +79,7 @@ integreatly_project_uninstall_desc: "Integreatly Project for Branch: {{ integrea
 integreatly_project_uninstall_scm_type: git
 integreatly_project_uninstall_scm_clean: true
 integreatly_project_uninstall_scm_url: ''
-integreatly_project_uninstall_scm_update_on_launch: true
+integreatly_project_uninstall_scm_update_on_launch: false
 integreatly_project_uninstall_scm_delete_on_update: true
 
 # Integreatly Inventories
