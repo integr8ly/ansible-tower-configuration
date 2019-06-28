@@ -37,18 +37,6 @@
         "type": "multiplechoice"
       },
       {
-        "question_description": "Token for Credential repo visit: https://github.com/<credential-repo>/blob/master/files/concurrent_provisioning_vars.yml.j2 and click raw to find token",
-        "min": 0,
-        "default": "",
-        "max": 1024,
-        "required": false,
-        "choices": "",
-        "new_question": true,
-        "variable": "token",
-        "question_name": "Token for Github Access",
-        "type": "password"
-      },
-      {
         "question_description": "Number of master nodes required",
         "min": 1,
         "default": 3,
