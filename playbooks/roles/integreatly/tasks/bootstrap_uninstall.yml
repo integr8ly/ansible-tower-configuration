@@ -15,6 +15,13 @@
     scm_credential: "{{ integreatly_credential_bundle_github_name }}"
     tower_verify_ssl: '{{ tower_verify_ssl }}'
 
+- name: "Sync project: {{ integreatly_project_uninstall_name }}"
+  shell: "tower-cli project update -n {{ integreatly_project_uninstall_name }}"
+  register: uninstall_project_update
+  retries: 10
+  delay: 3
+  until: uninstall_project_update.rc == 0
+
 - name: Generate extra vars file
   template:
     dest: "/tmp/extra_vars_{{ integreatly_install_type }}_uninstall.yml"

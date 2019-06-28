@@ -70,7 +70,7 @@ integreatly_project_install_desc: "Integreatly Project for Branch: {{ integreatl
 integreatly_project_install_scm_type: git
 integreatly_project_install_scm_clean: true
 integreatly_project_install_scm_url: ''
-integreatly_project_install_scm_update_on_launch: true
+integreatly_project_install_scm_update_on_launch: false
 integreatly_project_install_scm_delete_on_update: true
 
 integreatly_project_uninstall_scm_branch: ''
@@ -79,7 +79,7 @@ integreatly_project_uninstall_desc: "Integreatly Project for Branch: {{ integrea
 integreatly_project_uninstall_scm_type: git
 integreatly_project_uninstall_scm_clean: true
 integreatly_project_uninstall_scm_url: ''
-integreatly_project_uninstall_scm_update_on_launch: true
+integreatly_project_uninstall_scm_update_on_launch: false
 integreatly_project_uninstall_scm_delete_on_update: true
 
 # Integreatly Inventories
