@@ -50,7 +50,7 @@
   command: tower-cli credential create --name "le_privatekey" --credential-type "le_privatekey" --inputs '{"le_key":"{{ letsencrypt_private_key }}"}' --organization "{{ tower_organization }}"
   ignore_errors: true
 
-- name: Configure provision cluster job template
+- name: "Configure {{ cluster_workflow_job_template_name }} job template"
   tower_job_template:
     tower_host: "{{ tower_host }}"
     tower_password: "{{ tower_password }}"
@@ -74,9 +74,43 @@
   retries: 10
   delay: 5
 
+- name: "Configure {{ cluster_sync_job_name }} job template"
+  tower_job_template:
+    tower_host: "{{ tower_host }}"
+    tower_password: "{{ tower_password }}"
+    tower_username: "{{ tower_username }}"
+    name: "{{ cluster_sync_job_name }}"
+    description: "{{ cluster_sync_job_desc }}"
+    job_type: "{{ cluster_job_template_cluster_provision_type }}"
+    playbook: "{{ cluster_job_template_configuration_sync_playbook }}"
+    project: "{{ cluster_job_template_cluster_provision_project }}"
+    state: present
+    inventory: "{{ tower_inventory_name }}"
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
+    extra_vars_path: "{{ tower_extra_vars_file_path }}"
+    concurrent_jobs_enabled: yes
+  register: cluster_create_sync_out
+  until: cluster_create_sync_out is succeeded
+  retries: 10
+  delay: 5
+
+- name: "Create workflow: {{ cluster_workflow_job_template_name }}"
+  tower_workflow_template:
+    tower_host: "{{ tower_host }}"
+    tower_password: "{{ tower_password }}"
+    tower_username: "{{ tower_username }}"
+    name:  "{{ provision_workflow_name}}"
+    schema: "{{ lookup('file', 'files/provision_cluster_workflow.yml' ) }}"
+    description: "{{ cluster_workflow_job_template_desc }}"
+    state: present
+    organization: "{{ tower_organization }}"
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
+    survey_enabled: yes
+    survey: "{{ lookup('file', 'files/cluster_provision_survey.json' ) }}"
+  register: create_workflow_response
+
 - name: "Associate AWS credential to {{ cluster_job_template_generate_inventory_name }}"
   shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_cluster_provision_name }}" --credential "{{ cluster_credential_bundle_aws_name }}" 
 
 - name: "Associate le_privatekey credential to {{ cluster_job_template_generate_inventory_name }}" 
-  shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_cluster_provision_name }}" --credential "le_privatekey" 
-
+  shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_cluster_provision_name }}" --credential "le_privatekey"

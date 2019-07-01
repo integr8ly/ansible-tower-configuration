@@ -6,7 +6,7 @@ cluster_credential_git_repo: ''
 cluster_credential_git_ref: ''
 cluster_project_bootstrap_scm_type: git
 cluster_project_bootstrap_cluster_scm_clean: true
-cluster_project_bootstrap_cluster_scm_update_on_launch: true
+cluster_project_bootstrap_cluster_scm_update_on_launch: false
 cluster_project_bootstrap_cluster_scm_delete_on_update: true
 
 #                         #
@@ -63,11 +63,16 @@ cluster_job_template_post_install_type: 'run'
 cluster_job_template_post_install_playbook: 'playbooks/cluster_create_post_install.yml'
 cluster_job_template_post_install_project: '{{ tower_configuration_project_name }}'
 
-cluster_workflow_job_template_name: "Provision Cluster"
+cluster_workflow_job_template_name: "Cluster_provision_preflight"
 cluster_workflow_job_template_desc: "Provision Openshift 3.11 cluster"
 
 cluster_workflow_job_template_openshift_auth: "Openshift_Authenticate_tower_pod"
 
+cluster_sync_job_name: "Configuration_project_sync"
+cluster_sync_job_desc: "A job to sync the ansible-tower-configuration repo"
+cluster_job_template_configuration_sync_playbook: "playbooks/configuration_project_sync.yml"
+
+cluster_workflow_name: "Provision_cluster"
 #                               #
 # Cluster deprovision templates #
 #                               #
