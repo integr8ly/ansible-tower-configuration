@@ -55,7 +55,7 @@
     tower_host: "{{ tower_host }}"
     tower_password: "{{ tower_password }}"
     tower_username: "{{ tower_username }}"
-    name: "{{ cluster_job_template_cluster_provision_name }}"
+    name: "{{ cluster_workflow_job_template_name }}"
     description: "{{ cluster_job_template_cluster_provision_desc }}"
     job_type: "{{ cluster_job_template_cluster_provision_type }}"
     playbook: "{{ cluster_job_template_cluster_provision_playbook }}"
@@ -65,7 +65,6 @@
     inventory: "{{ tower_inventory_name }}"
     tower_verify_ssl: '{{ tower_verify_ssl }}'
     vault_credential: "{{ tower_credential_bundle_vault_name }}"
-    survey_spec: "{{ lookup('file', 'cluster_provision_survey.json') }}"
     extra_vars_path: "{{ tower_extra_vars_file_path }}"
     survey_enabled: yes
     concurrent_jobs_enabled: yes
@@ -94,23 +93,36 @@
   retries: 10
   delay: 5
 
-- name: "Create workflow: {{ cluster_workflow_job_template_name }}"
+- debug:
+    msg: "{{ playbook_dir }}"
+
+- name: "Create workflow: {{ cluster_job_template_cluster_provision_name }}"
   tower_workflow_template:
     tower_host: "{{ tower_host }}"
     tower_password: "{{ tower_password }}"
     tower_username: "{{ tower_username }}"
-    name:  "{{ provision_workflow_name}}"
-    schema: "{{ lookup('file', 'files/provision_cluster_workflow.yml' ) }}"
+    name:  "{{ cluster_job_template_cluster_provision_name}}"
+    survey_enabled: yes
     description: "{{ cluster_workflow_job_template_desc }}"
     state: present
     organization: "{{ tower_organization }}"
     tower_verify_ssl: '{{ tower_verify_ssl }}'
-    survey_enabled: yes
-    survey: "{{ lookup('file', 'files/cluster_provision_survey.json' ) }}"
+    allow_simultaneous: yes
   register: create_workflow_response
 
-- name: "Associate AWS credential to {{ cluster_job_template_generate_inventory_name }}"
-  shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_cluster_provision_name }}" --credential "{{ cluster_credential_bundle_aws_name }}" 
+- name: Update provision workflow template with survey
+  shell: "tower-cli workflow modify --name=\"{{ cluster_job_template_cluster_provision_name }}\" --survey-enabled=true --survey-spec='@roles/cluster/files/cluster_provision_survey.json'"
 
-- name: "Associate le_privatekey credential to {{ cluster_job_template_generate_inventory_name }}" 
-  shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_cluster_provision_name }}" --credential "le_privatekey"
+- name: create workflow
+  template:
+    src: provision_cluster_workflow.yml.j2
+    dest: /tmp/provision_cluster_workflow.yml
+
+- name: Update provision workflow template with schema
+  shell: "tower-cli workflow schema \"{{ cluster_job_template_cluster_provision_name }}\" @/tmp/provision_cluster_workflow.yml"
+
+- name: "Associate AWS credential to {{ cluster_workflow_job_template_name }}"
+  shell: tower-cli job_template associate_credential --job-template "{{ cluster_workflow_job_template_name }}" --credential "{{ cluster_credential_bundle_aws_name }}"
+
+- name: "Associate le_privatekey credential to {{ cluster_workflow_job_template_name }}"
+  shell: tower-cli job_template associate_credential --job-template "{{ cluster_workflow_job_template_name }}" --credential "le_privatekey"

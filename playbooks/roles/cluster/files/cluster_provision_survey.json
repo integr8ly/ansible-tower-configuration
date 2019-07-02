@@ -25,16 +25,16 @@
         "type": "multiplechoice"
       },
       {
-        "question_description": "Flag for provisioning logging stack",
-        "min": null,
-        "default": "",
-        "max": null,
-        "required": true,
-        "choices": "true\nfalse",
-        "new_question": true,
-        "variable": "survey_provision_logging",
-        "question_name": "Provision Logging",
-        "type": "multiplechoice"
+      "question_description": "Flag for provisioning logging stack",
+      "min": null,
+      "default": "true",
+      "max": null,
+      "required": true,
+      "choices": "true\nfalse",
+      "new_question": true,
+      "variable": "survey_provision_logging",
+      "question_name": "Provision Logging",
+      "type": "multiplechoice"
       },
       {
         "question_description": "Number of master nodes required",
