@@ -60,8 +60,10 @@
   hosts: firstMaster
   vars:
     default_user: "integreatly"
-    cluster_backup_bucket_name: "integreatly-cert-backups"
+    cluster_backup_bucket_name: "{{ openshift_clusterid }}-integreatly-backups"
     cluster_backup_namespace: openshift-integreatly-backups
+    cluster_backup_secret_name: "s3-credentials"
+
   tasks:
   - name: Give cluster-admin to htpasswd user
     shell: oc adm policy add-cluster-role-to-user cluster-admin "{{ default_user }}"
@@ -86,5 +88,4 @@
     - "Console URL: {{ openshift_master_public_console_url }}"
     - "Admin username: {{ openshift_master_htpasswd_users.keys() }}"
     - "Master node IP addresses: {{ master_node_ip_addresses.stdout_lines }}"
-    shell: "oc create secret generic s3-credentials --from-literal=aws_access_key={{ hostvars['localhost']['iam_access_key'] }} --from-literal=aws_secret_key={{ hostvars['localhost']['iam_secret_key'] }} --from-literal=bucket_name={{ cluster_backup_bucket_name }} -n {{ cluster_backup_namespace }}"
-    no_log: true
+
