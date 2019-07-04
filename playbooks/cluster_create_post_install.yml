@@ -6,8 +6,8 @@
     ec2_instance_facts:
         aws_access_key: "{{ aws_access_key }}"
         aws_secret_key: "{{ aws_secret_key }}"
-        region: "{{ oo_sublocation }}"
-        filters: "tag:clusterid={{ oo_clusterid }},tag:host-type=master"
+        region: "{{ openshift_aws_region }}"
+        filters: "tag:clusterid={{ openshift_clusterid }},tag:host-type=master"
     register: facts
 
   - name: add first master to firstMaster group
@@ -15,21 +15,21 @@
       name: "{{ facts.instances[0]['public_dns_name'] }}"
       groups: "firstMaster"
 
-  - name: "Delete s3 IAM user for {{ cluster_backup_integreatly_bucket_name }} if it exists"
+  - name: "Delete s3 IAM user for {{ openshift_clusterid }}-backups if it exists"
     iam:
       iam_type: user
       aws_access_key: "{{ aws_access_key }}"
       aws_secret_key: "{{ aws_secret_key }}"
-      name: "{{ cluster_backup_integreatly_bucket_name }}"
+      name: "{{ openshift_clusterid }}-backups"
       state: absent
     ignore_errors: yes
 
-  - name: "Create s3 IAM user for {{ cluster_backup_integreatly_bucket_name }}"
+  - name: "Create s3 IAM user for {{ openshift_clusterid }}-backups"
     iam:
       iam_type: user
       aws_access_key: "{{ aws_access_key }}"
       aws_secret_key: "{{ aws_secret_key }}"
-      name: "{{ cluster_backup_integreatly_bucket_name }}"
+      name: "{{ openshift_clusterid }}-backups"
       state: present
       access_key_state: create
     register: iam_user
@@ -46,13 +46,13 @@
       src: roles/cluster/templates/iam_backups_policy.json.j2
       dest: /tmp/iam_policy.json
 
-  - name: "Add s3-backup-access-{{ oo_clusterid }} policy to backups user"
+  - name: "Add s3-backup-access-{{ openshift_clusterid }} policy to backups user"
     iam_policy:
       aws_access_key: "{{ aws_access_key }}"
       aws_secret_key: "{{ aws_secret_key }}"
       iam_type: user
-      iam_name: "{{ cluster_backup_integreatly_bucket_name }}"
-      policy_name: s3-backup-access-{{ oo_clusterid }}
+      iam_name: "{{ openshift_clusterid }}-backups"
+      policy_name: s3-backup-access-{{ openshift_clusterid }}
       policy_document: "/tmp/iam_policy.json"
       state: present
 
@@ -60,6 +60,10 @@
   hosts: firstMaster
   vars:
     default_user: "integreatly"
+    cluster_backup_bucket_name: "{{ openshift_clusterid }}-integreatly-backups"
+    cluster_backup_namespace: openshift-integreatly-backups
+    cluster_backup_secret_name: "s3-credentials"
+
   tasks:
   - name: Give cluster-admin to htpasswd user
     shell: oc adm policy add-cluster-role-to-user cluster-admin "{{ default_user }}"
@@ -84,3 +88,4 @@
     - "Console URL: {{ openshift_master_public_console_url }}"
     - "Admin username: {{ openshift_master_htpasswd_users.keys() }}"
     - "Master node IP addresses: {{ master_node_ip_addresses.stdout_lines }}"
+

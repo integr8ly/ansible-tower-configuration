@@ -1,0 +1,24 @@
+---
+- import_playbook: "./authenticate_tower.yml"
+
+- hosts: localhost
+  gather_facts: no
+  tasks:
+  - include_vars:
+     ./roles/cluster/defaults/main.yml
+  - include_vars:
+     ./roles/tower/defaults/main.yml
+
+  - name: "Sync project: {{ cluster_job_template_prerequisites_project }}"
+    shell: tower-cli project update -n "{{ cluster_job_template_prerequisites_project }}"  {% if not tower_verify_ssl  %}--insecure{% endif %}
+    register: atc_project_update
+    retries: 10
+    delay: 3
+    until: atc_project_update.rc == 0
+
+  - name: "Sync project: {{ tower_configuration_project_name }}"
+    shell: tower-cli project update -n "{{ tower_configuration_project_name }}"  {% if not tower_verify_ssl  %}--insecure{% endif %}
+    register: atc_project_update
+    retries: 10
+    delay: 3
+    until: atc_project_update.rc == 0

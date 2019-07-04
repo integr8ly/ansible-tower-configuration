@@ -86,6 +86,15 @@ Once the new Tower instance has successfully been installed on the target Opensh
 <env>_tower_host: 'tower.example.com'
 ```
 
+### 3.2 Tower configuration
+
+To allow the Cluster Provision job to run successfully we need to allow the ansible task runner to access the /tmp directory
+
+* Login to the tower instance
+* Click settings in the bottom left
+* Click `Jobs`
+* Enter `/tmp` into the `PATHS TO EXPOSE TO ISOLATED JOBS` box and click `save`
+
 ## 4. Bootstrapping
 
 ### 4.1 Tower Bootstrapping

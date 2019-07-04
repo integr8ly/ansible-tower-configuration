@@ -10,3 +10,22 @@
   with_items:
     - "{{ aws_cluster_name }}"
     - "{{ aws_cluster_name }}_provisioning_vars"
+
+- name: Remove {{ aws_cluster_name }} jobs
+  tower_job_template:
+    name: "{{ item }}"
+    state: absent
+    job_type: run
+    playbook: ping.yml
+    project: "Openshift Ansible"
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
+  with_items:
+    - "OA_Prerequisites-{{ aws_cluster_name }}"
+    - "OA_Provision_install-{{ aws_cluster_name }}"
+    - "Post_install-{{ aws_cluster_name }}"
+
+- name: Remove {{ aws_cluster_name }} workflow
+  tower_workflow_template:
+    name: "Provision Cluster_{{ aws_cluster_name }}"
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
+    state: absent
