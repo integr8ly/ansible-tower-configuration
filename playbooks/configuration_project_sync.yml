@@ -1,4 +1,6 @@
 ---
+- import_playbook: "./authenticate_tower.yml"
+
 - hosts: localhost
   gather_facts: no
   tasks:
@@ -6,22 +8,16 @@
      ./roles/cluster/defaults/main.yml
   - include_vars:
      ./roles/tower/defaults/main.yml
-  - name: Set tower credentials
-    set_fact:
-      tower_host: '{{ lookup("vars", "_".join((tower_environment, "tower_host")) ) }}'
-      tower_username: '{{ lookup("vars", "_".join((tower_environment, "tower_username")) ) }}'
-      tower_password: '{{ lookup("vars", "_".join((tower_environment, "tower_password")) ) }}'
-      validate_certs: '{{ lookup("vars", "_".join((tower_environment, "tower_verify_ssl")) ) }}'
 
   - name: "Sync project: {{ cluster_job_template_prerequisites_project }}"
-    shell: tower-cli project update -n "{{ cluster_job_template_prerequisites_project }}" --tower-password "{{ tower_password }}" --tower-username "{{ tower_username }}" --tower-host "{{ tower_host }}" {% if not validate_certs  %}--insecure{% endif %}
+    shell: tower-cli project update -n "{{ cluster_job_template_prerequisites_project }}"  {% if not validate_certs  %}--insecure{% endif %}
     register: atc_project_update
     retries: 10
     delay: 3
     until: atc_project_update.rc == 0
 
   - name: "Sync project: {{ tower_configuration_project_name }}"
-    shell: tower-cli project update -n "{{ tower_configuration_project_name }}" --tower-password "{{ tower_password }}" --tower-username "{{ tower_username }}" --tower-host "{{ tower_host }}" {% if not validate_certs  %}--insecure{% endif %}
+    shell: tower-cli project update -n "{{ tower_configuration_project_name }}"  {% if not validate_certs  %}--insecure{% endif %}
     register: atc_project_update
     retries: 10
     delay: 3
