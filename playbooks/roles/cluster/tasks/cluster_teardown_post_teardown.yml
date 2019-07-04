@@ -18,6 +18,7 @@
     job_type: run
     playbook: ping.yml
     project: "Openshift Ansible"
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
   with_items:
     - "OA_Prerequisites-{{ aws_cluster_name }}"
     - "OA_Provision_install-{{ aws_cluster_name }}"
