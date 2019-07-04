@@ -471,7 +471,7 @@
       state: absent
 
   - name: Create cluster inventory in tower
-    shell: tower-cli inventory create -n {{ oo_clusterid }} --variables @/tmp/{{ oo_clusterid }}/{{ oo_clusterid }}_inventory.yml --organization secret "{% if not validate_certs %}--insecure{% endif %}"
+    shell: tower-cli inventory create -n {{ oo_clusterid }} --variables @/tmp/{{ oo_clusterid }}/{{ oo_clusterid }}_inventory.yml --organization secret "{% if not tower_verify_ssl %}--insecure{% endif %}"
 
   #
   # Generate and launch workflow for cluster create
@@ -493,7 +493,7 @@
     delay: 5
 
   - name: "Associate {{ cluster_job_template_prerequisites_credentials }} credential to {{ cluster_job_template_prerequisites_name }}-{{ oo_clusterid }}"
-    shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_prerequisites_name }}-{{ oo_clusterid }}" --credential "{{ cluster_job_template_prerequisites_credentials }}" {% if not validate_certs  %}--insecure{% endif %}
+    shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_prerequisites_name }}-{{ oo_clusterid }}" --credential "{{ cluster_job_template_prerequisites_credentials }}" {% if not tower_verify_ssl  %}--insecure{% endif %}
 
   - name: Configure provision install job template
     tower_job_template:
@@ -513,10 +513,10 @@
     delay: 5
 
   - name: "Associate {{ cluster_credential_bundle_aws_name }} credentials {{ cluster_job_template_install_name }}-{{ oo_clusterid }}"
-    shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_install_name }}-{{ oo_clusterid }}" --credential "{{ cluster_credential_bundle_aws_name }}"  {% if not validate_certs %}--insecure{% endif %}
+    shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_install_name }}-{{ oo_clusterid }}" --credential "{{ cluster_credential_bundle_aws_name }}"  {% if not tower_verify_ssl %}--insecure{% endif %}
 
   - name: "Associate {{ cluster_job_template_install_credentials }} credential to {{ cluster_job_template_install_name }}-{{ oo_clusterid }}"
-    shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_install_name }}-{{ oo_clusterid }}" --credential "{{ cluster_job_template_install_credentials }}"  {% if not validate_certs  %}--insecure{% endif %}
+    shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_install_name }}-{{ oo_clusterid }}" --credential "{{ cluster_job_template_install_credentials }}"  {% if not tower_verify_ssl  %}--insecure{% endif %}
 
   - name: Configure post-install job template
     tower_job_template:
@@ -559,11 +559,11 @@
       state: absent
 
   - name: "Sync project: {{ cluster_job_template_prerequisites_project }}"
-    shell: tower-cli project update -n "{{ cluster_job_template_prerequisites_project }}" {% if not validate_certs  %}--insecure{% endif %}
+    shell: tower-cli project update -n "{{ cluster_job_template_prerequisites_project }}" {% if not tower_verify_ssl  %}--insecure{% endif %}
     register: oa_project_update
     retries: 10
     delay: 3
     until: oa_project_update.rc == 0
 
   - name: "Launch cluster-provision for {{ oo_clusterid }}"
-    shell: tower-cli workflow_job launch --workflow-job-template "{{ cluster_workflow_job_template_name }}_{{ oo_clusterid }}" {% if not validate_certs  %}--insecure{% endif %}
+    shell: tower-cli workflow_job launch --workflow-job-template "{{ cluster_workflow_job_template_name }}_{{ oo_clusterid }}" {% if not tower_verify_ssl  %}--insecure{% endif %}
