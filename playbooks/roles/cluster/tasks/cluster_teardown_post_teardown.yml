@@ -27,4 +27,5 @@
 - name: Remove {{ aws_cluster_name }} workflow
   tower_workflow_template:
     name: "Provision Cluster_{{ aws_cluster_name }}"
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
     state: absent
