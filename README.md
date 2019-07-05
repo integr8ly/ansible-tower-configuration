@@ -64,7 +64,7 @@ The `install_tower.yml` playbook will install Ansible Tower on a target Openshif
 * `tower_openshift_master_url`: The URL of the target Openshift cluster
 
 ```bash
-ansible-playbook -i <path-to-local-credentials-project>/inventories/hosts playbooks/install_tower.yml -e tower_openshift_master_url=<tower_openshift_master_url> -e tower_openshift_pg_pvc_size=10Gi --ask-vault-pass
+ansible-playbook -i <path-to-local-credentials-project>/inventories/hosts playbooks/install_tower.yml -e tower_openshift_master_url=<tower_openshift_master_url> -e tower_openshift_username=<tower_openshift_username> -e tower_openshift_password=<tower_openshift_password> -e tower_openshift_pg_pvc_size=10Gi --ask-vault-pass
 ```
 
 A number of default values are used when installing Ansible Tower on the target Openshift cluster, any of which can be overridden with the use of environmental variables. These default values include several password values which are assigned a default value of `CHANGEME`, as can be seen below.
