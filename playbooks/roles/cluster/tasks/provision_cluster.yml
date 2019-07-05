@@ -471,7 +471,7 @@
       state: absent
 
   - name: Create cluster inventory in tower
-    shell: tower-cli inventory create -n {{ oo_clusterid }} --variables @/tmp/{{ oo_clusterid }}/{{ oo_clusterid }}_inventory.yml --organization secret "{% if not tower_verify_ssl %}--insecure{% endif %}"
+    shell: tower-cli inventory create -n {{ oo_clusterid }} --variables @/tmp/{{ oo_clusterid }}/{{ oo_clusterid }}_inventory.yml --organization secret {% if not tower_verify_ssl %}--insecure{% endif %}
 
   #
   # Generate and launch workflow for cluster create
