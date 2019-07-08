@@ -56,6 +56,10 @@
       policy_document: "/tmp/iam_policy.json"
       state: present
 
+  - name: Check for route template
+    stat: path=/tmp/{{ openshift_clusterid }}/3scale-wildcard-route.json
+    register: threescale_route_result
+
 - name: create cluster-admin
   hosts: firstMaster
   vars:
@@ -63,6 +67,7 @@
     cluster_backup_bucket_name: "{{ openshift_clusterid }}-integreatly-backups"
     cluster_backup_namespace: openshift-integreatly-backups
     cluster_backup_secret_name: "s3-credentials"
+    cluster_3scale_namespace: "openshift-3scale"
 
   tasks:
   - name: Give cluster-admin to htpasswd user
@@ -76,10 +81,30 @@
   - name: Create secret for backups
     shell: "oc create secret generic {{ cluster_backup_secret_name }} --from-literal=aws_access_key={{ hostvars['localhost']['iam_access_key'] }} --from-literal=aws_secret_key={{ hostvars['localhost']['iam_secret_key'] }} --from-literal=bucket_name={{ cluster_backup_bucket_name }} -n {{ cluster_backup_namespace }}"
     no_log: true
+    failed_when: backup_namespace_result.stderr != '' and 'AlreadyExists' not in backup_namespace_result.stderr
   
   - name: Retrieving IP addresses of master nodes
     shell: "oc get nodes -o wide | grep master | awk '{ print $7 }'"
     register: master_node_ip_addresses
+
+  - name: Set route variable
+    set_fact:
+      threescale_route: "{{ hostvars['localhost']['threescale_route_result'] }}"
+
+  - name: "create namespace {{ cluster_3scale_namespace }}"
+    shell: "oc create namespace {{ cluster_3scale_namespace }}"
+    ignore_errors: true
+    when: threescale_route.stat.exists == true
+
+  - name: Copy 3scale route template to master
+    copy:
+      src: /tmp/{{ openshift_clusterid }}/3scale-wildcard-route.json
+      dest: /tmp/3scale-wildcard-route.json
+    when: threescale_route.stat.exists == true
+
+  - name: Create 3scale route
+    shell: "oc create -f /tmp/3scale-wildcard-route.json -n {{ cluster_3scale_namespace }}"
+    when: threescale_route.stat.exists == true
 
   - name: Cluster Details
     debug:
