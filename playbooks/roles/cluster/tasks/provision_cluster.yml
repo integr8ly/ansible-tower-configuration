@@ -115,7 +115,7 @@
       dest: /tmp/{{ oo_clusterid }}/certs/rootCA.pem
       mode: get
     ignore_errors: true
-    register: app_crt_result_s3
+    register: rootca_crt_result_s3
     when: rootca_result.stat.exists == false
 
   #
