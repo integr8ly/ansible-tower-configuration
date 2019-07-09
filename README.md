@@ -20,6 +20,7 @@ Repo for bootstrapping Ansible Tower instances.
     - [4.5 Integreatly Uninstall](#45-integreatly-uninstall)
     - [4.6 Cluster Create](#46-cluster-create)
     - [4.7 Cluster Deprovision](#47-cluster-deprovision)
+  - [5. Contributing](#5-contributing)
 
 ## 1. Credentials repository
 
@@ -198,3 +199,6 @@ The workflow requires the following parameters to be specified before running:
 * `AWS Region`: The region that the cluster resides in
 * `Domain Name`: The cluster domain name
 * `AWS Account Name`: The name of the AWS account used to create the cluster
+
+## 5. Contributing
+Please open a Github issue for any bugs or problems you encounter.
