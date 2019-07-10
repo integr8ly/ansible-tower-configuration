@@ -22,6 +22,11 @@ integreatly_workflow_uninstall_job_template_desc: 'Workflow for Uninstalling Int
 integreatly_workflow_uninstall_job_template_organization: "{{ tower_organization }}"
 integreatly_workflow_uninstall_job_template_concurrency: true
 
+integreatly_workflow_verify_install_job_template_name: 'Integreatly Install Workflow'
+integreatly_workflow_verify_install_job_template_desc: 'Workflow for Installing Integreatly on Openshift'
+integreatly_workflow_verify_install_job_template_organization: "{{ tower_organization }}"
+integreatly_workflow_verify_install_job_template_concurrency: true
+
 # Integreatly Credentials
 integreatly_credential_bundle_github_name: "tower_github_scm"
 integreatly_credential_bundle_github_desc: "SCM credentials for Integreatly project"
@@ -96,6 +101,15 @@ integreatly_project_uninstall_scm_clean: true
 integreatly_project_uninstall_scm_url: ''
 integreatly_project_uninstall_scm_update_on_launch: false
 integreatly_project_uninstall_scm_delete_on_update: true
+
+integreatly_project_verify_install_scm_branch: ''
+integreatly_project_verify_install_name: "integreatly-verify-install-{{ integreatly_project_verify_install_scm_branch }}"
+integreatly_project_verify_install_desc: "Integreatly Project for Branch: {{ integreatly_project_verify_install_scm_branch }}"
+integreatly_project_verify_install_scm_type: git
+integreatly_project_verify_install_scm_clean: true
+integreatly_project_verify_install_scm_url: ''
+integreatly_project_verify_install_scm_update_on_launch: false
+integreatly_project_verify_install_scm_delete_on_update: true
 
 # Integreatly Inventories
 integreatly_inventory_name: "{{ cluster_name }}"
