@@ -1,0 +1,35 @@
+---
+
+- name: "Create project: {{ integreatly_project_verify_install_name }}"
+  tower_project:
+    name: "{{ integreatly_project_verify_install_name }}"
+    description: "{{ integreatly_project_verify_install_desc }}"
+    organization: "{{ tower_organization }}"
+    state: present
+    scm_type: "{{ integreatly_project_verify_install_scm_type }}"
+    scm_url: "{{ integreatly_project_verify_install_scm_url }}"
+    scm_branch: "{{ integreatly_project_verify_install_scm_branch }}"
+    scm_clean: "{{ integreatly_project_verify_install_scm_clean }}"
+    scm_update_on_launch: "{{ integreatly_project_verify_install_scm_update_on_launch }}"
+    scm_delete_on_update: "{{ integreatly_project_verify_install_scm_delete_on_update }}"
+    scm_credential: "{{ integreatly_credential_bundle_github_name }}"
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
+
+- name: "Sync project: {{ integreatly_project_verify_install_name }}"
+  shell: "tower-cli project update -n {{ integreatly_project_verify_install_name }}"
+  register: verify_install_project_update
+  retries: 10
+  delay: 3
+  until: verify_install_project_update.rc == 0
+
+- name: Generate extra vars file
+  template:
+    dest: "/tmp/extra_vars_{{ integreatly_install_type }}_verify_install.yml"
+    src: "extra_vars_{{ integreatly_install_type }}_verify_install.yml.j2"
+
+- name: "Update workflow stage {{ integreatly_job_template_verify_install_name }}"
+  shell: "tower-cli job_template modify -n \"{{ integreatly_job_template_verify_install_name }}\" -i {{ integreatly_inventory_name }} --project {{ integreatly_project_verify_install_name }} --playbook {{ integreatly_job_template_verify_install_playbook }} --credential {{ tower_credential_bundle_default_name }} --extra-vars '@/tmp/extra_vars_{{ integreatly_install_type }}_verify_install.yml'"
+  register: verify_install_workflow_update
+  retries: 10
+  delay: 3
+  until: verify_install_workflow_update.rc == 0

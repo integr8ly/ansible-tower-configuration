@@ -42,6 +42,21 @@ integreatly_job_template_deploy_playbook: 'playbooks/install.yml'
 integreatly_job_template_deploy_credentials: "{{ tower_credential_bundle_default_name }}"
 integreatly_job_template_deploy_concurrency: true
 
+# Integreatly Job Templates: Verify Install
+integreatly_job_template_verify_install_name: 'Integreatly Verify Install Template'
+integreatly_job_template_verify_install_desc: 'Job for Verifying Install Integreatly on Openshift'
+integreatly_job_template_verify_install_type: 'run'
+integreatly_job_template_verify_install_playbook: 'playbooks/verify_cluster.yml'
+integreatly_job_template_verify_install_credentials: "{{ tower_credential_bundle_default_name }}"
+integreatly_job_template_verify_install_concurrency: true
+
+integreatly_job_template_bootstrap_verify_install_name: 'Integreatly Bootstrap Verify Install Template'
+integreatly_job_template_bootstrap_verify_install_desc: 'Job for bootstrapping resources for Integreatly Verify Install'
+integreatly_job_template_bootstrap_verify_install_type: 'run'
+integreatly_job_template_bootstrap_verify_install_playbook: 'playbooks/bootstrap_integreatly_verify_install.yml'
+integreatly_job_template_bootstrap_verify_install_credentials: "{{ tower_credential_bundle_default_name }}"
+integreatly_job_template_bootstrap_verify_install_concurrency: true
+
 # Integreatly Job Templates: Uninstall
 integreatly_job_template_uninstall_name: 'Integreatly Uninstall Template'
 integreatly_job_template_uninstall_desc: 'Job for uninstalling Integreatly on Openshift'
