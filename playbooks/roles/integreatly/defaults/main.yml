@@ -42,6 +42,14 @@ integreatly_job_template_deploy_playbook: 'playbooks/install.yml'
 integreatly_job_template_deploy_credentials: "{{ tower_credential_bundle_default_name }}"
 integreatly_job_template_deploy_concurrency: true
 
+# Integreatly Job Templates: Post install
+integreatly_job_template_post_install_name: 'Integreatly Post Install'
+integreatly_job_template_post_install_desc: 'Job for setting up 3scale resources in Integreatly on Openshift'
+integreatly_job_template_post_install_type: 'run'
+integreatly_job_template_post_install_playbook: 'playbooks/integreatly_post_install.yml'
+integreatly_job_template_post_install_credentials: "{{ tower_credential_bundle_default_name }}"
+integreatly_job_template_post_install_concurrency: true
+
 # Integreatly Job Templates: Uninstall
 integreatly_job_template_uninstall_name: 'Integreatly Uninstall Template'
 integreatly_job_template_uninstall_desc: 'Job for uninstalling Integreatly on Openshift'

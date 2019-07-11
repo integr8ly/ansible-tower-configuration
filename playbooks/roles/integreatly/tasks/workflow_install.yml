@@ -28,6 +28,19 @@
     tower_verify_ssl: '{{ tower_verify_ssl }}'
     concurrent_jobs_enabled: '{{ integreatly_job_template_deploy_concurrency }}'
 
+- name: "Configure Integreatly Post install job template: {{ integreatly_job_template_post_install_name }}"
+  tower_job_template:
+    name: "{{ integreatly_job_template_post_install_name }}"
+    description: "{{ integreatly_job_template_post_install_desc }}"
+    job_type: "{{ integreatly_job_template_post_install_type }}"
+    playbook: "{{ integreatly_job_template_post_install_playbook }}"
+    project: "{{ tower_configuration_project_name }}"
+    credential: "{{ integreatly_job_template_post_install_credentials }}"
+    state: present
+    inventory: "{{ tower_inventory_name }}"
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
+    concurrent_jobs_enabled: '{{ integreatly_job_template_post_install_concurrency }}'
+
 - name: Retrieve AWS Credential Type ID
   shell: "tower-cli credential_type list --kind cloud -n \"Amazon Web Services\" -f id"
   register: aws_cred_type_id

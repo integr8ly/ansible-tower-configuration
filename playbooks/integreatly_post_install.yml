@@ -1,0 +1,40 @@
+---
+- name: post-install tasks
+  hosts: localhost
+  tasks:
+  - name: Get instance facts
+    ec2_instance_facts:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        region: "{{ openshift_aws_region }}"
+        filters: "tag:clusterid={{ openshift_clusterid }},tag:host-type=master"
+    register: facts
+
+  - name: add first master to firstMaster group
+    add_host:
+      name: "{{ facts.instances[0]['public_dns_name'] }}"
+      groups: "firstMaster"
+
+  - name: Check for route template
+    stat: path=/tmp/{{ openshift_clusterid }}/3scale-wildcard-route.json
+    register: threescale_route_result
+
+  - name: create cluster-admin
+    hosts: firstMaster
+    vars:
+      cluster_3scale_namespace: "openshift-3scale"
+    tasks:
+    - name: Set route variable
+      set_fact:
+        threescale_route: "{{ hostvars['localhost']['threescale_route_result'] }}"
+
+    - name: "create namespace {{ cluster_3scale_namespace }}"
+      shell: "oc create namespace {{ cluster_3scale_namespace }}"
+      ignore_errors: true
+      when: threescale_route.stat.exists == true
+
+    - name: Copy 3scale route template to master
+      copy:
+        src: /tmp/{{ openshift_clusterid }}/3scale-wildcard-route.json
+        dest: /tmp/3scale-wildcard-route.json
+      when: threescale_route.stat.exists == true

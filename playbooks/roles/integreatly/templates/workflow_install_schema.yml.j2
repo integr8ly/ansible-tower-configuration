@@ -2,3 +2,5 @@
 - job_template: "{{ integreatly_job_template_bootstrap_install_name }}"
   success:
   - job_template: "{{ integreatly_job_template_deploy_name }}"
+    success:
+    - job_template: "{{ integreatly_job_template_post_install_name }}"
