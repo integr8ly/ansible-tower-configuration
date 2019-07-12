@@ -19,7 +19,7 @@
     stat: path=/tmp/{{ openshift_clusterid }}/3scale-wildcard-route.json
     register: threescale_route_result
 
-- name: create cluster-admin
+- name: create threescale-route
   hosts: firstMaster
   vars:
     cluster_3scale_namespace: "openshift-3scale"
