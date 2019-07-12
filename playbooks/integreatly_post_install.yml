@@ -41,3 +41,5 @@
 
     - name: "create 3scale route"
       shell: "oc create -f /tmp/3scale-wildcard-route.json -n {{ cluster_3scale_namespace }}"
+      register: wildcard_route_create
+      failed_when: wildcard_route_create.stderr != '' and 'AlreadyExists' not in wildcard_route_create.stderr
