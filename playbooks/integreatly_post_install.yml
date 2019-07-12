@@ -19,27 +19,27 @@
     stat: path=/tmp/{{ openshift_clusterid }}/3scale-wildcard-route.json
     register: threescale_route_result
 
-  - name: create cluster-admin
-    hosts: firstMaster
-    vars:
-      cluster_3scale_namespace: "openshift-3scale"
-    tasks:
-    - name: Set route variable
-      set_fact:
-        threescale_route: "{{ hostvars['localhost']['threescale_route_result'] }}"
+- name: create cluster-admin
+  hosts: firstMaster
+  vars:
+    cluster_3scale_namespace: "openshift-3scale"
+  tasks:
+  - name: Set route variable
+    set_fact:
+      threescale_route: "{{ hostvars['localhost']['threescale_route_result'] }}"
 
-    - name: "create namespace {{ cluster_3scale_namespace }}"
-      shell: "oc create namespace {{ cluster_3scale_namespace }}"
-      ignore_errors: true
-      when: threescale_route.stat.exists == true
+  - name: "create namespace {{ cluster_3scale_namespace }}"
+    shell: "oc create namespace {{ cluster_3scale_namespace }}"
+    ignore_errors: true
+    when: threescale_route.stat.exists == true
 
-    - name: Copy 3scale route template to master
-      copy:
-        src: /tmp/{{ openshift_clusterid }}/3scale-wildcard-route.json
-        dest: /tmp/3scale-wildcard-route.json
-      when: threescale_route.stat.exists == true
+  - name: Copy 3scale route template to master
+    copy:
+      src: /tmp/{{ openshift_clusterid }}/3scale-wildcard-route.json
+      dest: /tmp/3scale-wildcard-route.json
+    when: threescale_route.stat.exists == true
 
-    - name: "create 3scale route"
-      shell: "oc create -f /tmp/3scale-wildcard-route.json -n {{ cluster_3scale_namespace }}"
-      register: wildcard_route_create
-      failed_when: wildcard_route_create.stderr != '' and 'AlreadyExists' not in wildcard_route_create.stderr
+  - name: "create 3scale route"
+    shell: "oc create -f /tmp/3scale-wildcard-route.json -n {{ cluster_3scale_namespace }}"
+    register: wildcard_route_create
+    failed_when: wildcard_route_create.stderr != '' and 'AlreadyExists' not in wildcard_route_create.stderr
