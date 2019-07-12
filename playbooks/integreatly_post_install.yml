@@ -38,3 +38,6 @@
         src: /tmp/{{ openshift_clusterid }}/3scale-wildcard-route.json
         dest: /tmp/3scale-wildcard-route.json
       when: threescale_route.stat.exists == true
+
+    - name: "create 3scale route"
+      shell: "oc create -f /tmp/3scale-wildcard-route.json -n {{ cluster_3scale_namespace }}"
