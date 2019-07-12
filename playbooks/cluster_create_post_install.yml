@@ -76,7 +76,8 @@
   - name: Create secret for backups
     shell: "oc create secret generic {{ cluster_backup_secret_name }} --from-literal=aws_access_key={{ hostvars['localhost']['iam_access_key'] }} --from-literal=aws_secret_key={{ hostvars['localhost']['iam_secret_key'] }} --from-literal=bucket_name={{ cluster_backup_bucket_name }} -n {{ cluster_backup_namespace }}"
     no_log: true
-    failed_when: backup_namespace_result.stderr != '' and 'AlreadyExists' not in backup_namespace_result.stderr
+    register: backup_secret_result
+    failed_when: backup_secret_result.stderr != '' and 'AlreadyExists' not in backup_secret_result.stderr
   
   - name: Retrieving IP addresses of master nodes
     shell: "oc get nodes -o wide | grep master | awk '{ print $7 }'"
