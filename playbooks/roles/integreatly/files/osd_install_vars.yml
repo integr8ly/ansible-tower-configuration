@@ -29,6 +29,7 @@ run_master_tasks: false
 threescale_file_upload_storage: s3
 integreatly_operator: false 
 amq_streams: false
+user_rhsso: true
 
 pull_secret_name: registry-redhat-io-dockercfg
 
