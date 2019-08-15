@@ -33,3 +33,9 @@ user_rhsso: true
 
 pull_secret_name: registry-redhat-io-dockercfg
 
+# MDS
+datasync: false
+mobile_security_service: false
+ups: false
+mdc: false
+
