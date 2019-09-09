@@ -1,0 +1,16 @@
+---
+- name: 'Create job template: {{ comparison_template_name }}'
+  tower_job_template:
+    name: '{{ comparison_template_name }}'
+    description: '{{ comparison_template_desc }}'
+    job_type: '{{ comparison_template_run }}'
+    playbook: '{{ comparison_template_playbook }}'
+    project: '{{ tower_configuration_project_name }}'
+    state: present
+    inventory: '{{ tower_inventory_name }}'
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
+    vault_credential: "{{ tower_credential_bundle_vault_name }}"
+  register: repository_validation_job_template_repository_raw
+  until: repository_validation_job_template_repository_raw is succeeded
+  retries: 5
+  delay: 5

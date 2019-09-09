@@ -66,6 +66,13 @@
     force: yes
   when: cluster_type == 'poc'
 
+- name: Overwrite DNS task file if neccessary
+  get_url:
+    url: https://raw.githubusercontent.com/StevenTobin/openshift-tools/integreatly_cluster_create_3scale/ansible/roles/oa_aws_provisioning_dns_hook/tasks/main.yml
+    dest: "/tmp/oa_dns_hook/tasks/main.yml"
+    force: yes
+  when: cluster_type == 'poc'
+
 - include_tasks: vault_encrypt_variables.yml
   with_items:
         - { name: 'aws_access_key', value: "{{ lookup('env', 'AWS_ACCESS_KEY_ID' ) }}" }

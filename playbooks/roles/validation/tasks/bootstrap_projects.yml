@@ -1,0 +1,41 @@
+---
+- name: Authenticate tower
+  include_role:
+    name: tower
+    tasks_from: authenticate_tower.yml
+
+- name: 'Create project: {{ tower_dummy_project_name }}'
+  tower_project:
+    name: '{{ tower_dummy_project_name }}'
+    description: '{{ tower_dummy_project_desc }}'
+    organization: '{{ tower_organization }}'
+    state: present
+    scm_type: '{{ tower_dummy_project_scm_type }}'
+    scm_url: '{{ tower_dummy_project_url }}'
+    scm_branch: '{{ tower_dummy_project_branch }}'
+    scm_clean: '{{ tower_dummy_project_clean }}'
+    scm_update_on_launch: '{{ tower_dummy_project_scm_update_on_launch }}'
+    scm_delete_on_update: '{{ tower_dummy_project_scm_delete_on_update }}'
+    scm_credential: '{{ tower_dummy_project_bundle_github_name }}'
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
+  register: 'project_creation'
+  retries: 5
+  until: 'project_creation is succeeded'
+ 
+- name: 'Create project: {{ comparison_project_name }}'
+  tower_project:
+    name: '{{ comparison_project_name }}'
+    description: '{{ comparison_project_desc }}'
+    organization: '{{ tower_organization }}'
+    state: present
+    scm_type: '{{ comparison_project_scm_type }}'
+    scm_url: '{{ comparison_project_ssh_url }}'
+    scm_branch: '{{ comparison_project_branch }}'
+    scm_clean: '{{ comparison_project_clean }}'
+    scm_update_on_launch: '{{ comparison_project_scm_update_on_launch }}'
+    scm_delete_on_update: '{{ comparison_project_scm_delete_on_update }}'
+    scm_credential: '{{ comparison_project_bundle_github_name }}'
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
+  register: 'project_creation'
+  retries: 5
+  until: 'project_creation is succeeded'

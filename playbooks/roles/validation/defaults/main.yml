@@ -1,0 +1,62 @@
+---
+tower_organization: "integreatly"
+tower_verify_ssl: '{{ lookup("vars", "_".join((tower_environment, "tower_verify_ssl")) ) }}'
+
+# Validation job template
+comparison_template_name: Compare Project Variables
+comparison_template_desc: Compares variables in the given projects
+comparison_template_run: run
+comparison_template_playbook: playbooks/compare_repositories.yml
+comparison_template_project: "{{ tower_configuration_project_name }}"
+
+# Tower dummy credentials project
+tower_dummy_project_name: Tower Dummy Credentials
+tower_dummy_project_desc: Repository containing project variables
+tower_dummy_project_url: https://github.com/integr8ly/tower_dummy_credentials.git
+tower_dummy_project_scm_type: git
+tower_dummy_project_branch: master
+tower_dummy_project_clean: true
+tower_dummy_project_scm_update_on_launch: true
+tower_dummy_project_scm_delete_on_update: true
+tower_dummy_project_bundle_github_name: tower_github_scm
+
+# Tower dummy credentials inventory
+tower_dummy_credentials_inventory_name: 'tower-dummy-project-inventory'
+tower_dummy_credentials_inventory_desc: 'Tower credentials project inventory'
+
+# Tower dummy credentials inventory source
+tower_dummy_project_inventory_source_name: "{{ tower_dummy_credentials_inventory_name }}"
+tower_dummy_project_inventory_source_type: 'scm'
+tower_dummy_project_inventory_source_path: "inventories/"
+tower_dummy_project_inventory_source_update_on_launch: true
+tower_dummy_project_inventory_source_overwrite: true
+tower_dummy_project_inventory_source_overwrite_vars: true
+
+# Comparison project
+comparison_project_name: Comparison project
+comparison_project_desc: Repository to compare variables against
+comparison_project_ssh_url: ''
+comparison_project_scm_type: git
+comparison_project_branch: "master"
+comparison_project_clean: true
+comparison_project_scm_update_on_launch: true
+comparison_project_scm_delete_on_update: true
+comparison_project_bundle_github_name: tower_github_scm
+
+# Comparison project inventory
+comparison_project_inventory_name: 'comparison-project-inventory'
+comparison_project_inventory_desc: 'Comparison project inventory'
+
+# Comparison project inventory source
+comparison_project_inventory_source_name: "{{ comparison_project_inventory_name }}"
+comparison_project_inventory_source_type: 'scm'
+comparison_project_inventory_source_path: "inventories/"
+comparison_project_inventory_source_update_on_launch: true
+comparison_project_inventory_source_overwrite: true
+comparison_project_inventory_source_overwrite_vars: true
+
+# Scheduled job
+scheduled_job_name: Credential Repositories Sync
+scheduled_job_desc: Scheduled job to check the supplied repositories for differences
+scheduled_job_rule: 'DTSTART;TZID=Europe/Dublin:20190601T235900 RRULE:FREQ=DAILY;INTERVAL=1'
+enable_sync: false
