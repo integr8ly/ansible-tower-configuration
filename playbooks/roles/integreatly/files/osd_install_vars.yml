@@ -1,4 +1,5 @@
 ---
+openshift_asset_url: "https://console.{{ cluster_name }}.openshift.com"
 openshift_master_public_url: "https://console.{{ cluster_name }}.openshift.com"
 openshift_master_url: "https://api.{{ cluster_name }}.openshift.com"
 eval_app_host: "{{ router_shard }}.{{ cluster_name }}.openshiftapps.com"
