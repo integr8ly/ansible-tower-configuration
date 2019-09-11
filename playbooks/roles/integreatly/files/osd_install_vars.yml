@@ -33,3 +33,4 @@ amq_streams: false
 user_rhsso: true
 
 pull_secret_name: registry-redhat-io-dockercfg
+cluster_type: osd
