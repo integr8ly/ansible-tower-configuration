@@ -72,7 +72,6 @@
     credential: "{{ tower_credential_bundle_default_name }}"
     description: Job for upgrading Integreatly on Openshift Dedicated
     state: present 
-    extra_vars_path: roles/integreatly/files/osd_upgrade_vars.yml
     inventory: "{{ integreatly_osd_update_inventory }}"
     tower_verify_ssl: "{{ tower_verify_ssl }}"
   register: integreatly_deploy_out
