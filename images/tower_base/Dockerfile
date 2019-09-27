@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ansible-tower-34/ansible-tower
+FROM registry.access.redhat.com/ansible-tower-35/ansible-tower
 
 USER root
 

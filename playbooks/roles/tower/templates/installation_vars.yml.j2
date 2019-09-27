@@ -6,6 +6,8 @@ kubernetes_task_image: "{{ tower_kubernetes_task_image }}"
 kubernetes_web_version: "{{ tower_kubernetes_web_version }}"
 kubernetes_web_image: "{{ tower_kubernetes_web_image }}"
 
+kubernetes_memcached_image: "{{ tower_kubernetes_memcached_image }}"
+
 kubernetes_rabbitmq_version: "{{ tower_kubernetes_rabbitmq_version }}"
 kubernetes_rabbitmq_image: "{{ tower_kubernetes_rabbitmq_image }}"
 
@@ -63,6 +65,8 @@ create_preload_data: "{{ tower_create_preload_data }}"
  
 # AWX Secret key
 secret_key: "{{ tower_secret_key }}"
+
+insights_url_base: "{{ tower_insights_url_base }}"
  
 
 
