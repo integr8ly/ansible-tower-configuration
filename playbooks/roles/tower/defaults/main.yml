@@ -79,17 +79,19 @@ tower_host_local_name: 'local'
 tower_host_local_desc: ''
 
 # Ansible Tower Installation Configurations
-tower_version: '3.4.3'
+tower_version: '3.5.3'
 tower_install_dir: "/tmp/ansible-tower-openshift-setup-{{ tower_version }}"
 tower_archive_filename: "ansible-tower-openshift-setup-{{ tower_version }}.tar.gz"
 tower_archive_url: "https://releases.ansible.com/ansible-tower/setup_openshift/{{ tower_archive_filename }}"
 
-tower_kubernetes_task_version: 'latest'
-tower_kubernetes_web_version: 'latest' 
-
+tower_kubernetes_task_version: '3.5.3'
+tower_kubernetes_web_version: '3.5.3' 
 tower_kubernetes_base_path: "{{ local_base_config_path|default('/tmp') }}/{{ tower_kubernetes_deployment_name }}-config"
-tower_kubernetes_task_image: quay.io/integreatly/ansible-tower-container
-tower_kubernetes_web_image: quay.io/integreatly/ansible-tower-container
+
+tower_kubernetes_task_image: "quay.io/integreatly/ansible-tower-container"
+tower_kubernetes_web_image: "quay.io/integreatly/ansible-tower-container"
+
+tower_kubernetes_memcached_image: registry.access.redhat.com/ansible-tower-35/ansible-tower-memcached
 
 tower_openshift_skip_tls_verify: true
 tower_openshift_pg_emptydir: false
@@ -114,7 +116,7 @@ tower_memcached_mem_request: 1
 tower_memcached_cpu_request: 500
 
 tower_kubernetes_rabbitmq_version: "3.7.4"
-tower_kubernetes_rabbitmq_image: "ansible/awx_rabbitmq"
+tower_kubernetes_rabbitmq_image: registry.access.redhat.com/ansible-tower-35/ansible-tower-messaging
 
 tower_kubernetes_deployment_name: ansible-tower
 tower_kubernetes_deployment_replica_size: 1
@@ -139,4 +141,6 @@ tower_default_memory: 2Gi
 tower_secret_key: CHANGEME
 
 tower_limit_range_name: "{{ tower_openshift_project }}-core-resource-limits"
+
+tower_insights_url_base: "https://cloud.redhat.com"
 
