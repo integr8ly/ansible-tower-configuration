@@ -4,6 +4,8 @@
   tasks:
     - include_vars:
         ./roles/tower/defaults/main.yml
+    - include_vars:
+        ./roles/integreatly/defaults/main.yml
     - include_role:
         name: cluster
         tasks_from: bootstrap_cluster_create.yml
