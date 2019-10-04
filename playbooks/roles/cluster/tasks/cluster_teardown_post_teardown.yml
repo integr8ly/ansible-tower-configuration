@@ -1,12 +1,22 @@
+- name: Set tower credentials
+  set_fact:
+    tower_host: '{{ lookup("vars", "_".join((tower_environment, "tower_host")) ) }}'
+    tower_username: '{{ lookup("vars", "_".join((tower_environment, "tower_username")) ) }}'
+    tower_password: '{{ lookup("vars", "_".join((tower_environment, "tower_password")) ) }}'
+    validate_certs: '{{ lookup("vars", "_".join((tower_environment, "tower_verify_ssl")) ) }}'
+
 - name: "Disassociate {{ cluster_credential_bundle_aws_name }} credentials from {{ cluster_job_template_teardown_name }}"
-  shell: tower-cli job_template disassociate_credential --job-template "{{ cluster_job_template_teardown_name }}" --credential "{{ cluster_credential_bundle_aws_name }}" --insecure
+  shell: tower-cli job_template disassociate_credential --job-template "{{ cluster_job_template_teardown_name }}" --credential "{{ cluster_credential_bundle_aws_name }}" --tower-password "{{ tower_password }}" --tower-username "{{ tower_username }}" --tower-host "{{ tower_host }}" --insecure
 
 - name: Delete Ansible Tower Inventory for {{ aws_cluster_name }}
   tower_inventory:
     name: "{{ item }}"
     organization: "secret"
     state: absent
-    tower_verify_ssl: '{{ tower_verify_ssl }}'
+    tower_password: "{{ tower_password }}"
+    tower_username: "{{ tower_username }}"
+    tower_host: "{{ tower_host }}"
+    tower_verify_ssl: '{{ validate_certs }}'
   with_items:
     - "{{ aws_cluster_name }}"
     - "{{ aws_cluster_name }}_provisioning_vars"
@@ -18,7 +28,10 @@
     job_type: run
     playbook: ping.yml
     project: "Openshift Ansible"
-    tower_verify_ssl: '{{ tower_verify_ssl }}'
+    tower_password: "{{ tower_password }}"
+    tower_username: "{{ tower_username }}"
+    tower_host: "{{ tower_host }}"
+    tower_verify_ssl: '{{ validate_certs }}'
   with_items:
     - "OA_Prerequisites-{{ aws_cluster_name }}"
     - "OA_Provision_install-{{ aws_cluster_name }}"
@@ -27,5 +40,8 @@
 - name: Remove {{ aws_cluster_name }} workflow
   tower_workflow_template:
     name: "Provision Cluster_{{ aws_cluster_name }}"
-    tower_verify_ssl: '{{ tower_verify_ssl }}'
+    tower_password: "{{ tower_password }}"
+    tower_username: "{{ tower_username }}"
+    tower_host: "{{ tower_host }}"
+    tower_verify_ssl: "{{ validate_certs }}"
     state: absent

@@ -1,2 +1,9 @@
+- name: Set tower credentials
+  set_fact:
+    tower_host: '{{ lookup("vars", "_".join((tower_environment, "tower_host")) ) }}'
+    tower_username: '{{ lookup("vars", "_".join((tower_environment, "tower_username")) ) }}'
+    tower_password: '{{ lookup("vars", "_".join((tower_environment, "tower_password")) ) }}'
+    validate_certs: '{{ lookup("vars", "_".join((tower_environment, "tower_verify_ssl")) ) }}'
+
 - name: "Associate {{ cluster_credential_bundle_aws_name }} credentials to {{ cluster_job_template_teardown_name }}"
-  shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_teardown_name }}" --credential "{{ cluster_credential_bundle_aws_name }}"
+  shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_teardown_name }}" --credential "{{ cluster_credential_bundle_aws_name }}" --tower-password "{{ tower_password }}" --tower-username "{{ tower_username }}" --tower-host "{{ tower_host }}" --insecure
