@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ansible-tower-34/ansible-tower
+FROM registry.access.redhat.com/ansible-tower-35/ansible-tower
 
 USER root
 
@@ -12,8 +12,8 @@ RUN rpm --import /tmp/centos-key && \
     yum-config-manager --add-repo=http://mirror.centos.org/centos-7/7/os/x86_64/ && \
     yum-config-manager --add-repo=http://mirror.centos.org/centos/7/updates/x86_64/ && \
     rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm && \
-    yum -y install unzip httpd-tools java-1.8.0-openjdk-headless dh-autoreconf && \
-    sh -c "git clone https://github.com/ansible/tower-cli.git ; cd tower-cli ; make install" && \
+    yum -y install unzip httpd-tools java-1.8.0-openjdk-headless dh-autoreconf python-pip && \
+    pip install ansible-tower-cli && \
     sh -c "tar -xzf /tmp/openshift-origin-server-v3.11.0-0cbc58b-linux-64bit.tar.gz -C /tmp/" && \
     sh -c "mv /tmp/openshift-origin-server-v3.11.0-0cbc58b-linux-64bit/oc /usr/bin/oc" && \ 
     sh -c "rm /tmp/openshift-origin-server-v3.11.0-0cbc58b-linux-64bit.tar.gz" && \
