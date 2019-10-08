@@ -2,7 +2,6 @@
     aws_access_key: "{{ aws_access_key }}"
     aws_secret_key: "{{ aws_secret_key }}"
     record: "{{ record }}"
-    region: "{{ aws_cluster_name }}"
     state: get
     type: CNAME
     zone: "{{ aws_dns_zone }}"
