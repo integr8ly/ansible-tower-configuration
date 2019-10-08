@@ -1,4 +1,6 @@
 ---
+- import_playbook: "./authenticate_tower.yml"
+
 - hosts: localhost
   gather_facts: no
   tasks:
