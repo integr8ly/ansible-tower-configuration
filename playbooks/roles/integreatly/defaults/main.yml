@@ -90,7 +90,8 @@ integreatly_inventory_desc: "Integreatly Inventory: {{ cluster_name }}"
 integreatly_inventory_source_aws_name: "{{ cluster_name }}-inventory-source-aws"
 integreatly_inventory_source_aws_type: 'ec2'
 integreatly_inventory_source_aws_update_on_launch: false
-integreatly_inventory_source_aws_overwrite: false
+integreatly_inventory_source_aws_overwrite: true
+integreatly_inventory_source_aws_overwrite_vars: true
 integreatly_inventory_source_aws_credentials: ''
 integreatly_inventory_source_aws_regions: 'All'
 integreatly_inventory_source_aws_instance_filters: "tag:clusterid={{ cluster_name }}"
@@ -99,8 +100,8 @@ integreatly_inventory_source_project_name: "{{ cluster_name }}-inventory-source-
 integreatly_inventory_source_project_type: 'scm'
 integreatly_inventory_source_project_path: "inventories/{{ integreatly_install_type }}.template"
 integreatly_inventory_source_project_update_on_launch: false
-integreatly_inventory_source_project_overwrite: false
-integreatly_inventory_source_project_overwrite_vars: false
+integreatly_inventory_source_project_overwrite: true
+integreatly_inventory_source_project_overwrite_vars: true
 
 # Integreatly Groups
 integreatly_group_master_name: 'master'

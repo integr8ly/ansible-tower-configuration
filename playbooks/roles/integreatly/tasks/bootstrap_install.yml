@@ -39,6 +39,7 @@
     description: "AWS: {{ integreatly_inventory_source_aws_name }}"
     source_regions: "{{ integreatly_inventory_source_aws_regions }}"
     overwrite: "{{ integreatly_inventory_source_aws_overwrite }}"
+    overwrite_vars: "{{ integreatly_inventory_source_aws_overwrite_vars }}"
     update_on_launch: "{{ integreatly_inventory_source_aws_update_on_launch }}"
     instance_filters: "{{ integreatly_inventory_source_aws_instance_filters }}"
     state: present
