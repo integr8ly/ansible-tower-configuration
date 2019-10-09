@@ -135,14 +135,12 @@
   delay: 5
 
 - name: Retrieve cluster provisioning vars inventory
-  shell: "tower-cli inventory get -n \"{{ cluster_provisioning_vars_inventory }}\" -f json"
+  # Need to use this one liner due to known bug on tower https://github.com/ansible/tower-cli/issues/331
+  shell: "tower-cli inventory get -n \"{{ cluster_provisioning_vars_inventory }}\" -f yaml | yq r - variables"
   register: cluster_provisioning_vars_raw
 
 - set_fact:
-    cluster_provisioning_vars_json: "{{ cluster_provisioning_vars_raw.stdout | from_json }}"
-
-- set_fact:
-    cluster_provisioning_vars: "{{ cluster_provisioning_vars_json.variables }}"
+    cluster_provisioning_vars: "{{ cluster_provisioning_vars_raw.stdout | from_json }}"
 
 - set_fact:
     cluster_aws_region: "{{ cluster_provisioning_vars['openshift_aws_region'] }}"
