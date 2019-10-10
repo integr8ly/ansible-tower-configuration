@@ -59,3 +59,9 @@
 
 # Import Job Template bootstrapping
 - include_tasks: bootstrap_jobs.yml
+
+- name: Expose tmp directory to support job isolation
+  tower_settings:
+    name: "AWX_PROOT_SHOW_PATHS"
+    value:
+      - "/tmp"

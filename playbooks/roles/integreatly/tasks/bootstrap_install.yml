@@ -39,6 +39,7 @@
     description: "AWS: {{ integreatly_inventory_source_aws_name }}"
     source_regions: "{{ integreatly_inventory_source_aws_regions }}"
     overwrite: "{{ integreatly_inventory_source_aws_overwrite }}"
+    overwrite_vars: "{{ integreatly_inventory_source_aws_overwrite_vars }}"
     update_on_launch: "{{ integreatly_inventory_source_aws_update_on_launch }}"
     instance_filters: "{{ integreatly_inventory_source_aws_instance_filters }}"
     state: present
@@ -134,28 +135,17 @@
   delay: 5
 
 - name: Retrieve cluster provisioning vars inventory
-  shell: "tower-cli inventory get -n \"{{ cluster_provisioning_vars_inventory }}\" -f json"
+  # Need to use this one liner due to known bug on tower https://github.com/ansible/tower-cli/issues/331
+  shell: "tower-cli inventory get -n \"{{ cluster_provisioning_vars_inventory }}\" -f yaml | yq r - variables"
   register: cluster_provisioning_vars_raw
 
 - set_fact:
-    cluster_provisioning_vars_json: "{{ cluster_provisioning_vars_raw.stdout | from_json }}"
-
-- set_fact:
-    cluster_provisioning_vars: "{{ cluster_provisioning_vars_json.variables }}"
+    cluster_provisioning_vars: "{{ cluster_provisioning_vars_raw.stdout | from_json }}"
 
 - set_fact:
     cluster_aws_region: "{{ cluster_provisioning_vars['openshift_aws_region'] }}"
     cluster_aws_access_key: "{{ cluster_provisioning_vars['AWS_ACCESS_KEY_ID'] }}"
     cluster_aws_secret_access_key: "{{ cluster_provisioning_vars['AWS_SECRET_ACCESS_KEY'] }}"
 
-- name: Generate extra vars file
-  template:
-    dest: "/tmp/extra_vars_{{ integreatly_install_type }}_install.yml"
-    src: "extra_vars_{{ integreatly_install_type }}_install.yml.j2"
-
 - name: "Update workflow stage {{ integreatly_job_template_deploy_name }}"
-  shell: "tower-cli job_template modify -n \"{{ integreatly_job_template_deploy_name }}\" -i {{ integreatly_inventory_name }} --project {{ integreatly_project_install_name }} --playbook {{ integreatly_job_template_deploy_playbook }} --credential {{ tower_credential_bundle_default_name }} --extra-vars '@/tmp/extra_vars_{{ integreatly_install_type }}_install.yml'"
-
-- name: Cleanup temp var file
-  file:
-    path: "/tmp/extra_vars_{{ integreatly_install_type }}_install.yml"
+  shell: "tower-cli job_template modify -n \"{{ integreatly_job_template_deploy_name }}\" -i {{ integreatly_inventory_name }} --project {{ integreatly_project_install_name }} --playbook {{ integreatly_job_template_deploy_playbook }} --credential {{ tower_credential_bundle_default_name }}"

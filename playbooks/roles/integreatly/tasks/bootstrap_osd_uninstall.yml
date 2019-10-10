@@ -72,7 +72,6 @@
     credential: "{{ tower_credential_bundle_default_name }}"
     description: Job for uninstalling Integreatly on Openshift Dedicated
     state: present 
-    extra_vars_path: roles/integreatly/files/osd_install_vars.yml
     inventory: "{{ integreatly_osd_uninstall_inventory }}"
     tower_verify_ssl: "{{ tower_verify_ssl }}"
   register: integreatly_deploy_out

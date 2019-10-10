@@ -29,7 +29,7 @@ cluster_credential_bundle_le_key_name: 'le_privatekey'
 # Cluster create templates #
 #                          #
 
-cluster_job_template_cluster_provision_name: "Cluster_provision"
+cluster_job_template_cluster_provision_name: "Cluster Provision"
 cluster_job_template_cluster_provision_desc: "Provision 3.11 cluster"
 cluster_job_template_cluster_provision_type: 'run'
 cluster_job_template_cluster_provision_playbook: 'playbooks/cluster_provision.yml'
