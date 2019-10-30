@@ -566,4 +566,11 @@
     until: oa_project_update.rc == 0
 
   - name: "Launch cluster-provision for {{ oo_clusterid }}"
-    shell: tower-cli workflow_job launch --workflow-job-template "{{ cluster_workflow_job_template_name }}_{{ oo_clusterid }}" {% if not tower_verify_ssl  %}--insecure{% endif %}
+    shell: tower-cli workflow_job launch --workflow-job-template "{{ provision_workflow_name }}" {% if not tower_verify_ssl  %}--insecure{% endif %}
+
+  - name: "Retrieve generated workflow ID"
+    shell: tower-cli workflow_job list --workflow-job-template "{{ provision_workflow_name }}" --status running -f id {% if not tower_verify_ssl  %}--insecure{% endif %} | awk {'print $NF'}
+    register: provision_workflow_id
+
+  - name: "Waiting for cluster workflow job to complete: {{ provision_workflow_name }}"
+    shell: tower-cli workflow_job wait {{ provision_workflow_id.stdout }} {% if not tower_verify_ssl  %}--insecure{% endif %}

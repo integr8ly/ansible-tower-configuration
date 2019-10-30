@@ -92,7 +92,7 @@ cluster_job_template_post_teardown_name: "DC_Post_Teardown"
 cluster_job_template_post_teardown_desc: "Deprovision Cluster: Post Teardown"
 cluster_job_template_post_teardown_playbook: "playbooks/cluster_teardown_post_teardown.yml"
 
-cluster_workflow_teardown_name: "Deprovision Cluster"
+cluster_workflow_teardown_name: "Cluster Deprovision"
 cluster_workflow_teardown_desc: "Workflow for Cluster Deprovision"
 
 # Auth

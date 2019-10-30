@@ -61,6 +61,7 @@
     description: Job for bootstrapping Integreatly upgrades on Openshift Dedicated
     state: present 
     inventory: "{{ tower_inventory_name }}"
+    vault_credential: '{{ tower_credential_bundle_vault_name }}'
     tower_verify_ssl: "{{ tower_verify_ssl }}"
 
 - name: Create OSD Integreatly deploy job template

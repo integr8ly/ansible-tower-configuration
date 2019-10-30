@@ -33,6 +33,13 @@
     state: present
     tower_verify_ssl: "{{ tower_verify_ssl }}"
 
+- name: "Sync project: integreatly-install-{{ integreatly_osd_install_branch }}"
+  shell: "tower-cli project update -n integreatly-install-{{ integreatly_osd_install_branch }}"
+  register: install_project_update
+  retries: 10
+  delay: 3
+  until: install_project_update.rc == 0
+
 - name: Create inventory source for OSD inventory
   tower_inventory_source:
     name: "{{ integreatly_osd_install_source_name }}"
@@ -61,6 +68,7 @@
     description: Job for bootstrapping Integreatly deploy on Openshift Dedicated
     state: present 
     inventory: "{{ tower_inventory_name }}"
+    vault_credential: '{{ tower_credential_bundle_vault_name }}'
     tower_verify_ssl: "{{ tower_verify_ssl }}"
 
 - name: Create OSD Integreatly deploy job template
