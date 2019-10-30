@@ -65,3 +65,4 @@
     name: "AWX_PROOT_SHOW_PATHS"
     value:
       - "/tmp"
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
