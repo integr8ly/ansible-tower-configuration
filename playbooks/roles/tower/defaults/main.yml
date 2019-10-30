@@ -48,7 +48,7 @@ tower_configuration_project_scm_type: git
 tower_configuration_project_scm_branch: 'master'
 tower_configuration_project_scm_clean: true
 tower_configuration_project_scm_type_url: 'https://github.com/integr8ly/ansible-tower-configuration.git'
-tower_configuration_project_scm_update_on_launch: true
+tower_configuration_project_scm_update_on_launch: false
 tower_configuration_project_scm_delete_on_update: true
 
 # Ansible Tower Credential Projects
@@ -58,7 +58,7 @@ tower_credentials_project_scm_type: git
 tower_credentials_project_scm_branch: 'master'
 tower_credentials_project_scm_clean: true
 tower_credentials_project_scm_type_url: ''
-tower_credentials_project_scm_update_on_launch: true
+tower_credentials_project_scm_update_on_launch: false
 tower_credentials_project_scm_delete_on_update: true
 
 # Ansible Tower Job Templates
