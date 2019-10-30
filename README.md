@@ -20,7 +20,10 @@ Repo for bootstrapping Ansible Tower instances.
     - [4.6 Cluster Deprovision](#46-cluster-deprovision)
     - [4.7 Validation Bootstrapping](#47-validation-bootstrapping)
     - [4.8 Notifications Bootstrapping](#48-notifications-bootstrapping)
-  - [5. Contributing](#5-contributing)  
+  - [5. Performance Tuning](#5-performance-tuning)
+    - [5.1 Task Execution Container](#51-task-execution-container)
+    - [5.2 Resource Requests and Request Planning](#52-resource-requests-and-request-planning)
+  - [6. Contributing](#6-contributing)
 
 ## 1. Credentials repository
 
@@ -214,6 +217,39 @@ The `bootstrap_notifications.yml` playbook will bootstrap the target Ansible Tow
 ```bash
 ansible-playbook -i <path-to-local-credentials-project>/hosts playbooks/bootstrap_notifications.yml -ask-vault-pass
 ```
+## 5. Performance Tuning
 
-## 5. Contributing
+In order to support a large number of running jobs concurrently on Ansible Tower, it's important to ensure that the necessary resources have been configured.
+
+### 5.1 Task Execution Container
+
+All jobs on Tower are run from the Task Execution container named `ansible-tower-celery`. When looking to assign additional resources to Tower jobs, it's this container that needs to be updated with new limits.
+
+By default, the `ansible-tower-celery` container has set limits of `1500` millicores CPU and `2Gi` Memory. To update these limits, edit the `ansible-tower` stateful set and modify existing limits, see example snippet below:
+
+```yaml
+      name: ansible-tower-celery
+      resources:
+        requests:
+          cpu: 1500m
+          memory: 2Gi
+```
+
+For new installations, the default limits can be overridden as part of the install using the below variables:
+
+```yaml
+tower_task_mem_request
+tower_task_cpu_request
+```
+
+NOTE: There is also a limit set for the Tower namespace named `tower-core-resource-limits`. The default values here may need to be updated to match the set values in the steps above.
+
+### 5.2 Resource Requests and Request Planning
+
+Ansible Tower is intelligent enough to limit the number of jobs executed based on set limits. These limits are determined using algorithms for both CPU and Memory, see official docs for full details:
+
+https://docs.ansible.com/ansible-tower/3.3.0/html/administration/openshift_configuration.html#resource-requests-and-request-planning
+
+
+## 6. Contributing
 Please open a Github issue for any bugs or problems you encounter.
