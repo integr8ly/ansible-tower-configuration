@@ -131,12 +131,13 @@ integreatly_osd_install_desc: "Integreatly Project: {{ integreatly_osd_install_b
 integreatly_osd_install_org: integreatly
 integreatly_osd_install_inventory: OSD_Tower_Install_Inventory
 integreatly_osd_install_source_name:  installation-project-source
-integreatly_osd_install_source_path: "inventories/{{ integreatly_install_type }}.template"
+integreatly_osd_install_source_path: "inventories/osd.template"
 integreatly_osd_install_name: "Integreatly_Install_Template_[OSD]"
 integreatly_osd_bootstrap_name: "Integreatly_Bootstrap_Template_[OSD]"
 integreatly_osd_workflow_name: "Integreatly_Bootstrap_and_Install_[OSD]"
 integreatly_osd_workflow_description: "Workflow to configure and install integreatly on an OSD cluster"
 integreatly_osd_source_project_update_on_launch: true
+integreatly_osd_install_workflow_job_concurrency: True
 
 # OSD uninstall
 integreatly_osd_uninstall_branch: "{{ integreatly_version }}"
@@ -145,12 +146,13 @@ integreatly_osd_uninstall_desc: "Integreatly Project: {{ integreatly_osd_uninsta
 integreatly_osd_uninstall_org: integreatly
 integreatly_osd_uninstall_inventory: OSD_Tower_Uninstall_Inventory
 integreatly_osd_uninstall_source_name:  uninstall-project-source
-integreatly_osd_uninstall_source_path: "inventories/{{ integreatly_install_type }}.template"
+integreatly_osd_uninstall_source_path: "inventories/osd.template"
 integreatly_osd_uninstall_name: "Integreatly_Uninstall_Template_[OSD]"
 integreatly_osd_uninstall_bootstrap_name: "Integreatly_Bootstrap_Uninstall_Template_[OSD]"
 integreatly_osd_uninstall_workflow_name: "Integreatly_Bootstrap_and_Uninstall_[OSD]"
 integreatly_osd_uninstall_workflow_description: "Workflow to uninstall integreatly from an OSD cluster"
 integreatly_osd_uninstall_source_project_update_on_launch: true
+integreatly_osd_uninstall_workflow_job_concurrency: True
 
 # OSD upgrade
 integreatly_osd_update_branch: "{{ integreatly_version }}"
@@ -160,3 +162,4 @@ integreatly_osd_upgrade_name: "Integreatly_Upgrade_[OSD]"
 integreatly_osd_upgrade_workflow_name: "Integreatly_Bootstrap_and_Upgrade_[OSD]"
 integreatly_osd_upgrade_desc: "Workflow to upgrade integreatly on an OSD cluster"
 integreatly_osd_update_inventory: OSD_update_inventory
+integreatly_osd_upgrade_workflow_job_concurrency: True
