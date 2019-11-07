@@ -106,5 +106,5 @@ cluster_inventory_source_project_name: "credential-inventory-source"
 cluster_inventory_source_project_type: 'scm'
 cluster_inventory_source_project_path: "inventories/"
 cluster_inventory_source_project_update_on_launch: false
-cluster_inventory_source_project_overwrite: false
-cluster_inventory_source_project_overwrite_vars: false
+cluster_inventory_source_project_overwrite: true
+cluster_inventory_source_project_overwrite_vars: true
