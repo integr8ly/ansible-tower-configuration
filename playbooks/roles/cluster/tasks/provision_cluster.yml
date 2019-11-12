@@ -44,6 +44,15 @@
       base_cluster_url: "{{ oo_clusterid }}.{{ domain }}"
       apps_cluster_url: "apps.{{ oo_clusterid }}.{{ domain }}"
 
+<<<<<<< HEAD
+=======
+  - name: Create temp directory
+    file:
+      path: /tmp/{{ oo_clusterid }}/certs
+      state: directory
+      recurse: yes
+
+>>>>>>> remove 3scale wildcard route generation
   - name: Ensure the cert bucket exists
     aws_s3:
       aws_access_key: "{{ aws_access_key }}"
@@ -265,6 +274,10 @@
   #
   # Setup backups
   #
+<<<<<<< HEAD
+=======
+
+>>>>>>> remove 3scale wildcard route generation
   - name: Create a bucket for integreatly backups
     aws_s3:
       aws_access_key: "{{ aws_access_key }}"
