@@ -8,6 +8,7 @@ tower_username: '{{ lookup("vars", "_".join((tower_environment, "tower_username"
 tower_password: '{{ lookup("vars", "_".join((tower_environment, "tower_password")) ) }}'
 tower_verify_ssl: '{{ lookup("vars", "_".join((tower_environment, "tower_verify_ssl")) ) }}'
 tower_extra_vars_file_path: '/tmp/tower_extra_vars.yml'
+tower_sre_extras: False
 
 # Ansible Tower Openshift Configurations
 tower_openshift_username: ''
