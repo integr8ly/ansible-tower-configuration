@@ -1,0 +1,7 @@
+{
+ "extra_vars": {
+  "bastion_ssh_key": "{{ ssh_key }}",
+  "bastion_ssh_password": "{{ password }}",
+  "bastion_ssh_username": "{{ username }}"
+ }
+}

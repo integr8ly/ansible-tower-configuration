@@ -1,0 +1,22 @@
+{
+    "fields": [{
+            "type": "string",
+            "id": "username",
+            "label": "Username"
+        },
+        {
+            "secret": true,
+            "type": "string",
+            "id": "password",
+            "label": "Password"
+        },
+        {
+            "format": "ssh_private_key",
+            "label": "SSH Key",
+            "secret": true,
+            "multiline": true,
+            "type": "string",
+            "id": "ssh_key"
+        }
+    ]
+}

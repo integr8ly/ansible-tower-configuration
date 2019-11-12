@@ -29,6 +29,7 @@ tower_credential_bundle_vault_type: 'vault'
 tower_credential_bundle_default_name: 'tower_provisioner'
 tower_credential_bundle_default_desc: 'Default Tower machine credential'
 tower_credential_bundle_default_type: 'ssh'
+tower_credential_bundle_become_method: 'su'
 
 tower_credential_bundle_github_name: "tower_github_scm"
 tower_credential_bundle_github_desc: "Default Tower Credential Bundle for Github"
@@ -36,6 +37,13 @@ tower_credential_bundle_github_type: 'scm'
 
 tower_credential_bundle_aws_type: "aws"
 aws_credential_list: []
+
+custom_credential_bundle_bastion_ssh_name: 'osd_bastion_ssh'
+custom_credential_bundle_bastion_ssh_desc: 'OSD bastion details that contain username, password, and ssh key'
+
+osd_bastion_credential_bundle_name: 'cs-sre-tower-osd-bastion'
+osd_bastion_credential_bundle_type: "{{ custom_credential_bundle_bastion_ssh_name }}"
+osd_bastion_credential_bundle_desc: 'Bastion SSH details for private OSD clusters'
 
 # Ansible Tower Default Inventories
 tower_inventory_name: 'Default Tower Inventory'
