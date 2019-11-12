@@ -1,0 +1,47 @@
+{
+    "fields": [
+     {
+      "secret": true,
+      "type": "string",
+      "id": "sg_apikey",
+      "label": "Sendgrid API Key"
+     },
+     {
+      "secret": true,
+      "type": "string",
+      "id": "pd_apikey",
+      "label": "PagerDuty API Key"
+     },
+     {
+      "secret": true,
+      "type": "string",
+      "id": "dm_apikey",
+      "label": "DeadManSnitch API Key"
+     },
+     {
+      "type": "string",
+      "id": "ping_username",
+      "label": "Pingdom Username"
+     },
+     {
+      "secret": true,
+      "type": "string",
+      "id": "ping_password",
+      "label": "Pingdom Password"
+     },
+     {
+      "secret": true,
+      "type": "string",
+      "id": "ping_apikey",
+      "label": "Pingdom API Key"
+     }
+    ],
+    "required": [
+     "sg_apikey",
+     "pd_apikey",
+     "dm_apikey",
+     "ping_username",
+     "ping_password",
+     "ping_apikey"
+    ]
+   }
