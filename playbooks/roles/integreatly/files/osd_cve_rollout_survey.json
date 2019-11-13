@@ -1,0 +1,63 @@
+{
+    "description": "",
+    "name": "",
+    "spec": [
+      {
+        "question_description": "Name of target cluster for CVE rollout",
+        "min": 0,
+        "default": "",
+        "max": 20,
+        "required": true,
+        "choices": "",
+        "variable": "cluster_name",
+        "question_name": "Cluster Name",
+        "type": "text"
+      },
+      {
+        "question_description": "Router shard of the target cluster",
+        "min": 0,
+        "default": "",
+        "max": 5,
+        "required": true,
+        "choices": "",
+        "variable": "router_shard",
+        "question_name": "Router shard",
+        "type": "text"
+      },
+      {
+        "question_description": "Integreatly Installer Git branch/tag for CVE rollout",
+        "min": 0,
+        "default": "",
+        "max": 1024,
+        "required": true,
+        "choices": "",
+        "new_question": true,
+        "variable": "integreatly_osd_cve_rollout_project_branch",
+        "question_name": "Integreatly CVE rollout branch/tag",
+        "type": "text"
+      },
+      {
+        "question_description": "Openshift token for cluster-admin user on target cluster",
+        "min": 0,
+        "default": "",
+        "max": 1024,
+        "required": true,
+        "choices": "",
+        "new_question": true,
+        "variable": "openshift_token",
+        "question_name": "Openshift token",
+        "type": "password"
+      },
+      {
+        "question_description": "Comma separated list of product tags e.g. 3scale,rhsso",
+        "min": 0,
+        "default": "",
+        "max": 1024,
+        "required": false,
+        "choices": "",
+        "variable": "integreatly_osd_cve_rollout_product_tags",
+        "question_name": "Product Specific Tags [Optional]",
+        "type": "text"
+      }
+    ]
+  }
