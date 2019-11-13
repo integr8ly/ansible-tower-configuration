@@ -66,9 +66,11 @@ make image/push
 The `install_tower.yml` playbook will install Ansible Tower on a target Openshift cluster. The playbook requires the target tower environment to be specified.
 
 * `tower_openshift_master_url`: The URL of the target Openshift cluster
+* `tower_openshift_username`: Cluster admin user on target Openshift cluster
+* `tower_openshift_password`: Password of cluster admin user on target Openshift Cluster
 
 ```bash
-ansible-playbook -i <path-to-local-credentials-project>/inventories/hosts playbooks/install_tower.yml -e tower_openshift_master_url=<tower_openshift_master_url> -e tower_openshift_pg_pvc_size=10Gi --ask-vault-pass
+ansible-playbook -i <path-to-local-credentials-project>/inventories/hosts playbooks/install_tower.yml -e tower_openshift_master_url=<tower_openshift_master_url> -e tower_openshift_username=<tower_openshift_cluster_admin_username> -e tower_openshift_password=<tower_openshift_cluster_admin_password> -e tower_openshift_pg_pvc_size=10Gi --ask-vault-pass
 ```
 
 A number of default values are used when installing Ansible Tower on the target Openshift cluster, any of which can be overridden with the use of environmental variables. These default values include several password values which are assigned a default value of `CHANGEME`, as can be seen below.
@@ -107,7 +109,7 @@ ansible-playbook -i <path-to-local-credentials-project>/inventories/hosts playbo
 If you also wish to bootstrap the tower instance with the OSD integreatly install workflow you need to run this play after running the bootstrap.yml play.
 
 ```bash
-ansible-playbook -i inventories/hosts playbooks/bootstrap_osd_integreatly_install.yml -e tower_environment=<tower-environment>
+ansible-playbook -i <path-to-local-credentials-project>/inventories/hosts playbooks/bootstrap_osd_integreatly_install.yml -e tower_environment=<tower-environment> --ask-vault-pass
 ```
 
 This will create the resources necessary to use the *Integreatly_Bootstrap_and_install_[OSD]* workflow which will install Integreatly on a targeted OSD cluster.
