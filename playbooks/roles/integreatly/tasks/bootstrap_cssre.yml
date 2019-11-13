@@ -1,0 +1,43 @@
+- name: "Create project: {{ cssre_ansible_ops_project_name }}"
+  tower_project:
+    name: "{{ cssre_ansible_ops_project_name }}"
+    description: "{{ cssre_ansible_ops_project_desc }}"
+    organization: "{{ tower_organization }}"
+    state: present
+    scm_type: "{{ cssre_ansible_ops_project_scm_type }}"
+    scm_url: "{{ cssre_ansible_ops_project_scm_url }}"
+    scm_branch: "{{ cssre_ansible_ops_project_scm_branch }}"
+    scm_clean: "{{ cssre_ansible_ops_project_scm_clean }}"
+    scm_update_on_launch: "{{ cssre_ansible_ops_project_scm_update_on_launch }}"
+    scm_delete_on_update: "{{ cssre_ansible_ops_project_scm_delete_on_update }}"
+    scm_credential: "{{ integreatly_credential_bundle_github_name }}"
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
+
+- name: "Sync project: {{ cssre_ansible_ops_project_name }}"
+  shell: "tower-cli project update -n {{ cssre_ansible_ops_project_name }}"
+  register: cssre_ansible_ops_project_update
+  retries: 10
+  delay: 3
+  until: cssre_ansible_ops_project_update.rc == 0
+
+- name: "Create project: {{ cssre_rhmi_pingdom_name }}"
+  tower_project:
+    name: "{{ cssre_rhmi_pingdom_name }}"
+    description: "{{ cssre_rhmi_pingdom_desc }}"
+    organization: "{{ tower_organization }}"
+    state: present
+    scm_type: "{{ cssre_rhmi_pingdom_scm_type }}"
+    scm_url: "{{ cssre_rhmi_pingdom_scm_url }}"
+    scm_branch: "{{ cssre_rhmi_pingdom_scm_branch }}"
+    scm_clean: "{{ cssre_rhmi_pingdom_scm_clean }}"
+    scm_update_on_launch: "{{ cssre_rhmi_pingdom_scm_update_on_launch }}"
+    scm_delete_on_update: "{{ cssre_rhmi_pingdom_scm_delete_on_update }}"
+    scm_credential: "{{ integreatly_credential_bundle_github_name }}"
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
+
+- name: "Sync project: {{ cssre_rhmi_pingdom_name }}"
+  shell: "tower-cli project update -n {{ cssre_rhmi_pingdom_name }}"
+  register: cssre_pingdom_project_update
+  retries: 10
+  delay: 3
+  until: cssre_pingdom_project_update.rc == 0

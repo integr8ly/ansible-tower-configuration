@@ -14,3 +14,7 @@
 - include_tasks: workflow_install.yml
 
 - include_tasks: workflow_uninstall.yml
+
+- name: Bootstrap CS SRE Projects and Worflows
+  include_tasks: bootstrap_cssre.yml
+  when: tower_sre_extras

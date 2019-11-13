@@ -163,3 +163,22 @@ integreatly_osd_upgrade_workflow_name: "Integreatly_Bootstrap_and_Upgrade_[OSD]"
 integreatly_osd_upgrade_desc: "Workflow to upgrade integreatly on an OSD cluster"
 integreatly_osd_update_inventory: OSD_update_inventory
 integreatly_osd_upgrade_workflow_job_concurrency: True
+
+# CS SRE Projects
+cssre_ansible_ops_project_scm_branch: 'prod'
+cssre_ansible_ops_project_name: "rhmi-ansible-ops"
+cssre_ansible_ops_project_desc: "{{ cssre_ansible_ops_project_name }} Project for Branch: {{ cssre_ansible_ops_project_scm_branch }}"
+cssre_ansible_ops_project_scm_type: git
+cssre_ansible_ops_project_scm_clean: true
+cssre_ansible_ops_project_scm_url: 'git@github.com:rh-cssre/rhmi-ansible-ops.git'
+cssre_ansible_ops_project_scm_update_on_launch: true
+cssre_ansible_ops_project_scm_delete_on_update: true
+
+cssre_rhmi_pingdom_scm_branch: 'prod'
+cssre_rhmi_pingdom_name: "rhmi-pingdom"
+cssre_rhmi_pingdom_desc: "{{ cssre_rhmi_pingdom_name }} Project for Branch: {{ cssre_rhmi_pingdom_scm_branch }}"
+cssre_rhmi_pingdom_scm_type: git
+cssre_rhmi_pingdom_scm_clean: true
+cssre_rhmi_pingdom_scm_url: 'git@github.com:rh-cssre/rhmi-pingdom.git'
+cssre_rhmi_pingdom_scm_update_on_launch: true
+cssre_rhmi_pingdom_scm_delete_on_update: true
