@@ -1,3 +1,4 @@
+# CS SRE Projects
 - name: "Create project: {{ cssre_ansible_ops_project_name }}"
   tower_project:
     name: "{{ cssre_ansible_ops_project_name }}"
@@ -41,3 +42,29 @@
   retries: 10
   delay: 3
   until: cssre_pingdom_project_update.rc == 0
+
+# CS SRE Jobs
+- name: 'Generate generic tower extra vars file'
+  template:
+    src: 'rhmi_pingdom_extra_vars.yml.j2'
+    dest: "{{ rhmi_pingdom_extra_vars_file_path }}"
+
+
+- name: Create OSD Pingdom Checks job template
+  tower_job_template:
+    job_type: run
+    playbook: playbooks/create_pingdom.yml
+    name: "{{ rhmi_pingdom_provision_name }}"
+    project: "{{ cssre_rhmi_pingdom_name }}"
+    credential: "{{ tower_credential_bundle_default_name }}"
+    extra_vars_path: '{{ rhmi_pingdom_extra_vars_file_path }}'
+    description: "{{ rhmi_pingdom_provision_desc }}"
+    state: present 
+    inventory: "{{ tower_inventory_name }}"
+    tower_verify_ssl: "{{ tower_verify_ssl }}"
+
+- name: "Associate {{ sre_prod_keys_credential_bundle_name }} credential "
+  shell: tower-cli job_template associate_credential --job-template "{{ rhmi_pingdom_provision_name }}" --credential "{{ sre_prod_keys_credential_bundle_name }}"
+
+- name: Update Pingdom Checks job template with survey
+  shell: "tower-cli job_template modify --name=\"{{ rhmi_pingdom_provision_name }}\" --survey-enabled=true --survey-spec='@{{ role_path }}/files/rhmi_pingdom_provision_survey.json'"
