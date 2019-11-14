@@ -33,6 +33,13 @@
     state: present
     tower_verify_ssl: "{{ tower_verify_ssl }}"
 
+- name: "Sync project: {{ integreatly_osd_cve_rollout_project_name }}"
+  shell: "tower-cli project update -n {{ integreatly_osd_cve_rollout_project_name }}"
+  register: cve_project_update
+  retries: 10
+  delay: 3
+  until: cve_project_update.rc == 0
+
 - name: Create inventory source for OSD CVE inventory
   tower_inventory_source:
     name: "{{ integreatly_osd_cve_rollout_source_name }}"

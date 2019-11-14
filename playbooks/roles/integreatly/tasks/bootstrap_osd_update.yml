@@ -33,6 +33,13 @@
     state: present
     tower_verify_ssl: "{{ tower_verify_ssl }}"
 
+- name: "Sync project: integreatly-update-{{ integreatly_osd_update_branch }}"
+  shell: "tower-cli project update -n integreatly-update-{{ integreatly_osd_update_branch }}"
+  register: update_project_update
+  retries: 10
+  delay: 3
+  until: update_project_update.rc == 0
+
 - name: Create inventory source for OSD update inventory
   tower_inventory_source:
     name: "{{ integreatly_osd_upgrade_source_name }}"
