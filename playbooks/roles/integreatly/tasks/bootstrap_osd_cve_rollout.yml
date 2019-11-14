@@ -1,0 +1,91 @@
+---
+- name: "Create integreatly CVE project: {{ integreatly_osd_cve_rollout_project_name }}"
+  tower_project:
+    name: "{{ integreatly_osd_cve_rollout_project_name }}"
+    description: "{{ integreatly_osd_cve_rollout_project_desc }}"
+    organization: "{{ integreatly_osd_cve_rollout_org }}"
+    state: present
+    scm_type: "{{ integreatly_osd_cve_rollout_project_scm_type }}"
+    scm_url: "{{ integreatly_osd_cve_rollout_project_scm_url }}"
+    scm_branch: "{{ integreatly_osd_cve_rollout_project_branch }}"
+    scm_clean: "{{ integreatly_osd_cve_rollout_project_scm_clean }}"
+    scm_update_on_launch: "{{ integreatly_osd_cve_rollout_project_scm_update_on_launch }}"
+    scm_delete_on_update: "{{ integreatly_osd_cve_rollout_project_scm_delete_on_update }}"
+    scm_credential: "{{ integreatly_credential_bundle_github_name }}"
+    tower_verify_ssl: "{{ tower_verify_ssl }}"
+  register: integreatly_cve_rollout_output
+  until: integreatly_cve_rollout_output is succeeded
+  retries: 10
+  delay: 5
+
+- name: Wait for project to be successfully synced to tower
+  shell: tower-cli project status {{ integreatly_cve_rollout_output.id }} 
+  register: integreatly_sync_out
+  until: integreatly_sync_out.stdout.find("successful") != -1
+  retries: 10
+  delay: 5
+
+- name: Create OSD CVE inventory in tower
+  tower_inventory:
+    name: "{{ integreatly_osd_cve_rollout_inventory_name }}"
+    description: "{{ integreatly_osd_cve_rollout_inventory_desc }}"
+    organization: "{{ integreatly_osd_cve_rollout_org }}"
+    state: present
+    tower_verify_ssl: "{{ tower_verify_ssl }}"
+
+- name: "Sync project: {{ integreatly_osd_cve_rollout_project_name }}"
+  shell: "tower-cli project update -n {{ integreatly_osd_cve_rollout_project_name }}"
+  register: cve_project_update
+  retries: 10
+  delay: 3
+  until: cve_project_update.rc == 0
+
+- name: Create inventory source for OSD CVE inventory
+  tower_inventory_source:
+    name: "{{ integreatly_osd_cve_rollout_source_name }}"
+    inventory: "{{ integreatly_osd_cve_rollout_inventory_name }}"
+    source: "{{ integreatly_inventory_source_project_type }}"
+    description: "From Project: {{ integreatly_osd_cve_rollout_project_name }}"
+    overwrite: "{{ integreatly_inventory_source_project_overwrite }}"
+    overwrite_vars: "{{ integreatly_inventory_source_project_overwrite_vars }}"
+    update_on_launch: "{{ integreatly_osd_cve_rollout_source_project_on_launch }}"
+    source_project: "{{ integreatly_osd_cve_rollout_project_name }}"
+    source_path: "{{ integreatly_osd_cve_rollout_source_path }}"
+    state: present
+    tower_verify_ssl: "{{ tower_verify_ssl }}"
+  register: integreatly_cve_rollout_source_output
+  until: integreatly_cve_rollout_source_output is succeeded
+  retries: 10
+  delay: 5
+
+- name: Create OSD Integreatly bootstrap CVE job template
+  tower_job_template:
+    name: "{{ integreatly_osd_cve_rollout_bootstrap_name }}"
+    description: "{{ integreatly_osd_cve_rollout_bootstrap_desc }}"
+    project: "{{ tower_configuration_project_name }}"
+    job_type: run
+    playbook: playbooks/osd_integreatly_cve_rollout.yml
+    credential: "{{ tower_credential_bundle_default_name }}"
+    state: present 
+    inventory: "{{ tower_inventory_name }}"
+    vault_credential: '{{ tower_credential_bundle_vault_name }}'
+    tower_verify_ssl: "{{ tower_verify_ssl }}"
+
+- name: Create OSD Integreatly CVE job template
+  tower_job_template:
+    name: "{{ integreatly_osd_cve_rollout_job_template_name }}"
+    description: "{{ integreatly_osd_cve_rollout_job_template_desc }}"
+    project: "{{ integreatly_osd_cve_rollout_project_name }}"
+    job_type: run
+    playbook: "playbooks/cve_rollout.yml"
+    credential: "{{ tower_credential_bundle_default_name }}"
+    state: present 
+    inventory: "{{ integreatly_osd_cve_rollout_inventory_name }}"
+    tower_verify_ssl: "{{ tower_verify_ssl }}"
+  register: integreatly_cve_rollout_output
+  until: integreatly_cve_rollout_output is succeeded
+  retries: 10
+  delay: 5
+
+- name: "Update CVE job template: {{ integreatly_osd_cve_rollout_job_template_name }}"
+  shell: "tower-cli job_template modify -n \"{{ integreatly_osd_cve_rollout_job_template_name }}\" --project {{ integreatly_osd_cve_rollout_project_name }} --playbook playbooks/cve_rollout.yml {% if integreatly_osd_cve_rollout_product_tags != '' %} --job-tags {{ integreatly_osd_cve_rollout_product_tags }} {% endif %}"

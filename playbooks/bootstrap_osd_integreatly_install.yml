@@ -13,4 +13,7 @@
     - include_role:
         name: integreatly
         tasks_from: bootstrap_osd_uninstall_workflow.yml
+    - include_role:
+        name: integreatly
+        tasks_from: bootstrap_osd_cve_rollout_workflow.yml
     

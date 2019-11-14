@@ -1,0 +1,11 @@
+---
+- import_playbook: "./authenticate_tower.yml"
+
+- hosts: localhost
+  gather_facts: no
+  tasks:
+    - include_vars:
+        ./roles/tower/defaults/main.yml
+    - include_role:
+        name: integreatly
+        tasks_from: bootstrap_osd_cve_rollout.yml
