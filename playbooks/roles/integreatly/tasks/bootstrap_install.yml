@@ -22,6 +22,14 @@
     scm_delete_on_update: "{{ integreatly_project_install_scm_delete_on_update }}"
     scm_credential: "{{ integreatly_credential_bundle_github_name }}"
     tower_verify_ssl: '{{ tower_verify_ssl }}'
+  register: integreatly_install_project
+
+- name: Wait for install project {{ integreatly_project_install_name }} to be synced
+  shell: tower-cli project status {{ integreatly_install_project.id }}
+  register: integreatly_sync_out
+  until: integreatly_sync_out.stdout.find("successful") != -1
+  retries: 10
+  delay: 5
 
 - name: "Sync project: {{ integreatly_project_install_name }}"
   shell: "tower-cli project update -n {{ integreatly_project_install_name }}"
@@ -29,6 +37,13 @@
   retries: 10
   delay: 3
   until: install_project_update.rc == 0
+
+- name: Wait for install project {{ integreatly_project_install_name }} to be synced
+  shell: tower-cli project status {{ integreatly_install_project.id }}
+  register: integreatly_sync_out
+  until: integreatly_sync_out.stdout.find("successful") != -1
+  retries: 10
+  delay: 5
 
 - name: "Create inventory source AWS: {{ integreatly_inventory_source_aws_name }}"
   tower_inventory_source:
@@ -44,6 +59,7 @@
     instance_filters: "{{ integreatly_inventory_source_aws_instance_filters }}"
     state: present
     tower_verify_ssl: '{{ tower_verify_ssl }}'
+  register: integreatly_inventory_aws_source
 
 - name: "Create inventory source from Project: {{ integreatly_project_install_name }}"
   tower_inventory_source:
@@ -58,12 +74,27 @@
     source_path: "{{ integreatly_inventory_source_project_path }}"
     state: present
     tower_verify_ssl: '{{ tower_verify_ssl }}'
+  register: integreatly_inventory_project_source
 
 - name: "Sync inventory sources"
   shell: "tower-cli inventory_source update {{ item }}"
   with_items:
     - "{{ integreatly_inventory_source_aws_name }}"
     - "{{ integreatly_inventory_source_project_name }}"
+
+- name: "Wait for inventory source Project: {{ integreatly_inventory_source_project_name }} to be synced"
+  shell: tower-cli inventory_source status {{ integreatly_inventory_project_source.id }}
+  register: integreatly_sync_out
+  until: integreatly_sync_out.stdout.find("successful") != -1
+  retries: 10
+  delay: 5
+
+- name: "Wait for inventory source AWS: {{ integreatly_inventory_source_aws_name }} to be synced"
+  shell: tower-cli inventory_source status {{ integreatly_inventory_aws_source.id }}
+  register: integreatly_sync_out
+  until: integreatly_sync_out.stdout.find("successful") != -1
+  retries: 10
+  delay: 5
 
 - name: "Create master group: {{ integreatly_group_master_name }}"
   tower_group:
