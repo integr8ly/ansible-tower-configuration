@@ -140,7 +140,7 @@
   register: cluster_provisioning_vars_raw
 
 - set_fact:
-    cluster_provisioning_vars: "{{ cluster_provisioning_vars_raw.stdout | from_json }}"
+    cluster_provisioning_vars: "{{ cluster_provisioning_vars_raw.stdout | from_yaml }}"
 
 - set_fact:
     cluster_aws_region: "{{ cluster_provisioning_vars['openshift_aws_region'] }}"
