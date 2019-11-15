@@ -18,7 +18,7 @@
   retries: 10
   delay: 5
 
-- name: Wait for project to be successfully synced to tower
+- name: Wait for CVE project {{ integreatly_osd_cve_rollout_project_name }} to be synced
   shell: tower-cli project status {{ integreatly_cve_rollout_output.id }} 
   register: integreatly_sync_out
   until: integreatly_sync_out.stdout.find("successful") != -1
@@ -39,6 +39,13 @@
   retries: 10
   delay: 3
   until: cve_project_update.rc == 0
+
+- name: Wait for CVE project {{ integreatly_osd_cve_rollout_project_name }} to be synced
+  shell: tower-cli project status {{ integreatly_cve_rollout_output.id }}
+  register: integreatly_sync_out
+  until: integreatly_sync_out.stdout.find("successful") != -1
+  retries: 10
+  delay: 5
 
 - name: Create inventory source for OSD CVE inventory
   tower_inventory_source:

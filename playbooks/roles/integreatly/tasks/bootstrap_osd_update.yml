@@ -18,7 +18,7 @@
   retries: 10
   delay: 5
 
-- name: Wait for project to be successfully synced to tower
+- name: Wait for update project integreatly-update-{{ integreatly_osd_update_branch }} to be synced
   shell: tower-cli project status {{ integreatly_update_out.id }} 
   register: integreatly_sync_out
   until: integreatly_sync_out.stdout.find("successful") != -1
@@ -39,6 +39,13 @@
   retries: 10
   delay: 3
   until: update_project_update.rc == 0
+
+- name: Wait for update project integreatly-update-{{ integreatly_osd_update_branch }} to be synced
+  shell: tower-cli project status {{ integreatly_update_out.id }} 
+  register: integreatly_sync_out
+  until: integreatly_sync_out.stdout.find("successful") != -1
+  retries: 10
+  delay: 5
 
 - name: Create inventory source for OSD update inventory
   tower_inventory_source:

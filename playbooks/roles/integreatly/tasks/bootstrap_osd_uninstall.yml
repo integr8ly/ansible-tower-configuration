@@ -18,7 +18,7 @@
   retries: 10
   delay: 5
 
-- name: Wait for project to be successfully synced to tower
+- name: Wait for uninstall project integreatly-uninstall-{{ integreatly_osd_uninstall_branch }} to be synced
   shell: tower-cli project status {{ integreatly_uninstall_out.id }} 
   register: integreatly_sync_out
   until: integreatly_sync_out.stdout.find("successful") != -1
@@ -39,6 +39,14 @@
   retries: 10
   delay: 3
   until: uninstall_project_update.rc == 0
+
+  
+- name: Wait for uninstall project integreatly-uninstall-{{ integreatly_osd_uninstall_branch }} to be synced
+  shell: tower-cli project status {{ integreatly_uninstall_out.id }} 
+  register: integreatly_sync_out
+  until: integreatly_sync_out.stdout.find("successful") != -1
+  retries: 10
+  delay: 5
 
 - name: Create inventory source for OSD inventory
   tower_inventory_source:
