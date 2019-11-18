@@ -104,3 +104,59 @@
 
 - name: "Associate {{ osd_bastion_credential_bundle_name }} credential "
   shell: tower-cli job_template associate_credential --job-template "{{ rhmi_ssh_tunnel_delete_name }}" --credential "{{ osd_bastion_credential_bundle_name }}"  
+
+# SRE post install and uninstall Jobs
+
+- name: 'Generate generic tower extra vars file for Post Install Housekeeping job'
+  template:
+    src: 'rhmi_post_install_housekeeping_extra_vars.yml.j2'
+    dest: "{{ rhmi_post_install_housekeeping_extra_vars_file_path }}"
+
+- name: Create Post Install Housekeeping job template
+  tower_job_template:
+    job_type: run
+    playbook: playbooks/Integreatly_Post_Install_[OSD].yml
+    name: "{{ rhmi_post_install_housekeeping_name }}"
+    description: "{{ rhmi_post_install_housekeeping_desc }}"
+    project: "{{ cssre_ansible_ops_project_name }}"
+    credential: "{{ tower_credential_bundle_default_name }}"
+    extra_vars_path: '{{ rhmi_post_install_housekeeping_extra_vars_file_path }}'
+    state: present 
+    inventory: "{{ tower_inventory_name }}"
+    tower_verify_ssl: "{{ tower_verify_ssl }}"
+
+- name: "Associate {{ osd_bastion_credential_bundle_name }} credential "
+  shell: tower-cli job_template associate_credential --job-template "{{ rhmi_post_install_housekeeping_name }}" --credential "{{ osd_bastion_credential_bundle_name }}"
+  
+- name: "Associate {{ sre_prod_keys_credential_bundle_name }} credential "
+  shell: tower-cli job_template associate_credential --job-template "{{ rhmi_post_install_housekeeping_name }}" --credential "{{ sre_prod_keys_credential_bundle_name }}"
+
+- name: Update Post Install Housekeeping job template with survey
+  shell: "tower-cli job_template modify --name=\"{{ rhmi_post_install_housekeeping_name }}\" --survey-enabled=true --survey-spec='@{{ role_path }}/files/rhmi_post_install_housekeeping_survey.json'"
+
+- name: 'Generate generic tower extra vars file for Post Uninstall Housekeeping job'
+  template:
+    src: 'rhmi_post_uninstall_housekeeping_extra_vars.yml.j2'
+    dest: "{{ rhmi_post_uninstall_housekeeping_extra_vars_file_path }}"
+
+- name: Create Post UnInstall Housekeeping job template
+  tower_job_template:
+    job_type: run
+    playbook: playbooks/Integreatly_Post_Uninstall_[OSD].yml
+    name: "{{ rhmi_post_uninstall_housekeeping_name }}"
+    description: "{{ rhmi_post_uninstall_housekeeping_desc }}"
+    project: "{{ cssre_ansible_ops_project_name }}"
+    credential: "{{ tower_credential_bundle_default_name }}"
+    extra_vars_path: '{{ rhmi_post_uninstall_housekeeping_extra_vars_file_path }}'
+    state: present 
+    inventory: "{{ tower_inventory_name }}"
+    tower_verify_ssl: "{{ tower_verify_ssl }}"
+
+- name: "Associate {{ osd_bastion_credential_bundle_name }} credential "
+  shell: tower-cli job_template associate_credential --job-template "{{ rhmi_post_uninstall_housekeeping_name }}" --credential "{{ osd_bastion_credential_bundle_name }}"
+  
+- name: "Associate {{ sre_prod_keys_credential_bundle_name }} credential "
+  shell: tower-cli job_template associate_credential --job-template "{{ rhmi_post_uninstall_housekeeping_name }}" --credential "{{ sre_prod_keys_credential_bundle_name }}"
+
+- name: Update Post Install Housekeeping job template with survey
+  shell: "tower-cli job_template modify --name=\"{{ rhmi_post_uninstall_housekeeping_name }}\" --survey-enabled=true --survey-spec='@{{ role_path }}/files/rhmi_post_uninstall_housekeeping_survey.json'"

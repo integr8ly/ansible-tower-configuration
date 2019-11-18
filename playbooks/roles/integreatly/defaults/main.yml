@@ -194,3 +194,11 @@ rhmi_ssh_tunnel_extra_vars_file_path: '/tmp/rhmi_ssh_tunnel_extra_vars.yml'
 
 rhmi_ssh_tunnel_delete_name: "Integreatly_Delete_SSH_Tunnel_[OSD]"
 rhmi_ssh_tunnel_delete_desc: "Deletes SSH Tunnel to OCP master node"
+
+rhmi_post_install_housekeeping_name: "Integreatly_Post_Install_HouseKeeping_[OSD]"
+rhmi_post_install_housekeeping_desc: "Completes all needed CS SRE housekeeping like creating pagerduty and configuring alertmanager"
+rhmi_post_install_housekeeping_extra_vars_file_path: '/tmp/rhmi_post_install_housekeeping_extra_vars.yml'
+
+rhmi_post_uninstall_housekeeping_name: "Integreatly_Post_Uninstall_HouseKeeping_[OSD]"
+rhmi_post_uninstall_housekeeping_desc: "Deletes services like pagerduty, DMS and sengrid for a decommissioned cluster."
+rhmi_post_uninstall_housekeeping_extra_vars_file_path: '/tmp/rhmi_post_uninstall_housekeeping_extra_vars.yml'
