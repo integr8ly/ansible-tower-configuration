@@ -66,3 +66,8 @@
     value:
       - "/tmp"
     tower_verify_ssl: '{{ tower_verify_ssl }}'
+
+
+# Import the cssre bootstrap task
+- include_tasks: bootstrap_cssre.yml
+  when: tower_sre_extras
