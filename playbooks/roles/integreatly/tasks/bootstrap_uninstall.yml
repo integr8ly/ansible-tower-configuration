@@ -14,6 +14,14 @@
     scm_delete_on_update: "{{ integreatly_project_uninstall_scm_delete_on_update }}"
     scm_credential: "{{ integreatly_credential_bundle_github_name }}"
     tower_verify_ssl: '{{ tower_verify_ssl }}'
+  register: integreatly_uninstall_project
+
+- name: Wait for uninstall project {{ integreatly_project_uninstall_name }} to be synced
+  shell: tower-cli project status {{ integreatly_uninstall_project.id }}
+  register: integreatly_sync_out
+  until: integreatly_sync_out.stdout.find("successful") != -1
+  retries: 10
+  delay: 5
 
 - name: "Sync project: {{ integreatly_project_uninstall_name }}"
   shell: "tower-cli project update -n {{ integreatly_project_uninstall_name }}"
@@ -21,6 +29,13 @@
   retries: 10
   delay: 3
   until: uninstall_project_update.rc == 0
+
+- name: Wait for uninstall project {{ integreatly_project_uninstall_name }} to be synced
+  shell: tower-cli project status {{ integreatly_uninstall_project.id }}
+  register: integreatly_sync_out
+  until: integreatly_sync_out.stdout.find("successful") != -1
+  retries: 10
+  delay: 5
 
 - name: "Update workflow stage {{ integreatly_job_template_uninstall_name }}"
   shell: "tower-cli job_template modify -n \"{{ integreatly_job_template_uninstall_name }}\" -i {{ integreatly_inventory_name }} --project {{ integreatly_project_uninstall_name }} --playbook {{ integreatly_job_template_uninstall_playbook }} --credential {{ tower_credential_bundle_default_name }}"
