@@ -37,6 +37,17 @@
       "type": "text"
     },
     {
+      "question_description": "Optional - Only needed for Private Clusters. Single OSD Master Node IP",
+      "min": 0,
+      "default": "",
+      "max": 30,
+      "required": false,
+      "choices": "",
+      "variable": "master_node_ip",
+      "question_name": "OSD Master Node IP",
+      "type": "text"
+    },
+    {
       "question_description": "Openshift token for cluster-admin user",
       "min": 0,
       "default": "",

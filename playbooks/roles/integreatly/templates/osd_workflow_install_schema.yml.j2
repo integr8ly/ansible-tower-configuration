@@ -1,4 +1,15 @@
 ---
 - job_template: "{{ integreatly_osd_bootstrap_name }}"
+{% if tower_sre_extras | d() | bool %}
+  success:
+  - job_template: "{{ rhmi_ssh_tunnel_create_name }}"
+    success:
+    - job_template: "{{ integreatly_osd_install_name }}"
+      success:
+      - job_template: "{{ rhmi_post_install_housekeeping_name }}"
+        success:
+        - job_template: "{{ rhmi_ssh_tunnel_delete_name }}"
+{% else %}
   success:
   - job_template: "{{ integreatly_osd_install_name }}"
+{% endif %}
