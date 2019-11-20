@@ -8,7 +8,7 @@ cluster_aws_access_key: ''
 cluster_aws_secret_access_key: ''
 
 # Integreatly Configurations
-integreatly_version: 'release-1.5.1'
+integreatly_version: 'release-1.5.2'
 integreatly_install_type: 'poc'
 
 # Workflow Job Template
@@ -202,3 +202,34 @@ rhmi_post_install_housekeeping_extra_vars_file_path: '/tmp/rhmi_post_install_hou
 rhmi_post_uninstall_housekeeping_name: "Integreatly_Post_Uninstall_HouseKeeping_[OSD]"
 rhmi_post_uninstall_housekeeping_desc: "Deletes services like pagerduty, DMS and sengrid for a decommissioned cluster."
 rhmi_post_uninstall_housekeeping_extra_vars_file_path: '/tmp/rhmi_post_uninstall_housekeeping_extra_vars.yml'
+
+# OSD CVE Rollouts
+integreatly_osd_cve_rollout_workflow_name: "Integreatly_CVE_rollout_[OSD]"
+integreatly_osd_cve_rollout_workflow_desc: "Workflow for rolling out CVEs to OSD"
+integreatly_osd_cve_rollout_workflow_job_concurrency: True
+
+integreatly_osd_cve_rollout_job_template_name: "Integreatly_CVE_Rollout_Job_Template_[OSD]"
+integreatly_osd_cve_rollout_job_template_desc: "Job template for rolling out CVEs to OSD"
+integreatly_osd_cve_rollout_job_template_concurrency: True
+
+integreatly_osd_cve_rollout_bootstrap_name: "Integreatly_CVE_Bootstrap_Template_[OSD]"
+integreatly_osd_cve_rollout_bootstrap_desc: "Job template for bootstrapping CVE rollout jobs on OSD"
+integreatly_osd_cve_rollout_bootstrap_concurrency: True
+
+integreatly_osd_cve_rollout_project_branch: "{{ integreatly_version }}"
+integreatly_osd_cve_rollout_project_name: "integreatly-cve-{{ integreatly_osd_cve_rollout_project_branch }}"
+integreatly_osd_cve_rollout_project_desc: "Project for CVE rollouts"
+integreatly_osd_cve_rollout_project_scm_type: git
+integreatly_osd_cve_rollout_project_scm_url: 'git@github.com:integr8ly/installation.git'
+integreatly_osd_cve_rollout_project_scm_clean: true
+integreatly_osd_cve_rollout_project_scm_update_on_launch: false
+integreatly_osd_cve_rollout_project_scm_delete_on_update: true
+
+integreatly_osd_cve_rollout_org: integreatly
+integreatly_osd_cve_rollout_inventory_name: OSD_cve_inventory
+integreatly_osd_cve_rollout_inventory_desc: "Inventory for OSD CVE Rollouts"
+integreatly_osd_cve_rollout_product_tags: ''
+
+integreatly_osd_cve_rollout_source_name: cve-project-source
+integreatly_osd_cve_rollout_source_project_on_launch: true
+integreatly_osd_cve_rollout_source_path: "inventories/osd.template"

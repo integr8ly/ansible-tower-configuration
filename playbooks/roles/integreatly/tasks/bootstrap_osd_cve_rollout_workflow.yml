@@ -1,0 +1,34 @@
+---
+- include_tasks: bootstrap_osd_cve_rollout.yml
+
+- name: "Create workflow: {{ integreatly_osd_cve_rollout_workflow_name }}"
+  tower_workflow_template:
+    name:  "{{ integreatly_osd_cve_rollout_workflow_name }}"
+    description: "{{ integreatly_osd_cve_rollout_workflow_desc }}"
+    state: present
+    organization: "{{ integreatly_osd_cve_rollout_org }}"
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
+    allow_simultaneous: "{{ integreatly_osd_cve_rollout_workflow_job_concurrency }}"
+  register: create_workflow_response
+
+- name: Create CVE rollout workflow schema
+  template:
+    src: osd_workflow_cve_rollout_schema.yml.j2
+    dest: "/tmp/osd_workflow_cve_rollout_schema.yml"
+
+- name: Update CVE workflow job template with survey
+  shell: "tower-cli workflow modify --name=\"{{ integreatly_osd_cve_rollout_workflow_name }}\" --survey-enabled=true --survey-spec='@{{ role_path }}/files/osd_cve_rollout_survey.json'"
+
+- name: Update CVE workflow job template with schema
+  shell: "tower-cli workflow schema \"{{ integreatly_osd_cve_rollout_workflow_name }}\" @/tmp/osd_workflow_cve_rollout_schema.yml"
+
+# Update the workflow to enable ask_variables_on_launch via the tower api
+- include_role:
+    name: tower
+    tasks_from: enable_ask_variables_on_launch.yml
+  vars:
+    workflow_id: "{{ create_workflow_response.id }}"
+
+- name: Cleanup temp CVE rollout workflow files
+  file:
+    path: "/tmp/osd_workflow_cve_rollout_schema.yml"

@@ -127,3 +127,9 @@
 
 - name: "Associate le_privatekey credential to {{ cluster_workflow_job_template_name }}"
   shell: tower-cli job_template associate_credential --job-template "{{ cluster_workflow_job_template_name }}" --credential "le_privatekey"
+
+- include_role:
+    name: tower
+    tasks_from: enable_ask_variables_on_launch.yml
+  vars:
+    workflow_id: "{{ create_workflow_response.id }}"
