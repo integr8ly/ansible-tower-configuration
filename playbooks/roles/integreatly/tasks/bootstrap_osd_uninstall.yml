@@ -95,5 +95,10 @@
   retries: 10
   delay: 5
 
+# tower_job_template only allows a template YAML file to be provided when setting extra vars
+# Setting it to blank via tower-cli
+- name: "Update job template {{ integreatly_osd_uninstall_name }} to set the extra vars to empty"
+  shell: "tower-cli job_template modify -n \"{{ integreatly_osd_uninstall_name }}\" --extra-vars '' "
+
 - name: "Update workflow stage {{ integreatly_job_template_uninstall_name }}"
   shell: "tower-cli job_template modify -n \"{{ integreatly_osd_uninstall_name }}\" --project integreatly-uninstall-{{ integreatly_osd_uninstall_branch }} --playbook playbooks/uninstall.yml"
