@@ -8,6 +8,7 @@ tower_username: '{{ lookup("vars", "_".join((tower_environment, "tower_username"
 tower_password: '{{ lookup("vars", "_".join((tower_environment, "tower_password")) ) }}'
 tower_verify_ssl: '{{ lookup("vars", "_".join((tower_environment, "tower_verify_ssl")) ) }}'
 tower_extra_vars_file_path: '/tmp/tower_extra_vars.yml'
+tower_sre_extras: False
 
 # Ansible Tower Openshift Configurations
 tower_openshift_username: ''
@@ -29,6 +30,7 @@ tower_credential_bundle_vault_type: 'vault'
 tower_credential_bundle_default_name: 'tower_provisioner'
 tower_credential_bundle_default_desc: 'Default Tower machine credential'
 tower_credential_bundle_default_type: 'ssh'
+tower_credential_bundle_become_method: 'su'
 
 tower_credential_bundle_github_name: "tower_github_scm"
 tower_credential_bundle_github_desc: "Default Tower Credential Bundle for Github"
@@ -36,6 +38,21 @@ tower_credential_bundle_github_type: 'scm'
 
 tower_credential_bundle_aws_type: "aws"
 aws_credential_list: []
+
+# Extra Credentials Required by CS SRE
+custom_credential_bundle_bastion_ssh_name: 'osd_bastion_ssh'
+custom_credential_bundle_bastion_ssh_desc: 'OSD bastion details that contain username, password, and ssh key'
+
+osd_bastion_credential_bundle_name: 'cs_sre_tower_osd_bastion'
+osd_bastion_credential_bundle_type: "{{ custom_credential_bundle_bastion_ssh_name }}"
+osd_bastion_credential_bundle_desc: 'Bastion SSH details for private OSD clusters'
+
+custom_credential_bundle_external_keys_name: 'sre_external_keys'
+custom_credential_bundle_external_keys_desc: 'External Services API Keys'
+
+sre_prod_keys_credential_bundle_name: 'sre_prod_external_keys'
+sre_prod_keys_credential_bundle_type: "{{ custom_credential_bundle_external_keys_name }}"
+sre_prod_keys_credential_bundle_desc: 'Production External Services API Keys'
 
 # Ansible Tower Default Inventories
 tower_inventory_name: 'Default Tower Inventory'

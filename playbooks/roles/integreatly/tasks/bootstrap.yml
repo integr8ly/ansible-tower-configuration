@@ -11,6 +11,9 @@
     kind: "{{ integreatly_credential_bundle_github_kind }}"
     tower_verify_ssl: '{{ tower_verify_ssl }}'
 
-- include_tasks: workflow_install.yml
+- name: Bootstrap CS SRE Projects and Workflows
+  include_tasks: bootstrap_cssre.yml
+  when: tower_sre_extras
 
+- include_tasks: workflow_install.yml
 - include_tasks: workflow_uninstall.yml

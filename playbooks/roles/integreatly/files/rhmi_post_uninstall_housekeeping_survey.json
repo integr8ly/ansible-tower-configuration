@@ -1,0 +1,17 @@
+{
+    "description": "",
+    "name": "",
+    "spec": [
+      {
+        "required": true,
+        "min": 0,
+        "default": "",
+        "max": 30,
+        "question_description": "The name of the cluster ie, console.<CLUSTER NAME>.openshift.com",
+        "choices": "",
+        "variable": "cluster_id",
+        "question_name": "CLUSTER NAME",
+        "type": "text"
+      }
+    ]
+  }

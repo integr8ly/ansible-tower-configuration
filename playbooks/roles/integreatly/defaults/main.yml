@@ -164,6 +164,45 @@ integreatly_osd_upgrade_desc: "Workflow to upgrade integreatly on an OSD cluster
 integreatly_osd_update_inventory: OSD_update_inventory
 integreatly_osd_upgrade_workflow_job_concurrency: True
 
+# CS SRE Projects
+cssre_ansible_ops_project_scm_branch: "prod"
+cssre_ansible_ops_project_name: "rhmi-ansible-ops"
+cssre_ansible_ops_project_desc: "{{ cssre_ansible_ops_project_name }} Project for Branch: {{ cssre_ansible_ops_project_scm_branch }}"
+cssre_ansible_ops_project_scm_type: git
+cssre_ansible_ops_project_scm_clean: true
+cssre_ansible_ops_project_scm_url: 'git@github.com:rh-cssre/rhmi-ansible-ops.git'
+cssre_ansible_ops_project_scm_update_on_launch: true
+cssre_ansible_ops_project_scm_delete_on_update: true
+
+cssre_rhmi_pingdom_scm_branch: "prod"
+cssre_rhmi_pingdom_name: "rhmi-pingdom"
+cssre_rhmi_pingdom_desc: "{{ cssre_rhmi_pingdom_name }} Project for Branch: {{ cssre_rhmi_pingdom_scm_branch }}"
+cssre_rhmi_pingdom_scm_type: git
+cssre_rhmi_pingdom_scm_clean: true
+cssre_rhmi_pingdom_scm_url: 'git@github.com:rh-cssre/rhmi-pingdom.git'
+cssre_rhmi_pingdom_scm_update_on_launch: true
+cssre_rhmi_pingdom_scm_delete_on_update: true
+
+# CS SRE Jobs
+rhmi_pingdom_provision_name: "Provision_Pingdom_Checks_[OSD]"
+rhmi_pingdom_provision_desc: "Job for creating pingdom checks for RHMI on OSD"
+rhmi_pingdom_extra_vars_file_path: '/tmp/rhmi_pingdom_extra_vars.yml'
+
+rhmi_ssh_tunnel_create_name: "Integreatly_Create_SSH_Tunnel_[OSD]"
+rhmi_ssh_tunnel_create_desc: "Creates SSH Tunnel to OCP master node"
+rhmi_ssh_tunnel_extra_vars_file_path: '/tmp/rhmi_ssh_tunnel_extra_vars.yml'
+
+rhmi_ssh_tunnel_delete_name: "Integreatly_Delete_SSH_Tunnel_[OSD]"
+rhmi_ssh_tunnel_delete_desc: "Deletes SSH Tunnel to OCP master node"
+
+rhmi_post_install_housekeeping_name: "Integreatly_Post_Install_HouseKeeping_[OSD]"
+rhmi_post_install_housekeeping_desc: "Completes all needed CS SRE housekeeping like creating pagerduty and configuring alertmanager"
+rhmi_post_install_housekeeping_extra_vars_file_path: '/tmp/rhmi_post_install_housekeeping_extra_vars.yml'
+
+rhmi_post_uninstall_housekeeping_name: "Integreatly_Post_Uninstall_HouseKeeping_[OSD]"
+rhmi_post_uninstall_housekeeping_desc: "Deletes services like pagerduty, DMS and sengrid for a decommissioned cluster."
+rhmi_post_uninstall_housekeeping_extra_vars_file_path: '/tmp/rhmi_post_uninstall_housekeeping_extra_vars.yml'
+
 # OSD CVE Rollouts
 integreatly_osd_cve_rollout_workflow_name: "Integreatly_CVE_rollout_[OSD]"
 integreatly_osd_cve_rollout_workflow_desc: "Workflow for rolling out CVEs to OSD"

@@ -1,0 +1,30 @@
+{
+    "spec": [
+      {
+        "required": true,
+        "min": 0,
+        "default": "",
+        "max": 20,
+        "question_description": "Name of target cluster to create pingdom checks for",
+        "choices": "",
+        "new_question": true,
+        "variable": "cluster_name",
+        "question_name": "Cluster Name",
+        "type": "text"
+      },
+      {
+        "required": true,
+        "min": 0,
+        "default": "",
+        "max": 1024,
+        "question_description": "Openshift token for cluster-admin user",
+        "choices": "",
+        "new_question": true,
+        "variable": "openshift_token",
+        "question_name": "Openshift token",
+        "type": "password"
+      }
+    ],
+    "description": "",
+    "name": ""
+  }

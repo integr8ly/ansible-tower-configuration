@@ -1,0 +1,10 @@
+{
+ "extra_vars": {
+  "sre_deadmanssnitch_api_key": "{{ dm_apikey }}",
+  "sre_pagerduty_api_key": "{{ pd_apikey }}",
+  "sre_pingdom_apikey": "{{ ping_apikey }}",
+  "sre_pingdom_password": "{{ ping_password }}",
+  "sre_pingdom_username": "{{ ping_username }}",
+  "sre_sendgrid_api_key": "{{ sg_apikey }}"
+ }
+}

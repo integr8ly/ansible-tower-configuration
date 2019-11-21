@@ -1,0 +1,39 @@
+{
+    "spec": [
+      {
+        "question_description": "The name of the cluster ie, console.<CLUSTER NAME>.openshift.com",
+        "min": 0,
+        "default": "",
+        "max": 30,
+        "required": true,
+        "choices": "",
+        "variable": "cluster_id",
+        "question_name": "CLUSTER NAME",
+        "type": "text"
+      },
+      {
+        "question_description": "Any ip address of one of the master nodes from the cluster",
+        "min": 0,
+        "default": "",
+        "max": 30,
+        "required": true,
+        "choices": "",
+        "variable": "master_node_ip",
+        "question_name": "MASTER NODE IP",
+        "type": "text"
+      },
+      {
+        "question_description": "A cluster admin login token",
+        "min": 0,
+        "default": "",
+        "max": 500,
+        "required": true,
+        "choices": "",
+        "variable": "openshift_token",
+        "question_name": "OPENSHIFT TOKEN",
+        "type": "password"
+      }
+    ],
+    "description": "",
+    "name": ""
+  }

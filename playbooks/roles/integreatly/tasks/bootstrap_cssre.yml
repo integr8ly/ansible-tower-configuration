@@ -1,0 +1,162 @@
+# CS SRE Projects
+- name: "Create project: {{ cssre_ansible_ops_project_name }}"
+  tower_project:
+    name: "{{ cssre_ansible_ops_project_name }}"
+    description: "{{ cssre_ansible_ops_project_desc }}"
+    organization: "{{ tower_organization }}"
+    state: present
+    scm_type: "{{ cssre_ansible_ops_project_scm_type }}"
+    scm_url: "{{ cssre_ansible_ops_project_scm_url }}"
+    scm_branch: "{{ cssre_ansible_ops_project_scm_branch }}"
+    scm_clean: "{{ cssre_ansible_ops_project_scm_clean }}"
+    scm_update_on_launch: "{{ cssre_ansible_ops_project_scm_update_on_launch }}"
+    scm_delete_on_update: "{{ cssre_ansible_ops_project_scm_delete_on_update }}"
+    scm_credential: "{{ integreatly_credential_bundle_github_name }}"
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
+
+- name: "Sync project: {{ cssre_ansible_ops_project_name }}"
+  shell: "tower-cli project update -n {{ cssre_ansible_ops_project_name }}"
+  register: cssre_ansible_ops_project_update
+  retries: 10
+  delay: 3
+  until: cssre_ansible_ops_project_update.rc == 0
+
+- name: "Create project: {{ cssre_rhmi_pingdom_name }}"
+  tower_project:
+    name: "{{ cssre_rhmi_pingdom_name }}"
+    description: "{{ cssre_rhmi_pingdom_desc }}"
+    organization: "{{ tower_organization }}"
+    state: present
+    scm_type: "{{ cssre_rhmi_pingdom_scm_type }}"
+    scm_url: "{{ cssre_rhmi_pingdom_scm_url }}"
+    scm_branch: "{{ cssre_rhmi_pingdom_scm_branch }}"
+    scm_clean: "{{ cssre_rhmi_pingdom_scm_clean }}"
+    scm_update_on_launch: "{{ cssre_rhmi_pingdom_scm_update_on_launch }}"
+    scm_delete_on_update: "{{ cssre_rhmi_pingdom_scm_delete_on_update }}"
+    scm_credential: "{{ integreatly_credential_bundle_github_name }}"
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
+
+- name: "Sync project: {{ cssre_rhmi_pingdom_name }}"
+  shell: "tower-cli project update -n {{ cssre_rhmi_pingdom_name }}"
+  register: cssre_pingdom_project_update
+  retries: 10
+  delay: 3
+  until: cssre_pingdom_project_update.rc == 0
+
+# CS SRE Jobs
+- name: 'Generate generic tower extra vars file for OSD Pingdom Checks job'
+  template:
+    src: 'rhmi_pingdom_extra_vars.yml.j2'
+    dest: "{{ rhmi_pingdom_extra_vars_file_path }}"
+
+- name: Create OSD Pingdom Checks job template
+  tower_job_template:
+    job_type: run
+    playbook: playbooks/create_pingdom.yml
+    name: "{{ rhmi_pingdom_provision_name }}"
+    project: "{{ cssre_rhmi_pingdom_name }}"
+    credential: "{{ tower_credential_bundle_default_name }}"
+    extra_vars_path: '{{ rhmi_pingdom_extra_vars_file_path }}'
+    description: "{{ rhmi_pingdom_provision_desc }}"
+    state: present 
+    inventory: "{{ tower_inventory_name }}"
+    tower_verify_ssl: "{{ tower_verify_ssl }}"
+
+- name: "Associate {{ sre_prod_keys_credential_bundle_name }} credential "
+  shell: tower-cli job_template associate_credential --job-template "{{ rhmi_pingdom_provision_name }}" --credential "{{ sre_prod_keys_credential_bundle_name }}"
+
+- name: Update Pingdom Checks job template with survey
+  shell: "tower-cli job_template modify --name=\"{{ rhmi_pingdom_provision_name }}\" --survey-enabled=true --survey-spec='@{{ role_path }}/files/rhmi_pingdom_provision_survey.json'"
+
+# SSH Tunnel Jobs
+- name: 'Generate generic tower extra vars file for SSH Tunnel Create job'
+  template:
+    src: 'rhmi_ssh_tunnel_extra_vars.yml.j2'
+    dest: "{{ rhmi_ssh_tunnel_extra_vars_file_path }}"
+
+- name: Create SSH Tunnel Create job template
+  tower_job_template:
+    job_type: run
+    playbook: playbooks/Integreatly_Create_SSH_Tunnel_[OSD].yml
+    name: "{{ rhmi_ssh_tunnel_create_name }}"
+    description: "{{ rhmi_ssh_tunnel_create_desc }}"
+    project: "{{ cssre_ansible_ops_project_name }}"
+    credential: "{{ tower_credential_bundle_default_name }}"
+    extra_vars_path: '{{ rhmi_ssh_tunnel_extra_vars_file_path }}'
+    state: present 
+    inventory: "{{ tower_inventory_name }}"
+    tower_verify_ssl: "{{ tower_verify_ssl }}"
+
+- name: "Associate {{ osd_bastion_credential_bundle_name }} credential "
+  shell: tower-cli job_template associate_credential --job-template "{{ rhmi_ssh_tunnel_create_name }}" --credential "{{ osd_bastion_credential_bundle_name }}"
+
+- name: Create SSH Tunnel Delete job template
+  tower_job_template:
+    job_type: run
+    playbook: playbooks/Integreatly_Delete_SSH_Tunnel_[OSD].yml
+    name: "{{ rhmi_ssh_tunnel_delete_name }}"
+    description: "{{ rhmi_ssh_tunnel_delete_desc }}"
+    project: "{{ cssre_ansible_ops_project_name }}"
+    credential: "{{ tower_credential_bundle_default_name }}"
+    state: present 
+    inventory: "{{ tower_inventory_name }}"
+    tower_verify_ssl: "{{ tower_verify_ssl }}"
+
+- name: "Associate {{ osd_bastion_credential_bundle_name }} credential "
+  shell: tower-cli job_template associate_credential --job-template "{{ rhmi_ssh_tunnel_delete_name }}" --credential "{{ osd_bastion_credential_bundle_name }}"  
+
+# SRE post install and uninstall Jobs
+
+- name: 'Generate generic tower extra vars file for Post Install Housekeeping job'
+  template:
+    src: 'rhmi_post_install_housekeeping_extra_vars.yml.j2'
+    dest: "{{ rhmi_post_install_housekeeping_extra_vars_file_path }}"
+
+- name: Create Post Install Housekeeping job template
+  tower_job_template:
+    job_type: run
+    playbook: playbooks/Integreatly_Post_Install_[OSD].yml
+    name: "{{ rhmi_post_install_housekeeping_name }}"
+    description: "{{ rhmi_post_install_housekeeping_desc }}"
+    project: "{{ cssre_ansible_ops_project_name }}"
+    credential: "{{ tower_credential_bundle_default_name }}"
+    extra_vars_path: '{{ rhmi_post_install_housekeeping_extra_vars_file_path }}'
+    state: present 
+    inventory: "{{ tower_inventory_name }}"
+    tower_verify_ssl: "{{ tower_verify_ssl }}"
+
+- name: "Associate {{ osd_bastion_credential_bundle_name }} credential "
+  shell: tower-cli job_template associate_credential --job-template "{{ rhmi_post_install_housekeeping_name }}" --credential "{{ osd_bastion_credential_bundle_name }}"
+  
+- name: "Associate {{ sre_prod_keys_credential_bundle_name }} credential "
+  shell: tower-cli job_template associate_credential --job-template "{{ rhmi_post_install_housekeeping_name }}" --credential "{{ sre_prod_keys_credential_bundle_name }}"
+
+- name: Update Post Install Housekeeping job template with survey
+  shell: "tower-cli job_template modify --name=\"{{ rhmi_post_install_housekeeping_name }}\" --survey-enabled=true --survey-spec='@{{ role_path }}/files/rhmi_post_install_housekeeping_survey.json'"
+
+- name: 'Generate generic tower extra vars file for Post Uninstall Housekeeping job'
+  template:
+    src: 'rhmi_post_uninstall_housekeeping_extra_vars.yml.j2'
+    dest: "{{ rhmi_post_uninstall_housekeeping_extra_vars_file_path }}"
+
+- name: Create Post UnInstall Housekeeping job template
+  tower_job_template:
+    job_type: run
+    playbook: playbooks/Integreatly_Post_Uninstall_[OSD].yml
+    name: "{{ rhmi_post_uninstall_housekeeping_name }}"
+    description: "{{ rhmi_post_uninstall_housekeeping_desc }}"
+    project: "{{ cssre_ansible_ops_project_name }}"
+    credential: "{{ tower_credential_bundle_default_name }}"
+    extra_vars_path: '{{ rhmi_post_uninstall_housekeeping_extra_vars_file_path }}'
+    state: present 
+    inventory: "{{ tower_inventory_name }}"
+    tower_verify_ssl: "{{ tower_verify_ssl }}"
+
+- name: "Associate {{ osd_bastion_credential_bundle_name }} credential "
+  shell: tower-cli job_template associate_credential --job-template "{{ rhmi_post_uninstall_housekeeping_name }}" --credential "{{ osd_bastion_credential_bundle_name }}"
+  
+- name: "Associate {{ sre_prod_keys_credential_bundle_name }} credential "
+  shell: tower-cli job_template associate_credential --job-template "{{ rhmi_post_uninstall_housekeeping_name }}" --credential "{{ sre_prod_keys_credential_bundle_name }}"
+
+- name: Update Post Install Housekeeping job template with survey
+  shell: "tower-cli job_template modify --name=\"{{ rhmi_post_uninstall_housekeeping_name }}\" --survey-enabled=true --survey-spec='@{{ role_path }}/files/rhmi_post_uninstall_housekeeping_survey.json'"
