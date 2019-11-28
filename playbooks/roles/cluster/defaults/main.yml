@@ -14,7 +14,7 @@ cluster_project_bootstrap_cluster_scm_delete_on_update: true
 #                         #
 
 # openshift-ansible
-cluster_project_oa_bootstrap_scm_branch: "release-3.11"
+cluster_project_oa_bootstrap_scm_branch: "openshift-ansible-3.11.154-2"
 cluster_project_oa_bootstrap_scm_url: "git@github.com:openshift/openshift-ansible.git"
 
 #                            #
