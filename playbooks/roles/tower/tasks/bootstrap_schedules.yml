@@ -1,0 +1,21 @@
+---
+- name: Retrieve {{ tower_job_template_bootstrap_tower_name }} job template Id
+  shell: tower-cli job_template get --name '{{ tower_job_template_bootstrap_tower_name }}' -f id
+  register: job_template_bootstrap_tower_id
+
+- set_fact:
+    tower_job_schedule_bootstrap_tower_rule_enabled: True
+  when: tower_sre_extras 
+
+- name: Create {{ tower_job_schedule_bootstrap_tower_name }} schedule
+  shell: >
+    tower-cli schedule create
+    --name '{{ tower_job_schedule_bootstrap_tower_name }}'
+    --description '{{ tower_job_schedule_bootstrap_tower_desc }}'
+    --job-template {{ job_template_bootstrap_tower_id.stdout }}
+    --rrule '{{ tower_job_schedule_bootstrap_tower_rule }}'
+    --enabled '{{ tower_job_schedule_bootstrap_tower_rule_enabled }}'
+  register: tower_job_schedule_bootstrap_tower_raw
+  until: tower_job_schedule_bootstrap_tower_raw is succeeded
+  retries: 10
+  delay: 5

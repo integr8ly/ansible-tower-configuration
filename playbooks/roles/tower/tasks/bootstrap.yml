@@ -56,9 +56,11 @@
 # Import the credentials bootstrap task
 - include_tasks: bootstrap_projects.yml
 
-
 # Import Job Template bootstrapping
 - include_tasks: bootstrap_jobs.yml
+
+# Import Schedule bootstrapping
+- include_tasks: bootstrap_schedules.yml
 
 - name: Expose tmp directory to support job isolation
   tower_settings:
