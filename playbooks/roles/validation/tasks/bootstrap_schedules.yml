@@ -1,0 +1,20 @@
+---
+- name: Template variables for scheduled job
+  template:
+    src: comparison_scheduled_job_variables.yml.j2
+    dest: '/tmp/comparison_scheduled_job_variables.json'
+
+- name: Create {{ scheduled_job_name }} schedule
+  shell: >
+    tower-cli schedule create
+    --name '{{ scheduled_job_name }}'
+    --description '{{ scheduled_job_desc }}'
+    --job-template {{ comparison_job_template_id.stdout }}
+    --rrule '{{ scheduled_job_rule }}'
+    --enabled '{{ enable_sync }}'
+    --extra-data '@/tmp/comparison_scheduled_job_variables.json'
+
+- name: Delete tmp file
+  file:
+    state: absent
+    path: '/tmp/comparison_scheduled_job_variables.json'

@@ -1,0 +1,11 @@
+---
+- name: Retrieve {{ comparison_template_name }} job template Id
+  shell: tower-cli job_template get --name '{{ comparison_template_name }}' -f id
+  register: comparison_job_template_id
+
+- name: Associate the {{ email_notification_name }} notification with the {{ comparison_template_name }} job template
+  shell: >
+    tower-cli job_template associate_notification_template 
+    --job-template {{ comparison_job_template_id.stdout }} 
+    --notification-template {{ notification_template_id.stdout }} 
+    --status error

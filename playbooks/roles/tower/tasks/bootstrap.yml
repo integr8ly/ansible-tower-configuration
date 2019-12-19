@@ -33,7 +33,6 @@
 # Import the credentials bootstrap task
 - include_tasks: bootstrap_credentials.yml
 
-
 - name: 'Create inventory: {{ tower_inventory_name }}'
   tower_inventory:
     name: '{{ tower_inventory_name }}'
@@ -52,7 +51,6 @@
     state: present
     tower_verify_ssl: '{{ tower_verify_ssl }}'
 
-
 # Import the credentials bootstrap task
 - include_tasks: bootstrap_projects.yml
 
@@ -62,13 +60,15 @@
 # Import Schedule bootstrapping
 - include_tasks: bootstrap_schedules.yml
 
+# Import Notification bootstrapping
+- include_tasks: bootstrap_notifications.yml
+
 - name: Expose tmp directory to support job isolation
   tower_settings:
     name: "AWX_PROOT_SHOW_PATHS"
     value:
       - "/tmp"
     tower_verify_ssl: '{{ tower_verify_ssl }}'
-
 
 # Import the cssre bootstrap task
 - include_tasks: bootstrap_cssre.yml
