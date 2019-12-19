@@ -7,5 +7,5 @@
     - include_vars:
         ./roles/validation/defaults/main.yml
     - include_role:
-        name: notifications
-        tasks_from: bootstrap.yml
+        name: tower
+        tasks_from: bootstrap_notifications.yml

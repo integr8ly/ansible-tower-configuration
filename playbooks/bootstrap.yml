@@ -4,4 +4,3 @@
 - import_playbook: "./bootstrap_cluster_create.yml"
 - import_playbook: "./bootstrap_cluster_teardown.yml"
 - import_playbook: "./bootstrap_validation.yml"
-- import_playbook: "./bootstrap_notifications.yml"

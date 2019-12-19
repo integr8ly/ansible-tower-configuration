@@ -6,4 +6,9 @@
 
 - name: 'Update template with survey'
   shell: "tower-cli job_template modify --name=\"{{ comparison_template_name }}\" --survey-enabled=true --survey-spec='@/tmp/repository_comparison_survey.json' --extra-vars='@{{ tower_extra_vars_file_path }}'"
+
+- name: Delete tmp file
+  file:
+    state: absent
+    path: '/tmp/repository_comparison_survey.json'
   

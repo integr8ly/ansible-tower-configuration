@@ -1,0 +1,30 @@
+---
+
+- name: "Create email notification template: {{ tower_email_notification_template_name }}"
+  shell: >
+    tower-cli notification_template create
+    --name '{{ tower_email_notification_template_name }}'
+    --description '{{ tower_email_notification_template_description }}'
+    --notification-type email
+    --organization {{ tower_email_notification_template_organization }}
+    --sender {{ tower_email_notification_template_sender }}
+    --recipients '{{ tower_email_notification_template_recipients }}'
+    --username {{ tower_email_notification_template_user }}
+    --password {{ tower_email_notification_template_password }}
+    --host {{ tower_email_notification_template_host }}
+    --port {{ tower_email_notification_template_port }}
+
+- name: Retrieve {{ tower_email_notification_template_name }} notification template Id
+  shell: tower-cli notification_template get --name '{{ tower_email_notification_template_name }}' -f id
+  register: notification_template_id
+
+- name: Retrieve {{ tower_job_template_bootstrap_tower_name }} job template Id
+  shell: tower-cli job_template get --name '{{ tower_job_template_bootstrap_tower_name }}' -f id
+  register: job_template_bootstrap_tower_id
+
+- name: Associate notifications template to {{ tower_job_template_bootstrap_tower_name }} job template
+  shell: >
+    tower-cli job_template associate_notification_template 
+    --job-template {{ job_template_bootstrap_tower_id.stdout }} 
+    --notification-template {{ notification_template_id.stdout }} 
+    --status error

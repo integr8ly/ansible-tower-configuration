@@ -33,3 +33,31 @@
   until: openshift_job_template_authenticate_raw is succeeded
   retries: 10
   delay: 5
+
+- name: Generate template file tower_bootstrap_vars.yml
+  template:
+    src: tower_bootstrap_vars.yml.j2
+    dest: "{{ tower_bootstrap_vars_file_path }}"
+
+- name: "Bootstrap Tower Job Template: {{ tower_job_template_bootstrap_tower_name }}"
+  tower_job_template:
+    name: "{{ tower_job_template_bootstrap_tower_name }}"
+    description: "{{ tower_job_template_bootstrap_tower_desc }}"
+    job_type: "{{ tower_job_template_bootstrap_tower_job_type }}"
+    playbook: "{{ tower_job_template_bootstrap_tower_job_playbook }}"
+    project: "{{ tower_configuration_project_name }}"
+    credential: "{{ tower_job_template_bootstrap_tower_job_credentials }}"
+    vault_credential: '{{ tower_credential_bundle_vault_name }}'
+    state: present
+    inventory: "{{ tower_inventory_name }}"
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
+    extra_vars_path: "{{ tower_bootstrap_vars_file_path }}"
+  register: openshift_job_template_bootstrap_tower_raw
+  until: openshift_job_template_bootstrap_tower_raw is succeeded
+  retries: 10
+  delay: 5
+
+- name: Clean up generated template file {{ tower_bootstrap_vars_file_path }}
+  file:
+    state: absent
+    path: "{{ tower_bootstrap_vars_file_path }}"

@@ -8,6 +8,7 @@ tower_username: '{{ lookup("vars", "_".join((tower_environment, "tower_username"
 tower_password: '{{ lookup("vars", "_".join((tower_environment, "tower_password")) ) }}'
 tower_verify_ssl: '{{ lookup("vars", "_".join((tower_environment, "tower_verify_ssl")) ) }}'
 tower_extra_vars_file_path: '/tmp/tower_extra_vars.yml'
+tower_bootstrap_vars_file_path: '/tmp/tower_bootstrap_vars.yml'
 tower_sre_extras: False
 
 # Ansible Tower Openshift Configurations
@@ -91,6 +92,18 @@ tower_job_template_authenticate_openshift_job_type: 'run'
 tower_job_template_authenticate_openshift_job_playbook: 'playbooks/authenticate_openshift.yml'
 tower_job_template_authenticate_openshift_job_credentials: "{{ tower_credential_bundle_default_name }}"
 
+tower_job_template_bootstrap_tower_name: 'Ansible Tower Bootstrap'
+tower_job_template_bootstrap_tower_desc: 'Job Template for Bootstrapping Tower'
+tower_job_template_bootstrap_tower_job_type: 'run'
+tower_job_template_bootstrap_tower_job_playbook: 'playbooks/bootstrap.yml'
+tower_job_template_bootstrap_tower_job_credentials: "{{ tower_credential_bundle_default_name }}"
+
+# Ansible Tower Job Schedules
+tower_job_schedule_bootstrap_tower_name: 'Ansible Tower Bootstrap Scheduled'
+tower_job_schedule_bootstrap_tower_desc: 'Scheduled task for running Ansible Tower Bootstrap'
+tower_job_schedule_bootstrap_tower_rule: "DTSTART;TZID=Europe/Dublin:20190601T030000 RRULE:FREQ=DAILY;INTERVAL=1"
+tower_job_schedule_bootstrap_tower_rule_enabled: False
+
 # Ansible Tower Hosts
 tower_host_local_name: 'local'
 tower_host_local_desc: ''
@@ -160,4 +173,15 @@ tower_secret_key: CHANGEME
 tower_limit_range_name: "{{ tower_openshift_project }}-core-resource-limits"
 
 tower_insights_url_base: "https://cloud.redhat.com"
+
+# Notification Templates
+tower_email_notification_template_name: 'Cloud Services'
+tower_email_notification_template_description: 'Email Notifications used by Cloud Services Jobs'
+tower_email_notification_template_organization: '{{ tower_organization }}'
+tower_email_notification_template_user: '{{ send_grid_user }}'
+tower_email_notification_template_sender: '{{ send_grid_sender }}'
+tower_email_notification_template_password: '{{ send_grid_password }}'
+tower_email_notification_template_recipients: '{{ send_grid_email_recipients }}'
+tower_email_notification_template_host: '{{ send_grid_host }}'
+tower_email_notification_template_port: '{{ send_grid_port }}'
 

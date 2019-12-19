@@ -1,3 +1,5 @@
 ---
 - include_tasks: bootstrap_template.yml
 - include_tasks: bootstrap_survey.yml
+- include_tasks: bootstrap_notifications.yml
+- include_tasks: bootstrap_schedules.yml
