@@ -37,6 +37,18 @@
       "type": "multiplechoice"
       },
       {
+        "question_description": "AWS Account Credentials",
+        "min": null,
+        "default": "",
+        "max": null,
+        "required": true,
+        "choices": "{{ cluster_install_survey_aws_accounts }}",
+        "new_question": true,
+        "variable": "cluster_inventory_source_aws_credentials",
+        "question_name": "AWS Credentials",
+        "type": "multiplechoice"
+      },
+      {
         "question_description": "Number of master nodes required",
         "min": 1,
         "default": 3,
@@ -68,6 +80,34 @@
         "variable": "openshift_aws_compute_group_desired_size",
         "question_name": "Compute Nodes",
         "type": "integer"
-      }   
+      },
+      {
+        "question_description": "Optional - Cluster domain if different from default",
+        "default": "",
+        "required": false,
+        "choices": "",
+        "variable": "dns_domain",
+        "question_name": "Domain",
+        "type": "text"
+      },
+      {
+        "question_description": "Optional - AWS access key for DNS access",
+        "default": "",
+        "required": false,
+        "choices": "",
+        "variable": "dns_access_key",
+        "question_name": "DNS Access Key",
+        "type": "text"
+      },
+      {
+        "question_description": "Optional - AWS secret access key for DNS access",
+        "default": "",
+        "required": false,
+        "choices": "",
+        "new_question": true,
+        "variable": "dns_secret_key",
+        "question_name": "DNS Secret Key",
+        "type": "password"
+      }
     ]
   }

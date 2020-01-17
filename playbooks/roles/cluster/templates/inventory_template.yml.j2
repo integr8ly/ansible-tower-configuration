@@ -1,0 +1,16 @@
+---
+oo_clusterid: "{{ oo_clusterid }}"
+oo_sublocation: "{{ oo_sublocation }}"
+survey_provision_logging: "{{ survey_provision_logging }}"
+cluster_inventory_source_aws_credentials: "{{ cluster_inventory_source_aws_credentials }}"
+openshift_aws_master_group_desired_size: "{{ openshift_aws_master_group_desired_size }}"
+openshift_aws_infra_group_desired_size: "{{ openshift_aws_infra_group_desired_size }}"
+openshift_aws_compute_group_desired_size: "{{ openshift_aws_compute_group_desired_size }}"
+tower_environment: "{{ tower_environment }}"
+dns_domain: "{{ dns_domain }}"
+{% if dns_access_key != "" %}
+dns_access_key: "{{ dns_access_key }}"
+{% endif %}
+{% if dns_secret_key != "" %}
+dns_secret_key: "{{ dns_secret_key }}"
+{% endif %}
