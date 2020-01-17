@@ -55,6 +55,13 @@ sre_prod_keys_credential_bundle_name: 'sre_prod_external_keys'
 sre_prod_keys_credential_bundle_type: "{{ custom_credential_bundle_external_keys_name }}"
 sre_prod_keys_credential_bundle_desc: 'Production External Services API Keys'
 
+# Ansible Tower GitHub Auth
+social_auth_github_org_name: '{{ lookup("vars", "_".join((tower_environment, "social_auth_github_org_name")) ) }}'
+social_auth_github_org_key: '{{ lookup("vars", "_".join((tower_environment, "social_auth_github_org_key")) ) }}'
+social_auth_github_org_secret: '{{ lookup("vars", "_".join((tower_environment, "social_auth_github_org_secret")) ) }}'
+social_auth_github_org_organization_map: '{{ lookup("vars", "_".join((tower_environment, "social_auth_github_org_organization_map")) ) }}'
+social_auth_github_org_team_map: '{{ lookup("vars", "_".join((tower_environment, "social_auth_github_org_team_map")) ) }}'
+
 # Ansible Tower Default Inventories
 tower_inventory_name: 'Default Tower Inventory'
 tower_inventory_desc: 'Default Tower Inventory used for local jobs'
