@@ -8,7 +8,7 @@ cluster_aws_access_key: ''
 cluster_aws_secret_access_key: ''
 
 # Integreatly Configurations
-integreatly_version: 'release-1.5.2'
+integreatly_version: 'release-1.6.0'
 integreatly_install_type: 'poc'
 
 # Workflow Job Template
