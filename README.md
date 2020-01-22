@@ -86,7 +86,7 @@ A number of default values are used when installing Ansible Tower on the target 
 
 ### 3.1 Tower Host Name Update
 
-Once the new Tower instance has successfully been installed on the target Openshift cluster, the host name of the new Tower instance must be placed into the `tower_host` variable value, which is located in the `tower.yml` file in the `external_credentials_repo` project.
+Once the new Tower instance has successfully been installed on the target Openshift cluster, the host name of the new Tower instance must be placed into the `tower_host` variable value, which is located in the `<ENVIRONMENT>_tower_credentials_list.yml` file in the `external_credentials_repo` project.
 
 ```bash
 <env>_tower_host: 'tower.example.com'
