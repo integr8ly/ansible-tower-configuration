@@ -58,15 +58,9 @@
 
 - name: create cluster-admin
   hosts: firstMaster
-  vars:
-    default_user: "integreatly"
-    cluster_backup_bucket_name: "{{ openshift_clusterid }}-integreatly-backups"
-    cluster_backup_namespace: openshift-integreatly-backups
-    cluster_backup_secret_name: "s3-credentials"
-
   tasks:
   - name: Give cluster-admin to htpasswd user
-    shell: oc adm policy add-cluster-role-to-user cluster-admin "{{ default_user }}"
+    shell: oc adm policy add-cluster-role-to-user cluster-admin "{{ htpasswd_username }}"
 
   - name: Create backup namespace
     shell: "oc create namespace {{ cluster_backup_namespace }}"
