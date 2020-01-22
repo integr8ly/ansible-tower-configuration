@@ -60,7 +60,7 @@
   hosts: firstMaster
   tasks:
   - name: Give cluster-admin to htpasswd user
-    shell: oc adm policy add-cluster-role-to-user cluster-admin "{{ htpasswd_username }}"
+    shell: oc adm policy add-cluster-role-to-user cluster-admin "{{ openshift_htpasswd_username }}"
 
   - name: Create backup namespace
     shell: "oc create namespace {{ cluster_backup_namespace }}"
