@@ -1,0 +1,22 @@
+---
+- hosts: localhost
+  gather_facts: no
+  tasks:
+    - debug:
+        msg:
+         - "#"
+         - "# Bootstrapping SRE jobs"
+         - "#"
+
+- import_playbook: "./bootstrap_tower.yml"
+- import_playbook: "./bootstrap_validation.yml"
+
+- hosts: localhost
+  gather_facts: no
+  tasks:
+    - include_role:
+        name: integreatly
+        tasks_from: bootstrap_cssre.yml
+
+
+- import_playbook: "./bootstrap_osd_integreatly_install.yml"

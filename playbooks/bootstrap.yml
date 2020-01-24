@@ -1,6 +1,35 @@
 ---
-- import_playbook: "./bootstrap_tower.yml"
-- import_playbook: "./bootstrap_integreatly.yml"
-- import_playbook: "./bootstrap_cluster_create.yml"
-- import_playbook: "./bootstrap_cluster_teardown.yml"
-- import_playbook: "./bootstrap_validation.yml"
+- hosts: localhost
+  gather_facts: no
+  tasks:
+    - include_vars:
+        ./roles/tower/defaults/main.yml
+
+    - name: "Confirmation prompt for bootstrapping master"
+      pause:
+        prompt: 'Please confirm you want to bootstrap tower with the master branch of configuration and credential repos (yes/no)'
+      register: master_bootstrap_prompt
+      when: not cicd and integreatly_version == "master"
+
+    - name: 'Check Confirmation'
+      fail:
+        msg: "Playbook run confirmation failed"
+      when: master_bootstrap_prompt is not skipped and not master_bootstrap_prompt.user_input|bool
+
+#
+# POC/DEV & OSD
+#
+- import_playbook: "./bootstrap_all_jobs.yml"
+  when: bootstrap_type == "all"
+
+#
+# POC/DEV
+#
+- import_playbook: "./bootstrap_poc_jobs.yml"
+  when: bootstrap_type == "poc"
+
+#
+# SRE
+#
+- import_playbook: "./bootstrap_sre_jobs.yml"
+  when: bootstrap_type == "sre"

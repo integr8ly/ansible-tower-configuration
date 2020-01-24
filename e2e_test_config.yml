@@ -72,21 +72,21 @@ cluster_credential_git_repo: "git@github.com:integr8ly/tower_dummy_credentials.g
 tower_github_scm_password: ''
 # This is a generic private key not used anywhere else. It's just for testing and doesn't belong to anyone.
 tower_github_scm: |
-    -----BEGIN RSA PRIVATE KEY-----
-    MIICWgIBAAKBgGaDr0n+wuZAWNVcWFQXmBW5y16BYuonTR1X4HKLNJuZRKwvIXUr
-    vpCQ51IORcC1Vc+UeaPaML7l5D2mcQcOnWrZ7A6mrdE1Nb4C6OCJ/pMzWf+s3Eqx
-    I8fj5jKtgec/v6o9SUxshV5HW7m7rt5tNhybUmKJQJXh4TXWE6A1stYFAgMBAAEC
-    gYApea+qvVL3OyN1tzXZV+5lI9Ve9/QgDiSJ8arSTPXM2jbJfwwHTtp7vNSKA1I/
-    RF5ibIzGORmtsm8kbjmehFA1jkd+I/3isyAmPww7vvhowy/tCmh/8L0J4sdD/eig
-    MYIuJnKavKUg7uE3n6d9vx1nOF6VzloZIhPqr3mYmhqTxQJBALAt91kQSMm+Fn0l
-    hBZN84dcCwkGWCesTb8ggD+BUFqrejDMqLSE0yHnXgaN0tmjCjS/rALZyMIdZgSM
-    XHRKTJcCQQCU9bptiz1kMGXFSa6pWbZ4kq19XYcpkwa2Fj2QoOYLZUXfWj835uxo
-    6XUyn13A01xXFqfDZH+rsWvlYEv0llnDAkAMdnP03O4JN2Un3SuG2GTNwnkVXlmG
-    FO47AvWPiHpCr7apFREqE+tLjq5cEFRGCP6D1Ls6SGWnNaUt1TAFGexpAkAn7Q1B
-    G1cjKY29qZg1MCSmgLobphv6Wrwrxh5OS7IdT9HAohHby/uFyz1siia47m4LsbjZ
-    uHA39uAypPL25e29AkAFewRAveiihSOmSu3qa97tA7Gqsmvyzd/oOyNSuxxEHWm3
-    vc7mjU2RfU/a+R2CmuzitD83vDr6J6tKxnfSJiQV
-    -----END RSA PRIVATE KEY-----
+  -----BEGIN RSA PRIVATE KEY-----
+  MIICWgIBAAKBgGaDr0n+wuZAWNVcWFQXmBW5y16BYuonTR1X4HKLNJuZRKwvIXUr
+  vpCQ51IORcC1Vc+UeaPaML7l5D2mcQcOnWrZ7A6mrdE1Nb4C6OCJ/pMzWf+s3Eqx
+  I8fj5jKtgec/v6o9SUxshV5HW7m7rt5tNhybUmKJQJXh4TXWE6A1stYFAgMBAAEC
+  gYApea+qvVL3OyN1tzXZV+5lI9Ve9/QgDiSJ8arSTPXM2jbJfwwHTtp7vNSKA1I/
+  RF5ibIzGORmtsm8kbjmehFA1jkd+I/3isyAmPww7vvhowy/tCmh/8L0J4sdD/eig
+  MYIuJnKavKUg7uE3n6d9vx1nOF6VzloZIhPqr3mYmhqTxQJBALAt91kQSMm+Fn0l
+  hBZN84dcCwkGWCesTb8ggD+BUFqrejDMqLSE0yHnXgaN0tmjCjS/rALZyMIdZgSM
+  XHRKTJcCQQCU9bptiz1kMGXFSa6pWbZ4kq19XYcpkwa2Fj2QoOYLZUXfWj835uxo
+  6XUyn13A01xXFqfDZH+rsWvlYEv0llnDAkAMdnP03O4JN2Un3SuG2GTNwnkVXlmG
+  FO47AvWPiHpCr7apFREqE+tLjq5cEFRGCP6D1Ls6SGWnNaUt1TAFGexpAkAn7Q1B
+  G1cjKY29qZg1MCSmgLobphv6Wrwrxh5OS7IdT9HAohHby/uFyz1siia47m4LsbjZ
+  uHA39uAypPL25e29AkAFewRAveiihSOmSu3qa97tA7Gqsmvyzd/oOyNSuxxEHWm3
+  vc7mjU2RfU/a+R2CmuzitD83vDr6J6tKxnfSJiQV
+  -----END RSA PRIVATE KEY-----
 
 # tower_ssh.yml
 tower_ssh_user: e2e-test
@@ -120,3 +120,13 @@ tower_instance_list:
 
 e2e_tower_host:
 e2e_tower_verify_ssl: False
+
+cicd: true
+integreatly_version: "master"
+
+integreatly_project_install_scm_url: "https://github.com/integr8ly/installation"
+integreatly_osd_project_install_scm_url: "https://github.com/integr8ly/installation"
+integreatly_osd_project_uninstall_scm_url: "https://github.com/integr8ly/installation"
+integreatly_osd_cve_rollout_project_scm_url: "https://github.com/integr8ly/installation"
+
+

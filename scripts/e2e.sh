@@ -33,4 +33,6 @@ echo "Bootstrapping tower in openshift project: ${TOWER_OPENSHIFT_PROJECT}"
 ansible-playbook -i ./inventories/hosts \
 playbooks/bootstrap.yml \
 --extra-vars "@e2e_test_config.yml"
+bootstrap_exit_code=$?
+echo "Bootstrap playbook ansible exit code: $bootstrap_exit_code"
 
