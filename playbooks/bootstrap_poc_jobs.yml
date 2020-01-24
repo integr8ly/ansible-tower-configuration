@@ -1,0 +1,15 @@
+---
+- hosts: localhost
+  gather_facts: no
+  tasks:
+    - debug:
+        msg:
+         - "#"
+         - "# Bootstrapping POC jobs"
+         - "#"
+
+- import_playbook: "./bootstrap_tower.yml"
+- import_playbook: "./bootstrap_validation.yml"
+- import_playbook: "./bootstrap_integreatly.yml"
+- import_playbook: "./bootstrap_cluster_create.yml"
+- import_playbook: "./bootstrap_cluster_teardown.yml"

@@ -10,6 +10,9 @@
     tower_verify_ssl: '{{ tower_verify_ssl }}'
     allow_simultaneous: "{{ integreatly_osd_install_workflow_job_concurrency }}"
   register: create_workflow_response
+  until: create_workflow_response is succeeded
+  retries: 10
+  delay: 5
 
 - name: Create install workflow schema
   template:

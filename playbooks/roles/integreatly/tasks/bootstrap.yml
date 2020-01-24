@@ -13,7 +13,7 @@
 
 - name: Bootstrap CS SRE Projects and Workflows
   include_tasks: bootstrap_cssre.yml
-  when: tower_sre_extras
+  when: bootstrap_type == "sre"
 
 - include_tasks: workflow_install.yml
 - include_tasks: workflow_uninstall.yml

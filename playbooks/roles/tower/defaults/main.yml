@@ -10,7 +10,6 @@ tower_license: '{{ lookup("vars", "_".join((tower_environment, "tower_license"))
 tower_verify_ssl: '{{ lookup("vars", "_".join((tower_environment, "tower_verify_ssl")) ) }}'
 tower_extra_vars_file_path: '/tmp/tower_extra_vars.yml'
 tower_bootstrap_vars_file_path: '/tmp/tower_bootstrap_vars.yml'
-tower_sre_extras: False
 
 # Ansible Tower Openshift Configurations
 tower_openshift_username: ''
@@ -71,8 +70,8 @@ tower_inventory_desc: 'Default Tower Inventory used for local jobs'
 tower_configuration_project_name: 'Ansible Tower Configuration Project'
 tower_configuration_project_desc: 'Configuration project for Ansible Tower'
 tower_configuration_project_scm_type: git
-tower_configuration_project_scm_branch: 'master'
 tower_configuration_project_scm_clean: true
+tower_configuration_project_scm_branch: '{{ integreatly_version  }}'
 tower_configuration_project_scm_type_url: 'https://github.com/integr8ly/ansible-tower-configuration.git'
 tower_configuration_project_scm_update_on_launch: false
 tower_configuration_project_scm_delete_on_update: true
@@ -81,9 +80,8 @@ tower_configuration_project_scm_delete_on_update: true
 tower_credentials_project_name: 'Ansible Tower Credentials Project'
 tower_credentials_project_desc: 'Credentials project for Ansible Tower'
 tower_credentials_project_scm_type: git
-tower_credentials_project_scm_branch: 'master'
 tower_credentials_project_scm_clean: true
-tower_credentials_project_scm_type_url: ''
+tower_credentials_project_scm_branch: '{{ integreatly_version }}'
 tower_credentials_project_scm_update_on_launch: false
 tower_credentials_project_scm_delete_on_update: true
 
@@ -193,3 +191,7 @@ tower_email_notification_template_recipients: '{{ send_grid_email_recipients }}'
 tower_email_notification_template_host: '{{ send_grid_host }}'
 tower_email_notification_template_port: '{{ send_grid_port }}'
 
+bootstrap_type: '{{ bootstrap | default("all") }}'
+cicd: false
+
+integreatly_version: 'master'

@@ -5,7 +5,7 @@
 
 - set_fact:
     tower_job_schedule_bootstrap_tower_rule_enabled: True
-  when: tower_sre_extras 
+  when: bootstrap_type == "sre"
 
 - name: Create {{ tower_job_schedule_bootstrap_tower_name }} schedule
   shell: >
