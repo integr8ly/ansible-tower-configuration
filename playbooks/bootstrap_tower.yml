@@ -2,6 +2,8 @@
 - hosts: localhost
   gather_facts: no
   tasks:
+    - include_vars:
+        ./roles/integreatly/defaults/main.yml
     - include_role:
         name: tower
         tasks_from: bootstrap.yml
