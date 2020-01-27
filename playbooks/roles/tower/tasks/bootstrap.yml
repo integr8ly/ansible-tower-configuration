@@ -2,6 +2,19 @@
 # Authenticate with tower
 - include_tasks: authenticate_tower.yml
 
+- name: Upload license file "https://{{ tower_host }}"
+  uri:
+    url: "https://{{ tower_host }}/api/v2/config/"
+    return_content: yes
+    user: "{{ tower_username }}"
+    password: "{{ tower_password }}"
+    method: POST
+    force_basic_auth: yes
+    body_format: json
+    body: '{{ tower_license }}'
+    validate_certs: '{{ tower_verify_ssl }}'
+  when: tower_license != ''
+
 - name: 'Create the {{ tower_organization }} organisation'
   tower_organization:
     name: '{{ tower_organization }}'
