@@ -67,8 +67,8 @@ cluster_workflow_credential_job_template_name: "Cluster_provision_bootstrap"
 cluster_workflow_credential_job_template_desc: "Configure cluster provision workflow for a given cluster name"
 cluster_workflow_credential_job_template_playbook: "playbooks/cluster_provision_bootstrap.yml"
 
-cluster_workflow_job_template_name: "Cluster_provision"
-cluster_workflow_name: "Provision_workflow"
+cluster_workflow_job_template_name: "Cluster_provision_preflight"
+cluster_workflow_name: "Cluster_provision"
 cluster_workflow_job_template_desc: "Provision Openshift 3.11 cluster"
 
 cluster_workflow_job_template_openshift_auth: "Openshift_Authenticate_tower_pod"
