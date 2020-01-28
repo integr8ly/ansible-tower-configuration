@@ -1,6 +1,6 @@
 - route53: 
-    aws_access_key: "{{ aws_access_key }}"
-    aws_secret_key: "{{ aws_secret_key }}"
+    aws_access_key: "{{ dns_access_key | default(aws_access_key) }}"
+    aws_secret_key: "{{ dns_secret_key | default(aws_secret_key) }}"
     record: "{{ record }}"
     state: get
     type: CNAME
@@ -11,8 +11,8 @@
     aws_dns_record: "{{ get_aws_dns_record.set }}"
 
 - route53:
-    aws_access_key: "{{ aws_access_key }}"
-    aws_secret_key: "{{ aws_secret_key }}"
+    aws_access_key: "{{ dns_access_key | default(aws_access_key) }}"
+    aws_secret_key: "{{ dns_secret_key | default(aws_secret_key) }}"
     record: "{{ aws_dns_record.record }}"
     state: absent
     ttl: "{{ aws_dns_record.ttl }}"
