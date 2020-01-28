@@ -23,7 +23,6 @@ openshift_master_cluster_public_hostname: {{ oo_clusterid }}.{{ domain }}
 openshift_master_public_api_url: https://{{ oo_clusterid }}.{{ domain }}
 openshift_master_public_console_url: https://{{ oo_clusterid }}.{{ domain }}/console
 
-# TODO
 os_sdn_network_plugin_name: redhat/openshift-ovs-networkpolicy
 
 openshift_master_dynamic_provisioning_enabled: true
@@ -50,6 +49,9 @@ openshift_master_identity_providers:
   kind: HTPasswdPasswordIdentityProvider
 
 openshift_master_manage_htpasswd: true
+
+openshift_htpasswd_username: "{{ htpasswd_username }}"
+openshift_htpasswd_password: "{{ htpasswd_password }}"
 
 openshift_master_htpasswd_users: {'{{ htpasswd_username}}': '{{ htpasswd_password }}'}
 
@@ -434,6 +436,10 @@ openshift_aws_ami_map:
   master: "{{ '{{' }} openshift_aws_ami {{ '}}' }}"
   infra: "{{ '{{' }} openshift_aws_ami {{ '}}' }}"
   compute: "{{ '{{' }} openshift_aws_ami {{ '}}' }}"
+
+cluster_backup_bucket_name: "{{ cluster_backup_bucket_name }}"
+cluster_backup_namespace: "{{ cluster_backup_namespace }}"
+cluster_backup_secret_name: "{{ cluster_backup_secret_name }}"
 
 openshift_aws_node_user_data: |
   {{ '{%' }} if l_instance_tags['host-type'] == 'master' {{ '%}' }}
