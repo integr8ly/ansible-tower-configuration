@@ -75,6 +75,7 @@
 
 # Import Notification bootstrapping
 - include_tasks: bootstrap_notifications.yml
+  when: send_grid_user != "" or send_grid_password != "" or send_grid_host != ""
 
 - name: Expose tmp directory to support job isolation
   tower_settings:
