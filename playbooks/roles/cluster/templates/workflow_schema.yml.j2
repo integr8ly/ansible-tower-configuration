@@ -1,10 +1,12 @@
 ---
-- job_template: "{{ cluster_job_template_prerequisites_name }}-{{ oo_clusterid }}"
+- job_template: "{{ cluster_workflow_job_template_name }}-{{ oo_clusterid }}"
   success:
-  - job_template: "{{ cluster_job_template_install_name }}-{{ oo_clusterid }}"
+  - job_template: "{{ cluster_job_template_prerequisites_name }}-{{ oo_clusterid }}"
     success:
-    - job_template: "{{ cluster_job_template_post_install_name }}-{{ oo_clusterid }}"
-    failure:
     - job_template: "{{ cluster_job_template_install_name }}-{{ oo_clusterid }}"
       success:
-        - job_template: "{{ cluster_job_template_post_install_name }}-{{ oo_clusterid }}"
+      - job_template: "{{ cluster_job_template_post_install_name }}-{{ oo_clusterid }}"
+      failure:
+      - job_template: "{{ cluster_job_template_install_name }}-{{ oo_clusterid }}"
+        success:
+          - job_template: "{{ cluster_job_template_post_install_name }}-{{ oo_clusterid }}"

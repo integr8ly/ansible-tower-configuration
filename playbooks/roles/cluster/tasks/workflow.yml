@@ -26,9 +26,9 @@
 - name: "Associate le_privatekey credential to {{ cluster_job_template_cluster_provision_name }}" 
   shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_cluster_provision_name }}" --credential "le_privatekey"
 
-- name: "Create workflow: {{ cluster_workflow_job_template_name }}"
+- name: "Create workflow: {{ cluster_workflow_name }}"
   tower_workflow_template:
-    name:  "{{ cluster_workflow_job_template_name }}"
+    name:  "{{ cluster_workflow_name }}"
     description: "{{ cluster_workflow_job_template_desc }}"
     state: present
     organization: "{{ tower_organization }}"

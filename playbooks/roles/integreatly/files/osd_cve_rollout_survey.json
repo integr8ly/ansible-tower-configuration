@@ -56,7 +56,7 @@
         "required": false,
         "choices": "",
         "variable": "integreatly_osd_cve_rollout_product_tags",
-        "question_name": "Product Specific Tags [Optional]",
+        "question_name": "Optional - Product Specific Tags",
         "type": "text"
       }
     ]

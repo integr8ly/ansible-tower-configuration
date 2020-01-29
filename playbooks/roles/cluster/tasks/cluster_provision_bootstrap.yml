@@ -1,0 +1,143 @@
+---
+#
+# Generate and launch workflow for cluster create
+#
+- name: Create temp directory
+  file:
+    path: /tmp/{{ oo_clusterid }}/certs
+    state: directory
+    recurse: yes
+
+- name: Create variables file
+  template:
+    src: inventory_template.yml.j2
+    dest: /tmp/{{ oo_clusterid }}/inventory_placeholder.yml
+
+- name: Create cluster inventory in tower
+  shell: tower-cli inventory create -n {{ oo_clusterid }} --organization secret
+
+- name: "Configure {{ cluster_workflow_job_template_name }} job template"
+  tower_job_template:
+    tower_host: "{{ tower_host }}"
+    tower_password: "{{ tower_password }}"
+    tower_username: "{{ tower_username }}"
+    name: "{{ cluster_workflow_job_template_name }}-{{ oo_clusterid }}"
+    description: "{{ cluster_job_template_cluster_provision_desc }}"
+    job_type: "{{ cluster_job_template_cluster_provision_type }}"
+    playbook: "{{ cluster_job_template_cluster_provision_playbook }}"
+    project: "{{ cluster_job_template_cluster_provision_project }}"
+    credential: "{{ tower_credential_bundle_default_name }}"
+    state: present
+    inventory: "{{ tower_inventory_name }}"
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
+    vault_credential: "{{ tower_credential_bundle_vault_name }}"
+    extra_vars_path: "/tmp/{{ oo_clusterid }}/inventory_placeholder.yml"
+    survey_enabled: yes
+    concurrent_jobs_enabled: yes
+  register: cluster_create_prerequisites_out
+  until: cluster_create_prerequisites_out is succeeded
+  retries: 3
+  delay: 5
+
+- name: "Associate {{ cluster_inventory_source_aws_credentials }} credential to {{ cluster_job_template_prerequisites_name }}-{{ oo_clusterid }}"
+  shell: tower-cli job_template associate_credential --job-template "{{ cluster_workflow_job_template_name }}-{{ oo_clusterid }}" --credential "{{ cluster_inventory_source_aws_credentials }}" {% if not tower_verify_ssl  %}--insecure{% endif %}
+
+- name: "Associate le_privatekey credential to {{ cluster_workflow_job_template_name }}"
+  shell: tower-cli job_template associate_credential --job-template "{{ cluster_workflow_job_template_name }}-{{ oo_clusterid }}" --credential "le_privatekey"
+
+- name: Configure prerequisites job template
+  tower_job_template:
+    name: "{{ cluster_job_template_prerequisites_name }}-{{ oo_clusterid }}"
+    description: "{{ cluster_job_template_prerequisites_desc }}"
+    job_type: "{{ cluster_job_template_prerequisites_type }}"
+    playbook: "{{ cluster_job_template_prerequisites_playbook }}"
+    project: "{{ cluster_job_template_prerequisites_project }}"
+    credential: "{{ tower_credential_bundle_default_name }}"
+    extra_vars_path: "/tmp/{{ oo_clusterid }}/inventory_placeholder.yml"
+    state: present
+    inventory: "{{ oo_clusterid }}"
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
+  register: cluster_create_prerequisites_out
+  until: cluster_create_prerequisites_out is succeeded
+  retries: 10
+  delay: 5
+
+- name: "Associate {{ cluster_inventory_source_aws_credentials }} credential to {{ cluster_job_template_prerequisites_name }}-{{ oo_clusterid }}"
+  shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_prerequisites_name }}-{{ oo_clusterid }}" --credential "{{ cluster_inventory_source_aws_credentials }}" {% if not tower_verify_ssl  %}--insecure{% endif %}
+
+- name: Configure provision install job template
+  tower_job_template:
+    name: "{{ cluster_job_template_install_name }}-{{ oo_clusterid }}"
+    description: "{{ cluster_job_template_install_desc }}"
+    job_type: "{{ cluster_job_template_install_type }}"
+    playbook: "{{ cluster_job_template_install_playbook }}"
+    project: "{{ cluster_job_template_install_project }}"
+    credential: "{{ tower_credential_bundle_default_name }}"
+    extra_vars_path: "/tmp/{{ oo_clusterid }}/inventory_placeholder.yml"
+    state: present
+    inventory: "{{ oo_clusterid }}"
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
+  register: cluster_create_provision_install_out
+  until: cluster_create_provision_install_out is succeeded
+  retries: 10
+  delay: 5
+
+- name: "Associate {{ cluster_inventory_source_aws_credentials }} credentials {{ cluster_job_template_install_name }}-{{ oo_clusterid }}"
+  shell: tower-cli job_template associate_credential --job-template "{{ cluster_job_template_install_name }}-{{ oo_clusterid }}" --credential "{{ cluster_inventory_source_aws_credentials }}"  {% if not tower_verify_ssl %}--insecure{% endif %}
+
+- name: Configure post-install job template
+  tower_job_template:
+    name: "{{ cluster_job_template_post_install_name }}-{{ oo_clusterid }}"
+    description: "{{ cluster_job_template_post_install_desc }}"
+    job_type: "{{ cluster_job_template_post_install_type }}"
+    playbook: "{{ cluster_job_template_post_install_playbook }}"
+    project: "{{ cluster_job_template_post_install_project }}"
+    credential: "{{ tower_credential_bundle_default_name }}"
+    state: present
+    inventory: "{{ oo_clusterid }}"
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
+  register: cluster_create_post_install_out
+  until: cluster_create_post_install_out is succeeded
+  retries: 10
+  delay: 5
+
+- name: Set workflow name
+  set_fact:
+    provision_workflow_name: "{{ cluster_workflow_name }}_{{ oo_clusterid }}"
+
+- name: Create workflow schema
+  template:
+    src: workflow_schema.yml.j2
+    dest: "/tmp/cluster_workflow_schema_{{ oo_clusterid }}.yml"
+
+- name: "Create workflow: {{ cluster_workflow_name }}_{{ oo_clusterid }}"
+  tower_workflow_template:
+    name:  "{{ provision_workflow_name}}"
+    schema: "{{ lookup('file', '/tmp/cluster_workflow_schema_{{ oo_clusterid }}.yml' ) }}"
+    description: "{{ cluster_workflow_job_template_desc }}"
+    state: present
+    organization: "{{ tower_organization }}"
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
+  register: create_workflow_response
+
+- name: Clean up files
+  file:
+    path: cluster_workflow_schema.yml
+    state: absent
+
+- name: "Sync project: {{ cluster_job_template_prerequisites_project }}"
+  shell: tower-cli project update -n "{{ cluster_job_template_prerequisites_project }}" {% if not tower_verify_ssl  %}--insecure{% endif %}
+  register: oa_project_update
+  retries: 10
+  delay: 3
+  until: oa_project_update.rc == 0
+
+- name: "Launch cluster-provision for {{ oo_clusterid }}"
+  shell: tower-cli workflow_job launch --workflow-job-template "{{ provision_workflow_name }}" {% if not tower_verify_ssl  %}--insecure{% endif %}
+
+- name: "Retrieve generated workflow ID"
+  shell: tower-cli workflow_job list --workflow-job-template "{{ provision_workflow_name }}" --status running -f id {% if not tower_verify_ssl  %}--insecure{% endif %} | awk {'print $NF'}
+  register: provision_workflow_id
+
+- name: "Waiting for cluster workflow job to complete: {{ provision_workflow_name }}"
+  shell: tower-cli workflow_job wait {{ provision_workflow_id.stdout }} {% if not tower_verify_ssl  %}--insecure{% endif %}

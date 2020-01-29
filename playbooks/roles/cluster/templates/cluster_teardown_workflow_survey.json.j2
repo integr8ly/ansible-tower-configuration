@@ -45,6 +45,25 @@
       "variable": "cluster_credential_bundle_aws_name",
       "question_name": "AWS account name",
       "type": "multiplechoice"
+    },
+    {
+      "question_description": "Optional - AWS access key for DNS access",
+      "default": "",
+      "required": false,
+      "choices": "",
+      "variable": "dns_access_key",
+      "question_name": "DNS Access Key",
+      "type": "text"
+    },
+    {
+      "question_description": "Optional - AWS secret access key for DNS access",
+      "default": "",
+      "required": false,
+      "choices": "",
+      "new_question": true,
+      "variable": "dns_secret_key",
+      "question_name": "DNS Secret Key",
+      "type": "password"
     }
   ]
 }

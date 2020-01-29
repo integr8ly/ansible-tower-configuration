@@ -50,29 +50,6 @@
   command: tower-cli credential create --name "le_privatekey" --credential-type "le_privatekey" --inputs '{"le_key":"{{ letsencrypt_private_key }}"}' --organization "{{ tower_organization }}"
   ignore_errors: true
 
-- name: "Configure {{ cluster_workflow_job_template_name }} job template"
-  tower_job_template:
-    tower_host: "{{ tower_host }}"
-    tower_password: "{{ tower_password }}"
-    tower_username: "{{ tower_username }}"
-    name: "{{ cluster_workflow_job_template_name }}"
-    description: "{{ cluster_job_template_cluster_provision_desc }}"
-    job_type: "{{ cluster_job_template_cluster_provision_type }}"
-    playbook: "{{ cluster_job_template_cluster_provision_playbook }}"
-    project: "{{ cluster_job_template_cluster_provision_project }}"
-    credential: "{{ tower_credential_bundle_default_name }}"
-    state: present
-    inventory: "{{ tower_inventory_name }}"
-    tower_verify_ssl: '{{ tower_verify_ssl }}'
-    vault_credential: "{{ tower_credential_bundle_vault_name }}"
-    extra_vars_path: "{{ tower_extra_vars_file_path }}"
-    survey_enabled: yes
-    concurrent_jobs_enabled: yes
-  register: cluster_create_prerequisites_out
-  until: cluster_create_prerequisites_out is succeeded
-  retries: 10
-  delay: 5
-
 - name: "Configure {{ cluster_sync_job_name }} job template"
   tower_job_template:
     tower_host: "{{ tower_host }}"
@@ -94,8 +71,26 @@
   retries: 10
   delay: 5
 
-- debug:
-    msg: "{{ playbook_dir }}"
+- name: "Configure {{ cluster_workflow_credential_job_template_name }} job template"
+  tower_job_template:
+    tower_host: "{{ tower_host }}"
+    tower_password: "{{ tower_password }}"
+    tower_username: "{{ tower_username }}"
+    name: "{{ cluster_workflow_credential_job_template_name }}"
+    description: "{{ cluster_workflow_credential_job_template_desc }}"
+    job_type: "{{ cluster_job_template_cluster_provision_type }}"
+    playbook: "{{ cluster_workflow_credential_job_template_playbook }}"
+    project: "{{ cluster_job_template_cluster_provision_project }}"
+    vault_credential: "{{ tower_credential_bundle_vault_name }}"
+    state: present
+    inventory: "{{ tower_inventory_name }}"
+    tower_verify_ssl: '{{ tower_verify_ssl }}'
+    extra_vars_path: "{{ tower_extra_vars_file_path }}"
+    concurrent_jobs_enabled: yes
+  register: cluster_create_preflight_out
+  until: cluster_create_preflight_out is succeeded
+  retries: 10
+  delay: 5
 
 - name: "Create workflow: {{ cluster_job_template_cluster_provision_name }}"
   tower_workflow_template:
@@ -111,8 +106,33 @@
     allow_simultaneous: yes
   register: create_workflow_response
 
+- name: Retrieve AWS Credential Type ID
+  shell: "tower-cli credential_type list --kind cloud -n \"Amazon Web Services\" -f id"
+  register: aws_cred_type_id
+
+- name: Retrieve list of AWS Credential Bundles
+  shell: "tower-cli credential list --credential-type {{ aws_cred_type_id.stdout }} -f json"
+  register: aws_credentials_raw
+  no_log: true
+
+- set_fact:
+    aws_credentials_json: "{{ aws_credentials_raw.stdout | from_json }}"
+    cluster_aws_accounts: []
+
+- name: "Set list of Integreatly AWS Accounts"
+  set_fact:
+    cluster_aws_accounts: "{{ cluster_aws_accounts + [ item.name ] }}"
+  with_items: "{{ aws_credentials_json.results }}"
+
+- set_fact:
+    cluster_install_survey_aws_accounts: "{{ cluster_aws_accounts | join('\\n')}}"
+
+- template:
+    src: roles/cluster/templates/cluster_provision_survey.json.j2
+    dest: /tmp/cluster_provision_survey.json
+
 - name: Update provision workflow template with survey
-  shell: "tower-cli workflow modify --name=\"{{ cluster_job_template_cluster_provision_name }}\" --survey-enabled=true --survey-spec='@roles/cluster/files/cluster_provision_survey.json'"
+  shell: "tower-cli workflow modify --name=\"{{ cluster_job_template_cluster_provision_name }}\" --survey-enabled=true --survey-spec='@/tmp/cluster_provision_survey.json'"
 
 - name: create workflow
   template:
@@ -121,12 +141,6 @@
 
 - name: Update provision workflow template with schema
   shell: "tower-cli workflow schema \"{{ cluster_job_template_cluster_provision_name }}\" @/tmp/provision_cluster_workflow.yml"
-
-- name: "Associate AWS credential to {{ cluster_workflow_job_template_name }}"
-  shell: tower-cli job_template associate_credential --job-template "{{ cluster_workflow_job_template_name }}" --credential "{{ cluster_credential_bundle_aws_name }}"
-
-- name: "Associate le_privatekey credential to {{ cluster_workflow_job_template_name }}"
-  shell: tower-cli job_template associate_credential --job-template "{{ cluster_workflow_job_template_name }}" --credential "le_privatekey"
 
 - include_role:
     name: tower
