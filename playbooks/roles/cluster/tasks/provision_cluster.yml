@@ -21,6 +21,8 @@
       acme_directory_url: https://acme-v02.api.letsencrypt.org/directory
     when: le_staging is undefined
 
+  - set_fact: renew_certs=false
+
   #
   # Set some facts that we will refer to later
   #
@@ -118,6 +120,64 @@
     register: rootca_crt_result_s3
     when: rootca_result.stat.exists == false
 
+  # Check if certs are expired
+
+  - name: "Check {{ base_cluster_url }} certificate expiration"
+    openssl_certificate:
+      path: "/tmp/{{ oo_clusterid }}/certs/wildcard.{{ base_cluster_url }}.crt"
+      provider: assertonly
+      has_expired: no
+    ignore_errors: yes
+    register: cert_validity
+    when: crt_result.stat.exists == true
+
+  - name: "Check {{ apps_cluster_url }} certificate expiration"
+    openssl_certificate:
+      path: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ apps_cluster_url }}.crt
+      provider: assertonly
+      has_expired: no
+    ignore_errors: yes
+    register: app_cert_validity
+    when: app_crt_result.stat.exists == true
+
+  - name: "Clean up expired {{ base_cluster_url }} cert and key"
+    block:
+      - file:
+          path: "/tmp/{{ oo_clusterid }}/certs/wildcard.{{ base_cluster_url }}.crt"
+          state: absent
+      - file:
+          path: "/tmp/{{ oo_clusterid }}/certs/wildcard.{{ base_cluster_url }}.key"
+          state: absent
+      - aws_s3:
+          bucket: "{{ cluster_backup_bucket_name }}"
+          object: "certs/{{ oo_clusterid }}/wildcard.{{ base_cluster_url }}.crt"
+          mode: delobj
+      - aws_s3:
+          bucket: "{{ cluster_backup_bucket_name }}"
+          object: "certs/{{ oo_clusterid }}/wildcard.{{ base_cluster_url }}.key"
+          mode: delobj
+      - set_fact: renew_certs=true
+    when: cert_validity.failed and crt_result.stat.exists == true
+
+  - name: "Clean up expired {{ apps_cluster_url }} cert and key"
+    block:
+      - file:
+          path: "/tmp/{{ oo_clusterid }}/certs/wildcard.{{ apps_cluster_url }}.crt"
+          state: absent
+      - file:
+          path: "/tmp/{{ oo_clusterid }}/certs/wildcard.{{ apps_cluster_url }}.key"
+          state: absent
+      - aws_s3:
+          bucket: "{{ cluster_backup_bucket_name }}"
+          object: "certs/{{ oo_clusterid }}/wildcard.{{ apps_cluster_url }}.crt"
+          mode: delobj
+      - aws_s3:
+          bucket: "{{ cluster_backup_bucket_name }}"
+          object: "certs/{{ oo_clusterid }}/wildcard.{{ apps_cluster_url }}.key"
+          mode: delobj
+      - set_fact: renew_certs=true
+    when: app_cert_validity.failed and app_crt_result.stat.exists == true
+
   #
   # LetsEncrypt cert generation
   #
@@ -145,7 +205,7 @@
           path: "/tmp/{{ oo_clusterid }}/certs/wildcard.{{ base_cluster_url }}.csr"
           common_name: "{{ base_cluster_url }}"
           subject_alt_name: 'DNS:{{ base_cluster_url }},DNS:*.{{ base_cluster_url }}'
-    when: crt_result.stat.exists == false and crt_result_s3.failed == true
+    when: crt_result.stat.exists == false and crt_result_s3.failed == true or renew_certs
 
   - name: Generate a private key and csr for the apps cert
     block:
@@ -156,7 +216,7 @@
           path: "/tmp/{{ oo_clusterid }}/certs/wildcard.{{ apps_cluster_url }}.csr"
           common_name: "{{ apps_cluster_url }}"
           subject_alt_name: 'DNS:{{ apps_cluster_url }},DNS:*.{{ apps_cluster_url }}'
-    when: app_crt_result.stat.exists == false and app_crt_result_s3.failed == true
+    when: app_crt_result.stat.exists == false and app_crt_result_s3.failed == true or renew_certs
 
   # Generate <clustername>.<domain> certs
   - name: Generate "{{ oo_clusterid }}"."{{ domain }}" cert
@@ -208,7 +268,7 @@
           aws_access_key: "{{ dns_access_key | default(aws_access_key) }}"
           aws_secret_key: "{{ dns_secret_key | default(aws_secret_key) }}"
           overwrite: true
-    when: crt_result.stat.exists == false and crt_result_s3.failed == true
+    when: crt_result.stat.exists == false and crt_result_s3.failed == true or cert_validity.failed == true or renew_certs
 
   # Generate apps.<clustername>.<domain> certs
   - name: Generate apps."{{ oo_clusterid }}"."{{ domain }}" cert
@@ -260,7 +320,7 @@
           aws_access_key: "{{ dns_access_key | default(aws_access_key) }}"
           aws_secret_key: "{{ dns_secret_key | default(aws_secret_key) }}"
           overwrite: true
-    when: app_crt_result.stat.exists == false and app_crt_result_s3.failed == true
+    when: app_crt_result.stat.exists == false and app_crt_result_s3.failed == true or app_cert_validity.failed == true or renew_certs
 
   #
   # Setup backups
