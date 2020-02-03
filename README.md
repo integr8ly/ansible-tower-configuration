@@ -252,6 +252,28 @@ Ansible Tower is intelligent enough to limit the number of jobs executed based o
 
 https://docs.ansible.com/ansible-tower/3.3.0/html/administration/openshift_configuration.html#resource-requests-and-request-planning
 
+## 6. Automated Testing
 
-## 6. Contributing
+This repo is configured to run automated tests using prow when a pr is created.
+
+One of these is an e2e test. If you want to run this test locally before pushing a pr you can do that by taking the below steps.
+
+### 6.1 Export the required variables
+
+```
+export OPENSHIFT_MASTER=<master-host>
+export TOWER_OPENSHIFT_USERNAME=<openshift-user>
+export TOWER_OPENSHIFT_PASSWORD=<openshift-password>
+export TOWER_LICENSE='<valid-tower-license-with-eula-accepted-value>'
+export TOWER_USERNAME=admin
+export TOWER_PASSWORD=<tower-password>
+```
+
+### 6.1 Run the make target
+
+Run the make command
+
+`make test/e2e`
+
+## 7. Contributing
 Please open a Github issue for any bugs or problems you encounter.

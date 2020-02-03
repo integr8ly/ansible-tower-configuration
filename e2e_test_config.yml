@@ -1,0 +1,122 @@
+---
+
+# AWS_credentials
+aws_credential_list:
+  - e2e
+
+e2e_access_key_id: e2e-test
+e2e_secret_access_key: e2e-test
+
+cluster_pod_openshift_user: e2e-test
+cluster_pod_openshift_pass: e2e-test
+
+cluster_credential_bundle_aws_name: e2e-test
+
+cluster_type: dev #set to 'dev' or 'poc'
+
+rh_user: e2e-test
+rh_pass: e2e-test
+
+dev_domain: e2e-test
+poc_domain: e2e-test
+
+htpasswd_username: e2e-test
+htpasswd_password: e2e-test
+
+cert_email_address: e2e@test.com
+
+cluster_backup_bucket_name: e2e-test
+
+# integreatly_vault.yml
+tower_credential_bundle_vault_name: e2e-test
+integreatly_vault: e2e-test
+
+# letsencrypt.yml
+# This is a generic private key not used anywhere else. It's just for testing and doesn't belong to anyone.
+letsencrypt_private_key: |
+    -----BEGIN RSA PRIVATE KEY-----
+    MIICWgIBAAKBgGaDr0n+wuZAWNVcWFQXmBW5y16BYuonTR1X4HKLNJuZRKwvIXUr
+    vpCQ51IORcC1Vc+UeaPaML7l5D2mcQcOnWrZ7A6mrdE1Nb4C6OCJ/pMzWf+s3Eqx
+    I8fj5jKtgec/v6o9SUxshV5HW7m7rt5tNhybUmKJQJXh4TXWE6A1stYFAgMBAAEC
+    gYApea+qvVL3OyN1tzXZV+5lI9Ve9/QgDiSJ8arSTPXM2jbJfwwHTtp7vNSKA1I/
+    RF5ibIzGORmtsm8kbjmehFA1jkd+I/3isyAmPww7vvhowy/tCmh/8L0J4sdD/eig
+    MYIuJnKavKUg7uE3n6d9vx1nOF6VzloZIhPqr3mYmhqTxQJBALAt91kQSMm+Fn0l
+    hBZN84dcCwkGWCesTb8ggD+BUFqrejDMqLSE0yHnXgaN0tmjCjS/rALZyMIdZgSM
+    XHRKTJcCQQCU9bptiz1kMGXFSa6pWbZ4kq19XYcpkwa2Fj2QoOYLZUXfWj835uxo
+    6XUyn13A01xXFqfDZH+rsWvlYEv0llnDAkAMdnP03O4JN2Un3SuG2GTNwnkVXlmG
+    FO47AvWPiHpCr7apFREqE+tLjq5cEFRGCP6D1Ls6SGWnNaUt1TAFGexpAkAn7Q1B
+    G1cjKY29qZg1MCSmgLobphv6Wrwrxh5OS7IdT9HAohHby/uFyz1siia47m4LsbjZ
+    uHA39uAypPL25e29AkAFewRAveiihSOmSu3qa97tA7Gqsmvyzd/oOyNSuxxEHWm3
+    vc7mjU2RfU/a+R2CmuzitD83vDr6J6tKxnfSJiQV
+    -----END RSA PRIVATE KEY-----
+
+# send_grid.yml
+send_grid_user: e2e-test
+send_grid_sender: e2e-test
+send_grid_password: e2e-test
+send_grid_email_recipients: ''
+send_grid_host: smtp.sendgrid.net
+send_grid_port: 587
+
+# tower_github_authentication.yml
+social_auth_github_org_name: integr8ly
+social_auth_github_org_key: e2edummykey
+social_auth_github_org_secret: e2e-test
+  
+social_auth_github_org_organization_map: "{'integreatly': {'admins': True, 'users': True}}"
+social_auth_github_org_team_map: "{'integreatly-team': {'organization': 'integreatly', 'users': True}}"
+
+tower_credentials_project_scm_type_url: "git@github.com:integr8ly/tower_dummy_credentials.git"
+cluster_credential_git_repo: "git@github.com:integr8ly/tower_dummy_credentials.git"
+# tower_github_scm.yml
+tower_github_scm_password: ''
+# This is a generic private key not used anywhere else. It's just for testing and doesn't belong to anyone.
+tower_github_scm: |
+    -----BEGIN RSA PRIVATE KEY-----
+    MIICWgIBAAKBgGaDr0n+wuZAWNVcWFQXmBW5y16BYuonTR1X4HKLNJuZRKwvIXUr
+    vpCQ51IORcC1Vc+UeaPaML7l5D2mcQcOnWrZ7A6mrdE1Nb4C6OCJ/pMzWf+s3Eqx
+    I8fj5jKtgec/v6o9SUxshV5HW7m7rt5tNhybUmKJQJXh4TXWE6A1stYFAgMBAAEC
+    gYApea+qvVL3OyN1tzXZV+5lI9Ve9/QgDiSJ8arSTPXM2jbJfwwHTtp7vNSKA1I/
+    RF5ibIzGORmtsm8kbjmehFA1jkd+I/3isyAmPww7vvhowy/tCmh/8L0J4sdD/eig
+    MYIuJnKavKUg7uE3n6d9vx1nOF6VzloZIhPqr3mYmhqTxQJBALAt91kQSMm+Fn0l
+    hBZN84dcCwkGWCesTb8ggD+BUFqrejDMqLSE0yHnXgaN0tmjCjS/rALZyMIdZgSM
+    XHRKTJcCQQCU9bptiz1kMGXFSa6pWbZ4kq19XYcpkwa2Fj2QoOYLZUXfWj835uxo
+    6XUyn13A01xXFqfDZH+rsWvlYEv0llnDAkAMdnP03O4JN2Un3SuG2GTNwnkVXlmG
+    FO47AvWPiHpCr7apFREqE+tLjq5cEFRGCP6D1Ls6SGWnNaUt1TAFGexpAkAn7Q1B
+    G1cjKY29qZg1MCSmgLobphv6Wrwrxh5OS7IdT9HAohHby/uFyz1siia47m4LsbjZ
+    uHA39uAypPL25e29AkAFewRAveiihSOmSu3qa97tA7Gqsmvyzd/oOyNSuxxEHWm3
+    vc7mjU2RfU/a+R2CmuzitD83vDr6J6tKxnfSJiQV
+    -----END RSA PRIVATE KEY-----
+
+# tower_ssh.yml
+tower_ssh_user: e2e-test
+tower_ssh_password: ''
+tower_ssh_user_password: ''
+tower_ssh_become_password: e2e-test
+# This is a generic private key not used anywhere else. It's just for testing and doesn't belong to anyone.
+tower_ssh: |
+    -----BEGIN RSA PRIVATE KEY-----
+    MIICWgIBAAKBgGaDr0n+wuZAWNVcWFQXmBW5y16BYuonTR1X4HKLNJuZRKwvIXUr
+    vpCQ51IORcC1Vc+UeaPaML7l5D2mcQcOnWrZ7A6mrdE1Nb4C6OCJ/pMzWf+s3Eqx
+    I8fj5jKtgec/v6o9SUxshV5HW7m7rt5tNhybUmKJQJXh4TXWE6A1stYFAgMBAAEC
+    gYApea+qvVL3OyN1tzXZV+5lI9Ve9/QgDiSJ8arSTPXM2jbJfwwHTtp7vNSKA1I/
+    RF5ibIzGORmtsm8kbjmehFA1jkd+I/3isyAmPww7vvhowy/tCmh/8L0J4sdD/eig
+    MYIuJnKavKUg7uE3n6d9vx1nOF6VzloZIhPqr3mYmhqTxQJBALAt91kQSMm+Fn0l
+    hBZN84dcCwkGWCesTb8ggD+BUFqrejDMqLSE0yHnXgaN0tmjCjS/rALZyMIdZgSM
+    XHRKTJcCQQCU9bptiz1kMGXFSa6pWbZ4kq19XYcpkwa2Fj2QoOYLZUXfWj835uxo
+    6XUyn13A01xXFqfDZH+rsWvlYEv0llnDAkAMdnP03O4JN2Un3SuG2GTNwnkVXlmG
+    FO47AvWPiHpCr7apFREqE+tLjq5cEFRGCP6D1Ls6SGWnNaUt1TAFGexpAkAn7Q1B
+    G1cjKY29qZg1MCSmgLobphv6Wrwrxh5OS7IdT9HAohHby/uFyz1siia47m4LsbjZ
+    uHA39uAypPL25e29AkAFewRAveiihSOmSu3qa97tA7Gqsmvyzd/oOyNSuxxEHWm3
+    vc7mjU2RfU/a+R2CmuzitD83vDr6J6tKxnfSJiQV
+    -----END RSA PRIVATE KEY-----
+
+
+tower_openshift_pg_pvc_size: 10Gi
+# tower_credentials
+tower_environment: e2e
+tower_instance_list:
+  - "e2e"
+
+e2e_tower_host:
+e2e_tower_verify_ssl: False
