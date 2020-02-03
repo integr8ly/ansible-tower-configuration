@@ -1,4 +1,7 @@
 ---
+- include_tasks: e2e_prereq.yml
+  when: tower_environment is defined and tower_environment == 'e2e'
+
 # Authenticate with tower
 - include_tasks: authenticate_tower.yml
 

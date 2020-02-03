@@ -1,0 +1,15 @@
+---
+- name: Get tower route
+  shell: oc get route ansible-tower-web-svc -o template --template \{\{.spec.host\}\} -n "{{ tower_openshift_project }}"
+  register: tower_host
+
+- name: Set tower host
+  set_fact:
+    tower_host: "{{ tower_host.stdout }}"
+
+- name: Wait for tower route to be available
+  shell: "curl https://{{ tower_host }}"
+  register: response
+  retries: 10
+  delay: 20
+  until: '"Application is not available" not in response.stdout'
