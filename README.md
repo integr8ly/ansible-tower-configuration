@@ -277,3 +277,5 @@ Run the make command
 
 ## 7. Contributing
 Please open a Github issue for any bugs or problems you encounter.
+
+TEST DONT MERGE
