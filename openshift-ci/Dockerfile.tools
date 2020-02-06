@@ -5,3 +5,14 @@ RUN yum -y install python-pip ansible-lint \
     && pip install ansible \
     && mkdir /.ansible \
     && chmod g+xw -R /.ansible
+
+RUN wget https://mirror.openshift.com/pub/openshift-v3/clients/3.11.170/linux/oc.tar.gz \
+    && tar xvf oc.tar.gz \
+    && mv oc /usr/local/bin
+
+RUN chmod g=u /etc/passwd /etc/group
+
+RUN mkdir /.kube && chmod g=u /.kube
+RUN touch /.tower_cli.cfg && chmod g=u /.tower_cli.cfg
+
+RUN pip install ansible-tower-cli

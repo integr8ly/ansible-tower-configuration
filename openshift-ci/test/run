@@ -7,9 +7,14 @@
 # The image has to be available before this script is executed.
 #
 
+WORK_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
 docker run --rm --entrypoint=/bin/sh ${IMAGE_NAME} -c 'ansible-playbook --version'
 docker run --rm --entrypoint=/bin/sh ${IMAGE_NAME} -c 'ansible-lint --version'
+docker run --rm --entrypoint=/bin/sh ${IMAGE_NAME} -c 'oc version'
+docker run --rm --entrypoint=/bin/sh ${IMAGE_NAME} -c 'tower-cli --version'
 
 # Add tests here
+docker run --rm -u 1491130000 --env TOWER_PASSWORD --env TOWER_USERNAME --env TOWER_LICENSE --env TOWER_OPENSHIFT_PASSWORD --env OPENSHIFT_MASTER --env TOWER_OPENSHIFT_USERNAME -v "${WORK_DIR}/../..:/ansible-tower-configuration:z" --entrypoint=/bin/sh ${IMAGE_NAME} -c "cd /ansible-tower-configuration && make test/e2e"
 
 echo "SUCCESS!"

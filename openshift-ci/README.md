@@ -16,5 +16,9 @@ ansible-playbook 2.9.2
   executable location = /usr/bin/ansible-playbook
   python version = 2.7.5 (default, Aug  7 2019, 00:51:29) [GCC 4.8.5 20150623 (Red Hat 4.8.5-39)]
 ansible-lint 3.5.1
+oc v3.11.170
+kubernetes v1.11.0+d4cacc0
+features: Basic-Auth GSSAPI Kerberos SPNEGO
+......
 SUCCESS!
 ```
