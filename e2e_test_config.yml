@@ -117,6 +117,3 @@ tower_openshift_pg_pvc_size: 10Gi
 tower_environment: e2e
 tower_instance_list:
   - "e2e"
-
-e2e_tower_host:
-e2e_tower_verify_ssl: False

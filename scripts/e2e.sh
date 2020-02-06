@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
 
-git_ref=$(git rev-parse --short HEAD)
-tower_openshift_project=tower-e2e-"$git_ref"
-
-echo "tower_openshift_project: '"$tower_openshift_project"'" >> e2e_test_config.yml
+echo "tower_openshift_project: '"$TOWER_OPENSHIFT_PROJECT"'" >> e2e_test_config.yml
 echo "tower_openshift_password: '"$TOWER_OPENSHIFT_PASSWORD"'" >> e2e_test_config.yml
 echo "tower_openshift_username: '"$TOWER_OPENSHIFT_USERNAME"'" >> e2e_test_config.yml
 echo "tower_openshift_master_url: '"$OPENSHIFT_MASTER"'" >> e2e_test_config.yml
