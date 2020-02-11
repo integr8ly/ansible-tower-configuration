@@ -75,24 +75,28 @@ A number of default values are used when installing Ansible Tower on the target 
 * `tower_pg_password`: The password required to login to PostgreSQL (default password is `CHANGEME`)
 * `tower_openshift_pg_pvc_size`: Size of Postgres persistent volume. Defaults to `100Gi` which is recommended for production environments
 
-=== Tower Host Name Update
+=== Tower Environment Update
 
-Once the new Tower instance has successfully been installed on the target Openshift cluster, the host name of the new Tower instance must be placed into the `tower_host` variable value, which is located in the `<ENVIRONMENT>_tower_credentials_list.yml` file in the `external_credentials_repo` project.
+Once the new Tower instance has successfully been installed on the target Openshift cluster, details of this environment must be placed into the `<env>_tower_credentials_list.yml` file in the `external_credentials_repo` project.
 
 ```bash
 <env>_tower_host: 'tower.example.com'
+<env>_tower_verify_ssl: False
+<env>_tower_username: '<CHANGEME>'
+<env>_tower_password: '<CHANGEME>'
+<env>_tower_license: '<ENCRYPTED-LICENSE>'
 ```
 
-== Bootstrapping
+== Ansible Tower Bootstrapping
 
-=== Tower Bootstrapping
+=== Bootstrapping Process
 
 The `bootstrap.yml` playbook will run the Prerequisite, Integreatly, Cluster Create, Cluster Teardown, Validation and Notification bootstrap playbooks in succession. These individual playbooks can be run independently if required, with instructions on how to do so in the following sections. The playbook requires the target tower environment to be specified.
 
 * `tower_environment`: The Ansible Tower environment (dev/test/qe etc.)
 
 ```bash
-ansible-playbook -i <path-to-local-credentials-project>/inventories/hosts playbooks/bootstrap.yml -e tower_environment=<tower-environment> --ask-vault-pass
+ansible-playbook -i <path-to-local-credentials-project>/inventories/hosts playbooks/bootstrap.yml -e tower_environment=<env> --ask-vault-pass
 ```
 
 === Openshift Dedicated
@@ -100,116 +104,10 @@ ansible-playbook -i <path-to-local-credentials-project>/inventories/hosts playbo
 If you also wish to bootstrap the tower instance with the OSD integreatly install workflow you need to run this play after running the bootstrap.yml play.
 
 ```bash
-ansible-playbook -i <path-to-local-credentials-project>/inventories/hosts playbooks/bootstrap_osd_integreatly_install.yml -e tower_environment=<tower-environment> --ask-vault-pass
+ansible-playbook -i <path-to-local-credentials-project>/inventories/hosts playbooks/bootstrap_osd_integreatly_install.yml -e tower_environment=<env> --ask-vault-pass
 ```
 
-This will create the resources necessary to use the *Integreatly_Bootstrap_and_install_[OSD]* workflow which will install Integreatly on a targeted OSD cluster.
-
-=== Prerequisite Bootstrapping
-
-Prior to running any jobs stored in this repository, the target Ansible tower instance must first be bootstrapped with some generic resources. The playbook requires the target tower environment to be specified.
-
-* `tower_environment`: The Ansible Tower environment (dev/test/qe)
-
-```bash
-ansible-playbook -i <path-to-local-credentials-project>/inventories/hosts playbooks/bootstrap_tower.yml -e tower_environment=<tower-environment>
-```
-
-=== Integreatly Bootstrapping
-
-The `bootstrap_integreatly.yml` playbook will bootstrap a target Ansible Tower instance with all resources required to execute a workflow that allows end users to install Integreatly against a specified Openshift cluster. Note: This is currently limited to clusters that are provisioned via the Tower cluster provision workflow.
-
-There are no additional parameters required by default:
-
-```bash
-ansible-playbook -i <path-to-local-credentials-project>/hosts playbooks/bootstrap_integreatly.yml --ask-vault-pass
-```
-
-=== Integreatly Install
-
-Following the bootstrapping of Integreatly resources, a new workflow named `Integreatly Install Workflow` should be available from the Tower console:
-
-The workflow requires the following parameters to be specified before running:
-
-* `Cluster Name`: The name/ID of the Openshift cluster to target
-* `Openshift Master URL`: The Public URL of the Openshift Master
-* `Cluster Admin Username`: The username of a cluster-admin account on the target Openshift cluster
-* `Cluster Admin Password`: The password of the cluster admin user account specified
-* `GIT URL`: The URL of the target Integreatly installer Git repository
-* `GIT Ref`: Git reference for Integreatly installer repository
-* `User Count`: The number of users to pre-seed the Integreatly environment with
-* `Self Signed Certs`: Set to `false` by default. Set to `true` if the target Openshift cluster uses self signed certificates
-
-=== Integreatly Uninstall
-
-Following the bootstrapping of Integreatly resources, a new workflow named `Integreatly Uninstall Workflow` should be available from the Tower console:
-
-The workflow requires the following parameters to be specified before running:
-
-* `Cluster Name`: The name/ID of the Openshift cluster to target
-* `Openshift Master URL`: The Public URL of the Openshift Master
-* `Cluster Admin Username`: The username of a cluster-admin account on the target Openshift cluster
-* `Cluster Admin Password`: The password of the cluster admin user account specified
-* `GIT URL`: The URL of the target Integreatly installer Git repository
-* `GIT Ref`: Git reference for Integreatly installer repository
-
-=== Cluster Create
-
-Once the tower bootstrapping has been run you can bootstrap the cluster create resources. To create all the resources necessary to run a cluster create you must run the `bootstrap_cluster_create.yml` playbook. The playbook doesn't take any extra variables so the command to run is:
-
-```bash
-ansible-playbook -i <path-to-local-credentials-project>/hosts playbooks/bootstrap_cluster_create.yml --ask-vault-pass
-```
-
-Once the cluster provision resources have been bootstrapped, a new workflow named `Provision Cluster` should be available from the Tower console:
-
-The workflow requires the following parameters to be specified before running:
-
-* `Cluster Name`: The name/ID of the Openshift cluster to target
-* `AWS Region`: The region to create the cluster in
-* `Domain Name`: The domain name to be used to create the cluster
-* `AWS Account Name`: The name of the AWS account to be used to create the cluster
-
-=== Cluster Deprovision
-
-Once the tower bootstrapping has been run you can bootstrap the cluster deprovision resources. To create all the resources necessary to run a cluster deprovision you must run the `bootstrap_cluster_teardown.yml` playbook. The playbook doesn't take any extra variables so the command to run is:
-
-```bash
-ansible-playbook -i <path-to-local-credentials-project>/hosts playbooks/bootstrap_cluster_teardown.yml -ask-vault-pass
-```
-
-Once the cluster deprovision resources have been bootstrapped, a new workflow named `Deprovision Cluster` should be available from the Tower console:
-
-The workflow requires the following parameters to be specified before running:
-
-* `Cluster Name`: The name/ID of the Openshift cluster to target
-* `AWS Region`: The region that the cluster resides in
-* `Domain Name`: The cluster domain name
-* `AWS Account Name`: The name of the AWS account used to create the cluster
-
-=== Validation Bootstrapping
-
-The `bootstrap_validation.yml` playbook will bootstrap the target Ansible Tower instance with the resources required to compare the variables in the supplied repository with the variables in the https://github.com/integr8ly/tower_dummy_credentials[external credentials repository].
-
-```bash
-ansible-playbook -i <path-to-local-credentials-project>/hosts playbooks/bootstrap_validation.yml -ask-vault-pass
-```
-
-Once the bootstrapping process has completed, a new job template named `Compare Project Variables` will be available, which  requires the following parameters to be specified via the survey before running:
-
-* `Tower Dummy Credentials Repository Branch`: The branch of the tower dummy credentials project
-* `Comparison Project Name`: The name of the project to compare against
-* `Comparison Project SSH URL`: The Github SSH URL of the project to compare
-* `Comparison Project Branch`: The branch of the comparison project to used in the comparison
-* `Inventory Path`: The inventory source path of the variables in the comparison project
-
-=== Notifications Bootstrapping
-
-The `bootstrap_notifications.yml` playbook will bootstrap the target Ansible Tower instance with resources required to send an email notification if the https://github.com/integr8ly/ansible-tower-configuration#validation-bootstrapping[validation job] fails. A scheduled job named `Credential Repositories Sync` that runs the `Compare Project Variables` job template is also created, with this scheduled job being disabled default.
-
-```bash
-ansible-playbook -i <path-to-local-credentials-project>/hosts playbooks/bootstrap_notifications.yml -ask-vault-pass
-```
+This will create a set of OSD specific workflow templates used for the install, uninstall and upgrading of RHMI on OSD.
 
 == Performance Tuning
 
