@@ -38,7 +38,6 @@ tower_credential_bundle_github_desc: "Default Tower Credential Bundle for Github
 tower_credential_bundle_github_type: 'scm'
 
 tower_credential_bundle_aws_type: "aws"
-aws_credential_list: []
 
 # Extra Credentials Required by CS SRE
 custom_credential_bundle_bastion_ssh_name: 'osd_bastion_ssh'
