@@ -129,7 +129,6 @@
       has_expired: no
     ignore_errors: yes
     register: cert_validity
-    when: crt_result.stat.exists == true
 
   - name: "Check {{ apps_cluster_url }} certificate expiration"
     openssl_certificate:
@@ -138,7 +137,6 @@
       has_expired: no
     ignore_errors: yes
     register: app_cert_validity
-    when: app_crt_result.stat.exists == true
 
   - name: "Clean up expired {{ base_cluster_url }} cert and key"
     block:
