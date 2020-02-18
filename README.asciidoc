@@ -17,6 +17,7 @@ toc::[]
 
 == Credentials repository
 
+A VERY IMPORTANT CHANGE
 
 This project uses an https://github.com/integr8ly/tower_dummy_credentials[external credentials repository] as it's inventory source which also includes all of the variables required and the password to be used for the running of the playbooks in the project.
 
