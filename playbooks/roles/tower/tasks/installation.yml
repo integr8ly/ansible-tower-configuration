@@ -6,16 +6,6 @@
   register: tower_project_exists
   failed_when: tower_project_exists.stderr != '' and 'AlreadyExists' not in tower_project_exists.stderr
 
-- name: 'Copy the limit_range template'
-  template:
-    src: 'limit_range.yml.j2'
-    dest: '/tmp/limit_range.yml'
-
-- name: Create a new limit range resource
-  shell: "oc replace -f /tmp/limit_range.yml -n {{ tower_openshift_project }}"
-  register: limit_range_exists
-  failed_when: limit_range_exists.stderr != '' and 'AlreadyExists' not in limit_range_exists.stderr
-
 - name: 'Copy the tower_pvc template'
   template:
     src: 'tower_pvc.yml.j2'
@@ -39,6 +29,21 @@
   template:
     src: 'installation_vars.yml.j2'
     dest: '/tmp/installation_vars.yml'
+
+- name: Remove limits if running in cicd
+  shell: "oc delete limitranges  resource-limits -n {{ tower_openshift_project }}"
+  ignore_errors: yes
+  when: cicd
+
+- name: 'Copy the limit_range template'
+  template:
+    src: 'limit_range.yml.j2'
+    dest: '/tmp/limit_range.yml'
+
+- name: Create a new limit range resource
+  shell: "oc replace -f /tmp/limit_range.yml -n {{ tower_openshift_project }}"
+  register: limit_range_exists
+  failed_when: limit_range_exists.stderr != '' and 'AlreadyExists' not in limit_range_exists.stderr
 
 - name: Run the Tower installation playbook
   shell: ansible-playbook -i inventory install.yml --extra-vars "@/tmp/installation_vars.yml"

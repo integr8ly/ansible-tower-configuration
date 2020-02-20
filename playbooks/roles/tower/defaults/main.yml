@@ -141,14 +141,23 @@ tower_rabbitmq_user: 'awx'
 tower_rabbitmq_password: CHANGEME
 tower_rabbitmq_erlang_cookie: cookiemonster_integreatly_77
 
-tower_web_mem_request: 2
-tower_web_cpu_request: 1500
-tower_task_mem_request: 2
-tower_task_cpu_request: 1500
-tower_rabbitmq_mem_request: 2
-tower_rabbitmq_cpu_request: 500
-tower_memcached_mem_request: 1
-tower_memcached_cpu_request: 500
+tower_web_mem_request: 3
+tower_web_cpu_request: 1000
+tower_task_mem_request: 3
+tower_task_cpu_request: 1000
+tower_rabbitmq_mem_request: 3
+tower_rabbitmq_cpu_request: 1000
+tower_memcached_mem_request: 3
+tower_memcached_cpu_request: 1000
+
+tower_web_mem_limit: 3
+tower_web_cpu_limit: 1500
+tower_task_mem_limit: 3
+tower_task_cpu_limit: 1500
+tower_rabbitmq_mem_limit: 3
+tower_rabbitmq_cpu_limit: 1500
+tower_memcached_mem_limit: 3
+tower_memcached_cpu_limit: 1500
 
 tower_kubernetes_rabbitmq_version: "3.7.4"
 tower_kubernetes_rabbitmq_image: registry.access.redhat.com/ansible-tower-35/ansible-tower-messaging
@@ -170,8 +179,8 @@ tower_docker_compose_dir: /var/lib/awx
 tower_openshift_pg_pvc_name: postgresql
 tower_openshift_pg_pvc_size: 100Gi
 
-tower_default_cpu: 1500m
-tower_default_memory: 2Gi
+tower_default_cpu: 2
+tower_default_memory: 3Gi
 
 tower_secret_key: CHANGEME
 
