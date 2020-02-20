@@ -23,6 +23,16 @@ rabbitmq_cpu_request: "{{ tower_rabbitmq_cpu_request }}"
 memcached_mem_request: "{{ tower_memcached_mem_request }}"
 memcached_cpu_request: "{{ tower_rabbitmq_cpu_request }}"
 
+web_mem_limit: "{{ tower_web_mem_limit }}"
+web_cpu_limit: "{{ tower_web_cpu_limit }}"
+task_cpu_limit: "{{ tower_task_cpu_limit }}"
+task_mem_limit: "{{ tower_task_mem_limit }}"
+rabbitmq_cpu_limit: "{{ tower_rabbitmq_cpu_limit }}"
+rabbitmq_mem_limit: "{{ tower_rabbitmq_mem_limit }}"
+memcached_cpu_limit: "{{ tower_memcached_cpu_limit }}"
+memcached_mem_limit: "{{ tower_memcached_mem_limit }}"
+
+
 dockerhub_base: "{{ tower_dockerhub_base }}"
  
 # Openshift Install
