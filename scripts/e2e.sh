@@ -15,6 +15,9 @@ echo "tower_openshift_username: '"$TOWER_OPENSHIFT_USERNAME"'" >> e2e_test_confi
 echo "tower_openshift_master_url: '"$OPENSHIFT_MASTER"'" >> e2e_test_config.yml
 
 if [ -f /.dockerenv ]; then
+    echo "HOME: ${HOME}"
+    pwd=$(pwd)
+    echo "PWD: ${pwd}"
     echo "tempuser:x:$(id -u):$(id -g):,,,:${HOME}:/bin/bash" >> /etc/passwd
     echo "tempuser:x:$(id -G | cut -d' ' -f 2)" >> /etc/group
 fi
