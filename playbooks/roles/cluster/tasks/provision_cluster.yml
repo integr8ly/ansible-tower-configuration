@@ -179,16 +179,6 @@
   #
   # LetsEncrypt cert generation
   #
-  - name: Make sure account exists and has given contacts. We agree to TOS.
-    acme_account:
-        account_key_content: "{{ letsencrypt_private_key }}"
-        state: present
-        terms_agreed: yes
-        acme_version: 2
-        acme_directory: "{{ acme_directory_url }}"
-        contact:
-        - mailto: "{{ cert_email_address }}"
-
   - name: Create directory for certs
     file:
         path: "/tmp/{{ oo_clusterid }}/certs"
