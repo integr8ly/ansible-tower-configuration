@@ -217,6 +217,7 @@
           dest: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ base_cluster_url }}.crt
           challenge: dns-01
           acme_directory: "{{ acme_directory_url }}"
+          terms_agreed: yes
         register: base_cluster_challenge
       - set_fact:
           challenges:
@@ -244,6 +245,7 @@
           chain: /tmp/{{ oo_clusterid }}/certs/rootCA.pem
           challenge: dns-01
           acme_directory: "{{ acme_directory_url }}"
+          terms_agreed: yes
           remaining_days: 60
           data: "{{ base_cluster_challenge }}"
       - route53:
@@ -269,6 +271,7 @@
           dest: /tmp/{{ oo_clusterid }}/certs/wildcard.{{ apps_cluster_url }}.crt
           challenge: dns-01
           acme_directory: "{{ acme_directory_url }}"
+          terms_agreed: yes
         register: apps_cluster_challenge
       - set_fact:
           challenges:
@@ -297,6 +300,7 @@
           challenge: dns-01
           acme_directory: "{{ acme_directory_url }}"
           remaining_days: 60
+          terms_agreed: yes
           data: "{{ apps_cluster_challenge }}"
       - route53:
           zone: "{{ domain }}"
