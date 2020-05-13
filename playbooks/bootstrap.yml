@@ -4,6 +4,8 @@
   tasks:
     - include_vars:
         ./roles/tower/defaults/main.yml
+    - include_vars:
+        ./roles/cluster/defaults/main.yml
 
     - name: "Confirmation prompt for bootstrapping master"
       pause:
